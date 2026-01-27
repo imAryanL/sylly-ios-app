@@ -34,7 +34,7 @@ struct AppColors {
 }
 
 // MARK: - SF Symbols for Courses
-struct AppIcons {// We used .fill versions in Figma because they look better in colored boxes!
+struct AppIcons {   // icons that will be used in this app  for courses 
     static let courseIcons: [String] = [
         "book.closed.fill",           // Book/Reading
         "brain.head.profile",         // Psychology/AI
@@ -98,6 +98,7 @@ struct AppIcons {// We used .fill versions in Figma because they look better in 
     static let photo = "photo"
     static let flash = "bolt.fill"
     static let close = "xmark"
+    static let sparkles = "sparkles"
 }
 
 // MARK: - Assignment Types
