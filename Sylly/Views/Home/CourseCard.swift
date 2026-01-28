@@ -10,6 +10,21 @@ struct CourseCard: View {
     
     let course: Course
     
+    private func colorFromString(_ colorName: String) -> Color {
+        switch colorName.lowercased() {
+        case "brandprimary": return Color("BrandPrimary")
+        case "red": return .red
+        case "green": return .green
+        case "orange": return .orange
+        case "blue": return .blue
+        case "pink": return .pink
+        case "purple": return .purple
+        case "black": return .black
+        case "gray": return .gray
+        default: return Color("BrandPrimary")
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 12) {
             
@@ -18,7 +33,7 @@ struct CourseCard: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .frame(width: 50, height: 50)
-                .background(Color(course.color))
+                .background(colorFromString(course.color))
                 .cornerRadius(10)
             
             // Course info
@@ -38,6 +53,8 @@ struct CourseCard: View {
                         Text("•")
                         Text(dueText(for: nextAssignment))
                             .foregroundColor(urgencyColor(for: nextAssignment))
+                            .fontWeight(.bold)
+                            
                     }
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -123,7 +140,6 @@ struct CourseCard: View {
     )
     
     // show the CourseCard using that fake data
-    
     return CourseCard(course: course)
         .padding() // Add space around the card so it's easy to see
 }

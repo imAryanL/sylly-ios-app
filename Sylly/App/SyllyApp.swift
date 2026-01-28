@@ -12,7 +12,7 @@ import SwiftData
 struct SyllyApp: App {
     var body: some Scene {
         WindowGroup {
-            // This is the first screen the user sees (your 3-tab layout)
+            // This is the first screen the user sees (3-tab layout)
             ContentView()
         }
         // This creates the REAL database for your Courses and Assignments

@@ -46,6 +46,35 @@ struct HomeView: View {
         
         let courses: [Course]
         
+        // HELPER: This calculates the 'next priority' date for an individual course
+        private func getNextDueDate(for course: Course) -> Date {
+            
+            // FILTER: Focused on only homework that isn't done yet
+            // AND has a deadline in the future (ignores past-due or finished work)
+            let upcoming = course.assignments
+                .filter { !$0.isCompleted && $0.dueDate > Date() }
+                
+                // SORT: Line them up by date so the soonest one is at index [0]
+                // ($0 < $1) means 'earlier date comes first'
+                .sorted { $0.dueDate < $1.dueDate }
+            
+            // RETURN: Give back the very first (most urgent) date
+            // If there is no upcoming work, return 'distantFuture'
+            // so this course sinks to the bottom of home screen
+            return upcoming.first?.dueDate ?? Date.distantFuture
+        }
+
+        // UI LOGIC: This rearranges the courses on your screen based on their urgency
+        private var sortedCourses: [Course] {
+            courses.sorted { course1, course2 in
+                let date1 = getNextDueDate(for: course1)
+                let date2 = getNextDueDate(for: course2)
+                
+                // Return true if course1 is due sooner than course2
+                return date1 < date2
+            }
+        }
+        
         var body: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -55,7 +84,7 @@ struct HomeView: View {
                         .padding(.horizontal)
                     
                     // For every course in database, it generates one CourseCard. If there's 5 courses, it makes 5 cards
-                    ForEach(courses) { course in
+                    ForEach(sortedCourses) { course in
                         NavigationLink(destination: Text("Course Detail Coming Soon")) {
                             CourseCard(course: course)
                         }
@@ -85,8 +114,64 @@ struct HomeView: View {
 
 
 #Preview {
-    HomeView()
-        // This sets up a temporary database so the Preview can show fake data while I design the UI.
-        .modelContainer(for: Course.self, inMemory: true)
+    // Create a preview with sample data
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Course.self, Assignment.self, configurations: config)
     
+    // Add sample courses
+    let course1 = Course(
+        name: "Intro to AI",
+        code: "CAP 4630",
+        icon: "brain.head.profile",
+        color: "blue"
+    )
+    
+    let course2 = Course(
+        name: "English 2",
+        code: "ENC 1102",
+        icon: "book.closed.fill",
+        color: "orange"
+    )
+    
+    let course3 = Course(
+        name: "Life Science",
+        code: "BSC 1005",
+        icon: "leaf.fill",
+        color: "green"
+    )
+    
+    // Add sample assignments to course1
+    let assignment1 = Assignment(
+        title: "Midterm Exam",
+        dueDate: Calendar.current.date(byAdding: .day, value: 2, to: Date())!,
+        type: "exam"
+    )
+    assignment1.course = course1
+    course1.assignments.append(assignment1)
+    
+    // Add sample assignment to course2
+    let assignment2 = Assignment(
+        title: "Essay",
+        dueDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
+        type: "homework"
+    )
+    assignment2.course = course2
+    course2.assignments.append(assignment2)
+    
+    // Add sample assignment to course3
+    let assignment3 = Assignment(
+        title: "Lab Report",
+        dueDate: Calendar.current.date(byAdding: .day, value: 14, to: Date())!,
+        type: "project"
+    )
+    assignment3.course = course3
+    course3.assignments.append(assignment3)
+    
+    // Insert into container
+    container.mainContext.insert(course1)
+    container.mainContext.insert(course2)
+    container.mainContext.insert(course3)
+    
+    return HomeView()
+        .modelContainer(container)
 }

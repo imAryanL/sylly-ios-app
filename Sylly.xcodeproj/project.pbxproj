@@ -13,6 +13,10 @@
 		924B9EDB2F26FDF5001C7C66 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDA2F26FDF5001C7C66 /* Constants.swift */; };
 		924B9EDD2F2731E6001C7C66 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDC2F2731E6001C7C66 /* Course.swift */; };
 		924B9EDF2F274080001C7C66 /* Assignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDE2F274080001C7C66 /* Assignment.swift */; };
+		926603722F2948BC006D0863 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926603712F2948BC006D0863 /* ScheduleView.swift */; };
+		926603742F2948E1006D0863 /* WeekStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926603732F2948E1006D0863 /* WeekStripView.swift */; };
+		926603762F29493A006D0863 /* ScheduleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926603752F29493A006D0863 /* ScheduleCard.swift */; };
+		926603782F29495D006D0863 /* EmptyScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926603772F29495D006D0863 /* EmptyScheduleView.swift */; };
 		92A1DB2F2F2823D20009D82F /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A1DB2E2F2823D20009D82F /* HomeView.swift */; };
 		92A1DB332F28373F0009D82F /* EmptyHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A1DB322F28373F0009D82F /* EmptyHomeView.swift */; };
 		92A1DB352F283C430009D82F /* CourseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A1DB342F283C430009D82F /* CourseCard.swift */; };
@@ -26,6 +30,10 @@
 		924B9EDA2F26FDF5001C7C66 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		924B9EDC2F2731E6001C7C66 /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		924B9EDE2F274080001C7C66 /* Assignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assignment.swift; sourceTree = "<group>"; };
+		926603712F2948BC006D0863 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
+		926603732F2948E1006D0863 /* WeekStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekStripView.swift; sourceTree = "<group>"; };
+		926603752F29493A006D0863 /* ScheduleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCard.swift; sourceTree = "<group>"; };
+		926603772F29495D006D0863 /* EmptyScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyScheduleView.swift; sourceTree = "<group>"; };
 		92A1DB2E2F2823D20009D82F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		92A1DB322F28373F0009D82F /* EmptyHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyHomeView.swift; sourceTree = "<group>"; };
 		92A1DB342F283C430009D82F /* CourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseCard.swift; sourceTree = "<group>"; };
@@ -175,6 +183,10 @@
 		924B9ED72F26F8B2001C7C66 /* Schedule */ = {
 			isa = PBXGroup;
 			children = (
+				926603712F2948BC006D0863 /* ScheduleView.swift */,
+				926603732F2948E1006D0863 /* WeekStripView.swift */,
+				926603752F29493A006D0863 /* ScheduleCard.swift */,
+				926603772F29495D006D0863 /* EmptyScheduleView.swift */,
 			);
 			path = Schedule;
 			sourceTree = "<group>";
@@ -259,11 +271,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				924B9EDD2F2731E6001C7C66 /* Course.swift in Sources */,
+				926603782F29495D006D0863 /* EmptyScheduleView.swift in Sources */,
 				92131AAF2F25F08C00276418 /* ContentView.swift in Sources */,
 				92131AB02F25F08C00276418 /* SyllyApp.swift in Sources */,
 				92A1DB332F28373F0009D82F /* EmptyHomeView.swift in Sources */,
 				92A1DB2F2F2823D20009D82F /* HomeView.swift in Sources */,
+				926603722F2948BC006D0863 /* ScheduleView.swift in Sources */,
 				924B9EDF2F274080001C7C66 /* Assignment.swift in Sources */,
+				926603762F29493A006D0863 /* ScheduleCard.swift in Sources */,
+				926603742F2948E1006D0863 /* WeekStripView.swift in Sources */,
 				92A1DB352F283C430009D82F /* CourseCard.swift in Sources */,
 				924B9EDB2F26FDF5001C7C66 /* Constants.swift in Sources */,
 			);
