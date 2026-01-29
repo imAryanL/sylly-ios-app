@@ -17,8 +17,9 @@ class Course {
     var icon: String
     var color: String
     var createdAt: Date // exact date and time this course was created
-    
-    
+    var hasError: Bool  // indicates if scanning the syllabus had an error
+
+
     // 'Relationship' - connection to other data, the setup process for a new Course
     @Relationship(deleteRule: .cascade)   // 'cascade' means if you delete the Course, all its Assignments are deleted too
     var assignments: [Assignment] = []   // each course has a list of assignments, right now the assignment list is empty
@@ -29,7 +30,8 @@ class Course {
         name: String,
         code: String,
         icon: String = "book.closed.fill",
-        color: String = "BrandPrimary"
+        color: String = "BrandPrimary",
+        hasError: Bool = false  // defaults to false (no error)
     ){
         // This part is where the AI views and writes the information from the user sending their Syllabus form
         self.id = UUID()
@@ -38,6 +40,7 @@ class Course {
         self.icon = icon
         self.color = color
         self.createdAt = Date()
+        self.hasError = hasError  // set the error status
     }
 
 }

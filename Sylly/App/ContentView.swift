@@ -28,7 +28,7 @@ struct ContentView: View {
                 .tag(1)
             
             // Tab 3: Calendar/Schedule
-            ScheduleView()  // ← Updated this line
+            ScheduleView()  
                 .tabItem {
                     Image(systemName: AppIcons.calendarTab)
                     Text("Calendar")

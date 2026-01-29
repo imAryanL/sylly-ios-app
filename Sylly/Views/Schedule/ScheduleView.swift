@@ -7,9 +7,11 @@ import SwiftUI
 import SwiftData
 
 struct ScheduleView: View {
+    // MARK: - Database
     @Query private var assignments: [Assignment]
     @State private var selectedDate: Date = Date()
-    
+
+    // MARK: - Body
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -43,8 +45,8 @@ struct ScheduleView: View {
             .navigationTitle("Schedule")
         }
     }
-    
-    // Filter assignments for the selected date
+
+    // MARK: - Computed Property: Assignments for Selected Date
     private var assignmentsForSelectedDate: [Assignment] {
         // Use Apple's Calendar tool to check if the assignment day matches the clicked day
         // We use 'isDate' because it ignores the Time (hours/mins) and only compares the Day
@@ -72,6 +74,7 @@ struct FilledScheduleView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     ScheduleView()
             // wrap it in a 'Data Provider' so the @Query doesn't crash

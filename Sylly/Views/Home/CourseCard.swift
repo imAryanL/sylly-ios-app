@@ -7,9 +7,10 @@
 import SwiftUI
 
 struct CourseCard: View {
-    
+
     let course: Course
-    
+
+    // MARK: - Helper: Color from String
     private func colorFromString(_ colorName: String) -> Color {
         switch colorName.lowercased() {
         case "brandprimary": return Color("BrandPrimary")
@@ -24,7 +25,8 @@ struct CourseCard: View {
         default: return Color("BrandPrimary")
         }
     }
-    
+
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 12) {
             
@@ -76,10 +78,10 @@ struct CourseCard: View {
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 5)
         .padding(.horizontal)
-        
+
     }
-    
-    // This function finds the one assignment you should work on next
+
+    // MARK: - Helper: Next Assignment
     private func getNextAssignment() -> Assignment? {
         let upcoming = course.assignments
             // Filter: Throw away tasks that are finished or past due
@@ -90,8 +92,8 @@ struct CourseCard: View {
         // Picking the very first assignment from the sorted list
         return upcoming.first
     }
-    
-    // This turns a date into a simple sentence like "in 3 days"
+
+    // MARK: - Helper: Due Text
     private func dueText(for assignment: Assignment) -> String {
         // Count how many days are between 'Right Now' and the 'Due Date'
         let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
@@ -110,8 +112,8 @@ struct CourseCard: View {
                     return "in \(days / 7) weeks"
                 }
     }
-    
-    // This chooses a color based on how close the deadline is
+
+    // MARK: - Helper: Urgency Color
     private func urgencyColor(for assignment: Assignment) -> Color {
     let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
         
@@ -129,8 +131,9 @@ struct CourseCard: View {
         }
     }
 
+// MARK: - Preview
 #Preview {
-    
+
     // Mock data to view the preview window screen
     let course = Course(
         name: "Intro to AI",

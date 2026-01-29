@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct EmptyScheduleView: View {
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 16) {
             Spacer()
@@ -43,6 +44,7 @@ struct EmptyScheduleView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     EmptyScheduleView()
 }

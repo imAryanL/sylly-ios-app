@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct EmptyHomeView: View {
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 20) {
             Spacer()
-            
-            // Placeholder icon
+
             Image(systemName: "sparkles")
                 .font(.system(size: 100))
                 .foregroundColor(AppColors.primary)
@@ -26,7 +26,8 @@ struct EmptyHomeView: View {
                 .foregroundColor(.secondary)
             
             Spacer()
-            
+
+            // MARK: - Scan Button
             Button(action: {
               // This is where I'll eventually put the code to open the camera
             }) {
@@ -45,6 +46,7 @@ struct EmptyHomeView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     EmptyHomeView()
 }

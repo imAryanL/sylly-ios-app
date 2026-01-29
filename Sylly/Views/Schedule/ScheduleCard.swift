@@ -7,7 +7,8 @@ import SwiftUI
 
 struct ScheduleCard: View {
     let assignment: Assignment
-    
+
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 12) {
             
@@ -55,8 +56,8 @@ struct ScheduleCard: View {
         .shadow(color: .black.opacity(0.05), radius: 5)
         .padding(.horizontal)
     }
-    
-    // HELPER: Translates the color name stored in the database into actual UI color
+
+    // MARK: - Helper: Get Color
     private func getColor(from colorName: String) -> Color {
         switch colorName.lowercased() {
         case "brandprimary": return Color("BrandPrimary")
@@ -71,8 +72,8 @@ struct ScheduleCard: View {
         default: return Color("BrandPrimary") // Fallback color if something goes wrong
         }
     }
-    
-    // HELPER: Extracts just the hour and minute from the full Date timestamp
+
+    // MARK: - Helper: Get Time String
     private func getTimeString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"  // "2:00 PM" // Tells Swift: "Give me '2:00 PM' format"
@@ -80,6 +81,7 @@ struct ScheduleCard: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     // Create fake course
     let course = Course(

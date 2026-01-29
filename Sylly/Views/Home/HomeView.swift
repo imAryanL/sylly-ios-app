@@ -8,13 +8,13 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    
+    // MARK: - Database
     // Query tells the app to go into the database and find every 'Course' you have saved and put them in a new list called 'courses'
     @Query private var courses: [Course]
-    
-    
+
+    // MARK: - Body
     var body: some View {
-        
+
         NavigationStack { // componenet that handles the sliding animation to the next screen when tapping on a course card
             Group {
                 if courses.isEmpty {
@@ -40,14 +40,15 @@ struct HomeView: View {
         }
     }
 }
-    
+
+// MARK: - Filled Home View
 // This part defines what the screen looks like when there are courses
-    struct FilledHomeView: View {
-        
-        let courses: [Course]
-        
-        // HELPER: This calculates the 'next priority' date for an individual course
-        private func getNextDueDate(for course: Course) -> Date {
+struct FilledHomeView: View {
+
+    let courses: [Course]
+
+    // MARK: - Helper: Next Due Date
+    private func getNextDueDate(for course: Course) -> Date {
             
             // FILTER: Focused on only homework that isn't done yet
             // AND has a deadline in the future (ignores past-due or finished work)
@@ -64,7 +65,7 @@ struct HomeView: View {
             return upcoming.first?.dueDate ?? Date.distantFuture
         }
 
-        // UI LOGIC: This rearranges the courses on your screen based on their urgency
+        // MARK: - Computed Property: Sorted Courses
         private var sortedCourses: [Course] {
             courses.sorted { course1, course2 in
                 let date1 = getNextDueDate(for: course1)
@@ -74,7 +75,8 @@ struct HomeView: View {
                 return date1 < date2
             }
         }
-        
+
+        // MARK: - Body
         var body: some View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -85,7 +87,7 @@ struct HomeView: View {
                     
                     // For every course in database, it generates one CourseCard. If there's 5 courses, it makes 5 cards
                     ForEach(sortedCourses) { course in
-                        NavigationLink(destination: Text("Course Detail Coming Soon")) {
+                        NavigationLink(destination: CourseDetailView(course: course)) {
                             CourseCard(course: course)
                         }
                         .buttonStyle(.plain)
@@ -112,7 +114,7 @@ struct HomeView: View {
         }
     }
 
-
+// MARK: - Preview
 #Preview {
     // Create a preview with sample data
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

@@ -7,7 +7,8 @@ import SwiftUI
 
 struct WeekStripView: View {
     @Binding var selectedDate: Date
-    
+
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 0) {
             // THE LOOP: Runs getWeekDates() to get a list of 5 dates,
@@ -25,8 +26,8 @@ struct WeekStripView: View {
         .padding(.horizontal)
         .padding(.top, 8)
     }
-    // THE 5-DAY CALCULATOR: Manually creates a 'window' of time around 'Today'.
-    // Get 5 days: 2 days before today, today, 2 days after
+
+    // MARK: - Helper: Week Dates
     private func getWeekDates() -> [Date] {
         let today = Date()
         
@@ -39,9 +40,8 @@ struct WeekStripView: View {
             
             return [day1, day2, day3, day4, day5]
         }
-    
-    // Check if two dates are the same day
-    // use this to group assignments by the DAY, so that a 2:00 PM deadline and a 5:00 PM deadline both show up on the same Wednesday list
+
+    // MARK: - Helper: Same Day Check
     private func isSameDay(date1: Date, date2: Date) -> Bool {
         Calendar.current.isDate(date1, inSameDayAs: date2)
     }
@@ -93,6 +93,7 @@ struct DayButton: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     WeekStripView(selectedDate: .constant(Date()))
 }
