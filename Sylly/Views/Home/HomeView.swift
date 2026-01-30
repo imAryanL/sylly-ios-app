@@ -26,14 +26,11 @@ struct HomeView: View {
             .navigationTitle("Sylly")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: Text("Settings Coming Soon")) {
+                    NavigationLink(destination: SettingsView()) {
                         Image(systemName: AppIcons.settings)
                             .foregroundColor(AppColors.primary)
                             .fontWeight(.bold)
-                            
-                        
                     }
-                    
                 }
                 
             }

@@ -10,6 +10,8 @@
 		92131AAE2F25F08C00276418 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 92131AAA2F25F08C00276418 /* Assets.xcassets */; };
 		92131AAF2F25F08C00276418 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92131AAB2F25F08C00276418 /* ContentView.swift */; };
 		92131AB02F25F08C00276418 /* SyllyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92131AAC2F25F08C00276418 /* SyllyApp.swift */; };
+		921A1AFC2F2C0F4A004694BC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921A1AFB2F2C0F4A004694BC /* SettingsView.swift */; };
+		921A1AFE2F2C53B9004694BC /* CalendarPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921A1AFD2F2C53B9004694BC /* CalendarPickerView.swift */; };
 		924B9EDB2F26FDF5001C7C66 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDA2F26FDF5001C7C66 /* Constants.swift */; };
 		924B9EDD2F2731E6001C7C66 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDC2F2731E6001C7C66 /* Course.swift */; };
 		924B9EDF2F274080001C7C66 /* Assignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDE2F274080001C7C66 /* Assignment.swift */; };
@@ -32,6 +34,8 @@
 		92131AAA2F25F08C00276418 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		92131AAB2F25F08C00276418 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		92131AAC2F25F08C00276418 /* SyllyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyllyApp.swift; sourceTree = "<group>"; };
+		921A1AFB2F2C0F4A004694BC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		921A1AFD2F2C53B9004694BC /* CalendarPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarPickerView.swift; sourceTree = "<group>"; };
 		924B9EDA2F26FDF5001C7C66 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		924B9EDC2F2731E6001C7C66 /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		924B9EDE2F274080001C7C66 /* Assignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assignment.swift; sourceTree = "<group>"; };
@@ -209,6 +213,8 @@
 		924B9ED82F26F8BB001C7C66 /* Settings  */ = {
 			isa = PBXGroup;
 			children = (
+				921A1AFB2F2C0F4A004694BC /* SettingsView.swift */,
+				921A1AFD2F2C53B9004694BC /* CalendarPickerView.swift */,
 			);
 			path = "Settings ";
 			sourceTree = "<group>";
@@ -288,9 +294,11 @@
 				92F1E5112F2B010500A14A6D /* CourseErrorView.swift in Sources */,
 				924B9EDD2F2731E6001C7C66 /* Course.swift in Sources */,
 				926603782F29495D006D0863 /* EmptyScheduleView.swift in Sources */,
+				921A1AFC2F2C0F4A004694BC /* SettingsView.swift in Sources */,
 				92131AAF2F25F08C00276418 /* ContentView.swift in Sources */,
 				92F1E50D2F2AF8F900A14A6D /* AssignmentDetailRow.swift in Sources */,
 				92131AB02F25F08C00276418 /* SyllyApp.swift in Sources */,
+				921A1AFE2F2C53B9004694BC /* CalendarPickerView.swift in Sources */,
 				92A1DB332F28373F0009D82F /* EmptyHomeView.swift in Sources */,
 				92A1DB2F2F2823D20009D82F /* HomeView.swift in Sources */,
 				926603722F2948BC006D0863 /* ScheduleView.swift in Sources */,

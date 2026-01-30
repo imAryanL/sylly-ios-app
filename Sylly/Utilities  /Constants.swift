@@ -102,7 +102,15 @@ struct AppIcons {   // icons that will be used in this app  for courses
 }
 
 // MARK: - Assignment Types
+// Enum: A type that defines a fixed list of related options (no other values allowed)
+// This prevents typos and bugs by restricting assignment types to these 4 values only
+//
+// Protocols:
+// • String: Each case has an associated String value (exam = "Exam", etc.)
+// • Codable: Can convert to/from JSON for saving/loading from database
+// • CaseIterable: Can loop through all cases with .allCases
 enum AssignmentType: String, Codable, CaseIterable {
+    // Internal name (used in code) = Display name (shown to users/saved to database)
     case exam = "Exam"
     case quiz = "Quiz"
     case homework = "HW"
