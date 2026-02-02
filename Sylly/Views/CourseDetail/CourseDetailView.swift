@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct CourseDetailView: View {
-    let course: Course  
+    let course: Course
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -26,7 +26,7 @@ struct CourseDetailView: View {
                 // Assignment count with remaining count
                 // Example: "8 Assignments • 4 Remaining"
                 HStack(spacing: 0) {
-                    Text("\(totalAssignments) Assignments • ") 
+                    Text("\(totalAssignments) Assignments • ")
                         .foregroundColor(.secondary)
                     Text("\(remainingAssignments) Remaining")
                         .foregroundColor(AppColors.primary)

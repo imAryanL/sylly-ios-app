@@ -8,7 +8,7 @@ import SwiftUI
 
 struct AssignmentListView: View {
     let course: Course  // The course object passed from CourseDetailView
-    
+
     // MARK: - Computed Property: Upcoming Assignments
     // Get all assignments that are not completed, sorted by due date (earliest first)
     private var upcomingAssignments: [Assignment] {
@@ -41,11 +41,11 @@ struct AssignmentListView: View {
                         .padding(.horizontal)  
                     
                     // Container for all upcoming assignment rows
-                    VStack(spacing: 0) {  
+                    VStack(spacing: 0) {
                         ForEach(upcomingAssignments) { assignment in
                             // Display each assignment as a row
                             AssignmentDetailRow(assignment: assignment, isCompleted: false)
-                            
+
                             // Add a divider line between rows (but NOT after the last row)
                             // .id is a unique identifier for each assignment
                             if assignment.id != upcomingAssignments.last?.id {
@@ -54,9 +54,9 @@ struct AssignmentListView: View {
                             }
                         }
                     }
-                    .background(Color.white)  
-                    .cornerRadius(12)  
-                    .padding(.horizontal)  
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
                 }
                 
                 // MARK: - COMPLETED Section
@@ -75,7 +75,7 @@ struct AssignmentListView: View {
                         ForEach(completedAssignments) { assignment in
                             // Display each assignment as a row
                             AssignmentDetailRow(assignment: assignment, isCompleted: true)
-                            
+
                             // Add a divider line between rows (but NOT after the last row)
                             if assignment.id != completedAssignments.last?.id {
                                 Divider()
@@ -83,9 +83,9 @@ struct AssignmentListView: View {
                             }
                         }
                     }
-                    .background(Color.white) 
-                    .cornerRadius(12)  
-                    .padding(.horizontal) 
+                    .background(Color.white)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
                 }
             }
             .padding(.top, 8)  

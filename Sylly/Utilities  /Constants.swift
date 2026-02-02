@@ -25,7 +25,8 @@ struct AppColors {
         .pink,
         .purple,
         .black,
-        .gray
+        .gray,
+        .yellow,
     ]
     
     // Background colors
@@ -34,7 +35,7 @@ struct AppColors {
 }
 
 // MARK: - SF Symbols for Courses
-struct AppIcons {   // icons that will be used in this app  for courses 
+struct AppIcons {   // icons that will be used in this app for courses 
     static let courseIcons: [String] = [
         "book.closed.fill",           // Book/Reading
         "brain.head.profile",         // Psychology/AI
@@ -56,9 +57,15 @@ struct AppIcons {   // icons that will be used in this app  for courses
         "theatermasks.fill",          // Theater/Drama
         "stethoscope",                // Health/Medical
         "leaf.fill",                  // Biology/Nature
+        "figure.run",                 // Physical Education
+        "banknote.fill",              // Finance/Accounting
+        "wrench.and.screwdriver.fill", // Shop/Engineering
+        "bolt.fill",                  // Electrical/Physics
+        "pill.fill",                  // Pharmacy/Health
+        
 
         
-        // Page 2 (20 icons)
+        // Page 2 (25 icons)
         "star.fill",                  // General/Favorite
         "camera.fill",                // Photography
         "creditcard.fill",            // Finance/Economics
@@ -67,10 +74,10 @@ struct AppIcons {   // icons that will be used in this app  for courses
         "graduationcap.fill",         // Education
         "atom",                       // Physics
         "heart.fill",                 // Health/Wellness
-        "hammer.fill",                // Shop/Construction
+        "pencil.line",                // Writing/English
         "sportscourt.fill",           // Physical Education
-        "airplane",                   // Travel/Aviation
-        "cross.case.fill",            // Nursing/First Aid
+        "plus.forwardslash.minus",    // Math/Calculator
+        "allergens",                 // Biology/Lab Science
         "scalemass.fill",             // Physics/Measurements
         "cpu.fill",                   // Computer Hardware
         "network",                    // Networking/IT
@@ -79,6 +86,11 @@ struct AppIcons {   // icons that will be used in this app  for courses
         "waveform.path.ecg",          // Biology/Health
         "testtube.2",                 // Lab Science
         "books.vertical.fill",        // Library/Research
+        "doc.text.fill",              // Research/Documents
+        "square.and.pencil",          // Essay/Notes
+        "quote.bubble.fill",          // Speech/Debate
+        "clock.fill",                 // History/Time
+        "map.fill",                   // Geography/Maps
     ]
         
     // Tab bar icons
