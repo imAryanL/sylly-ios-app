@@ -30,6 +30,7 @@
 		92DB6FFE2F2DC38D008C8FDE /* SuccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DB6FFD2F2DC38D008C8FDE /* SuccessView.swift */; };
 		92DB70042F2DC798008C8FDE /* EditCourseSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DB70032F2DC798008C8FDE /* EditCourseSheet.swift */; };
 		92DB70062F2DC7CB008C8FDE /* EditAssignmentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DB70052F2DC7CB008C8FDE /* EditAssignmentSheet.swift */; };
+		92DF49EE2F31998E00AC2350 /* ClaudeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DF49ED2F31998E00AC2350 /* ClaudeService.swift */; };
 		92F1E50B2F2ADFD100A14A6D /* AssignmentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E50A2F2ADFD100A14A6D /* AssignmentListView.swift */; };
 		92F1E50D2F2AF8F900A14A6D /* AssignmentDetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E50C2F2AF8F900A14A6D /* AssignmentDetailRow.swift */; };
 		92F1E50F2F2AFBA700A14A6D /* EmptyCourseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E50E2F2AFBA700A14A6D /* EmptyCourseView.swift */; };
@@ -61,6 +62,7 @@
 		92DB6FFD2F2DC38D008C8FDE /* SuccessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuccessView.swift; sourceTree = "<group>"; };
 		92DB70032F2DC798008C8FDE /* EditCourseSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCourseSheet.swift; sourceTree = "<group>"; };
 		92DB70052F2DC7CB008C8FDE /* EditAssignmentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAssignmentSheet.swift; sourceTree = "<group>"; };
+		92DF49ED2F31998E00AC2350 /* ClaudeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeService.swift; sourceTree = "<group>"; };
 		92F1E50A2F2ADFD100A14A6D /* AssignmentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentListView.swift; sourceTree = "<group>"; };
 		92F1E50C2F2AF8F900A14A6D /* AssignmentDetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailRow.swift; sourceTree = "<group>"; };
 		92F1E50E2F2AFBA700A14A6D /* EmptyCourseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCourseView.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				92232DF12F307E5D00566758 /* ScannerService.swift */,
+				92DF49ED2F31998E00AC2350 /* ClaudeService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 				921A1AFE2F2C53B9004694BC /* CalendarPickerView.swift in Sources */,
 				92A1DB332F28373F0009D82F /* EmptyHomeView.swift in Sources */,
 				92DB6FF82F2DA12C008C8FDE /* ScannerView.swift in Sources */,
+				92DF49EE2F31998E00AC2350 /* ClaudeService.swift in Sources */,
 				92A1DB2F2F2823D20009D82F /* HomeView.swift in Sources */,
 				926603722F2948BC006D0863 /* ScheduleView.swift in Sources */,
 				92DB70062F2DC7CB008C8FDE /* EditAssignmentSheet.swift in Sources */,
