@@ -1,0 +1,40 @@
+# Xcode
+*.pbxproj.orig
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.swiftpm/xcode/package.xcworkspace/xcuserdata/
+*.playground/xcuserdata/
+DerivedData/
+.xcodeproj/xcuserdata/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+*.xcframework
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Configuration with secrets
+Config.swift
+
+# Compiled binaries
+*.app
+build/
+
+# Temporary files
+*.DS_Store
+.DS_Store
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swiftpm/xcode/
+
+# User-specific files
+*.xcworkspace/xcuserdata/
+xcuserdata/

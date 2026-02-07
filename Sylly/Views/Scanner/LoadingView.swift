@@ -2,7 +2,9 @@
 //  LoadingView.swift
 //  Sylly
 //
-//  Created by aryan on 1/30/26.
+//  This view shows a loading animation while:
+//  1. OCR extracts text from the syllabus image
+//  2. Claude API parses the text into assignments
 //
 
 import SwiftUI
@@ -10,22 +12,34 @@ import Combine
 
 struct LoadingView: View {
 
-    // MARK: - Environment & Navigation
-    // @Environment(\.dismiss) provides a way to close/exit this loading screen
+    // MARK: - Properties
+    // The image passed from ScannerView (optional because it might be nil)
+    let image: UIImage?
+
+    // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - State Properties
-    // Tracks how many dots to display in the "Analyzing..." text
-    // Used to create the animated dot animation (. → .. → ... → repeats)
+    // Tracks the animated dots (. → .. → ... → ....)
     @State private var dotCount = 0
 
-    // Controls the scanning frame animation (scale and opacity pulsing)
+    // Controls the pulsing animation
     @State private var isAnimating = false
 
-    // MARK: - Timer Setup
-    // Timer that fires every 0.5 seconds on the main thread
-    // This controls the speed of the dot animation
-    // .autoconnect() starts the timer immediately when the view appears
+    // Status message shown to user
+    @State private var statusMessage = "Extracting text..."
+
+    // Stores any error that occurs
+    @State private var errorMessage: String?
+
+    // When true, shows the ReviewView with parsed data
+    @State private var showReview = false
+
+    // Stores the parsed results from Claude
+    @State private var parsedSyllabus: ParsedSyllabus?
+
+    // MARK: - Timer
+    // Timer for the dot animation (fires every 0.5 seconds)
     let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 
     // MARK: - Body
@@ -34,50 +48,67 @@ struct LoadingView: View {
 
             Spacer()
 
-            // MARK: - Animated Scan Icon
-            // ZStack creates layers: document icon + animated scanning frame around it
-            // The frame pulses in and out to show scanning activity
+            // MARK: - Animated Icon
             ZStack {
-                // Document icon in the center
+                // Document icon
                 Image(systemName: "doc.text")
                     .font(.system(size: 60))
                     .foregroundColor(AppColors.primary)
 
-                // Animated scanning frame around the document
-                // Scales up/down and changes opacity to create pulsing effect
+                // Pulsing frame around the icon
                 RoundedRectangle(cornerRadius: 50)
                     .stroke(AppColors.primary, lineWidth: 3)
                     .frame(width: 100, height: 100)
                     .scaleEffect(isAnimating ? 1.1 : 1.0)
                     .opacity(isAnimating ? 0.5 : 1.0)
             }
-            // onAppear: Start the pulsing animation when view loads
-            // easeInOut: Smooth acceleration/deceleration
-            // repeatForever(autoreverses: true): Loop infinitely, reversing direction each time
             .onAppear {
+                // Start the pulsing animation
                 withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
                     isAnimating = true
                 }
             }
 
             // MARK: - Title with Animated Dots
-            // Text that updates with animated dots: "Analyzing Syllabus" → "Analyzing Syllabus." → "Analyzing Syllabus.." etc.
-            // The String(repeating:count:) creates the dots based on dotCount value
             Text("Analyzing Syllabus\(String(repeating: ".", count: dotCount))")
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            // MARK: - Subtitle
-            // Descriptive text explaining what's happening in the background
-            Text("Extracting dates and assignments...")
+            // MARK: - Status Message
+            // Shows current step: "Extracting text..." or "Finding assignments..."
+            Text(statusMessage)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+
+            // MARK: - Error Message (if any)
+            if let error = errorMessage {
+                VStack(spacing: 12) {
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+
+                    // Retry button
+                    Button(action: {
+                        errorMessage = nil
+                        startProcessing()
+                    }) {
+                        Text("Try Again")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 30)
+                            .padding(.vertical, 12)
+                            .background(AppColors.primary)
+                            .cornerRadius(10)
+                    }
+                }
+                .padding(.top, 8)
+            }
 
             Spacer()
 
             // MARK: - Cancel Button
-            // Allows user to cancel the scanning/analysis process if they change their mind
-            // Dismisses this loading view and returns to the scanner
             Button(action: {
                 dismiss()
             }) {
@@ -89,17 +120,79 @@ struct LoadingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
-        // MARK: - Animation Handler
-        // onReceive: Subscribes to the timer that fires every 0.5 seconds
-        // Updates dotCount in a cycle: 0 → 1 → 2 → 3 → 0 → ...
-        // The % 4 operator (modulo) wraps the count back to 0 after reaching 3
+
+        // MARK: - Dot Animation Timer
         .onReceive(timer) { _ in
             dotCount = (dotCount + 1) % 4
+        }
+
+        // MARK: - Start Processing When View Appears
+        .onAppear {
+            startProcessing()
+        }
+
+        // MARK: - Navigate to ReviewView
+        .fullScreenCover(isPresented: $showReview) {
+            if let syllabus = parsedSyllabus {
+                ReviewView(parsedSyllabus: syllabus)
+            }
+        }
+    }
+
+    // MARK: - Processing Function
+    // This runs OCR and Claude API
+    private func startProcessing() {
+        // Make sure we have an image
+        guard let image = image else {
+            errorMessage = "No image to process"
+            return
+        }
+
+        // Run the processing in a background task
+        Task {
+            do {
+                // Step 1: OCR - Extract text from image
+                await MainActor.run {
+                    statusMessage = "Extracting text..."
+                }
+
+                let scannerService = ScannerService()
+                let extractedText = try await scannerService.extractText(from: image)
+
+                // Debug: Print extracted text
+                print("Extracted text:\n\(extractedText)")
+
+                // Step 2: Claude API - Parse the text
+                await MainActor.run {
+                    statusMessage = "Finding assignments..."
+                }
+
+                let claudeService = ClaudeService()
+                let syllabus = try await claudeService.parseSyllabus(from: extractedText)
+
+                // Debug: Print parsed results
+                print("Parsed syllabus: \(syllabus.courseName)")
+                print("Found \(syllabus.assignments.count) assignments")
+
+                // Step 3: Show ReviewView with results
+                await MainActor.run {
+                    parsedSyllabus = syllabus
+                    showReview = true
+                }
+
+            } catch {
+                // Something went wrong - show error
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
         }
     }
 }
 
 // MARK: - Preview
 #Preview {
-    LoadingView()
+    // Preview with test image
+    LoadingView(image: UIImage(named: "TestSyllabus"))
 }

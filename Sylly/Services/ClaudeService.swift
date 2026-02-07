@@ -129,7 +129,7 @@ class ClaudeService {
 
         // Step 7: Clean up the response
         // Sometimes Claude wraps JSON in ```json blocks - remove them
-        var cleanedResponse = responseText
+        let cleanedResponse = responseText
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "```json", with: "")
             .replacingOccurrences(of: "```", with: "")

@@ -2,40 +2,35 @@
 //  ScannerView.swift
 //  Sylly
 //
-//  Created by aryan on 1/30/26.
+//  This view lets users take a photo of their syllabus
+//  using the iPhone camera or pick from photo library
 //
 
 import SwiftUI
 
 struct ScannerView: View {
 
-    // MARK: - Environment & Navigation
-    // @Environment(\.dismiss) provides a way to close/exit this view and return to previous screen
+    // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - State Properties
-    // Track whether flash is enabled or disabled
-    @State private var isFlashOn = false
-
-    // Controls whether to show the photo library picker (for selecting existing images)
-    @State private var showPhotoPicker = false
-
-    // Controls whether to show the loading/processing screen after user taps shutter button
-    @State private var showLoading = false
+    @State private var showCamera = false           // Shows the camera
+    @State private var showPhotoLibrary = false     // Shows photo picker
+    @State private var capturedImage: UIImage?      // The photo user took
+    @State private var showLoading = false          // Shows loading screen
 
     // MARK: - Body
-    // ZStack layers views on top of each other (black background + UI elements)
     var body: some View {
         ZStack {
-            // Black background to simulate an actual camera interface
+            // Black background (like a camera app)
             Color.black
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // MARK: - Top Bar (Close & Flash Buttons)
+
+                // MARK: - Top Bar
                 HStack {
-                    // Close button (X icon) - exits scanner and returns to home
-                    // Uses fixed frame with bold icon for better tap target and appearance
+                    // Close button
                     Button(action: {
                         dismiss()
                     }) {
@@ -47,132 +42,189 @@ struct ScannerView: View {
                     }
 
                     Spacer()
-
-                    // Flash toggle button - switches between bolt.fill (on) and bolt.slash.fill (off)
-                    // Changes color to yellow when enabled, white when disabled
-                    Button(action: {
-                        isFlashOn.toggle()
-                    }) {
-                        Image(systemName: isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-                            .font(.title2)
-                            .foregroundColor(isFlashOn ? .yellow : .white)
-                            .frame(width: 44, height: 44)
-                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
 
-                // MARK: - Helper Text
-                // Instructions telling user where to position the document
-                Text("Align your syllabus within the frame")
+                // MARK: - Instructions
+                Text("Take a photo of your syllabus")
+                    .font(.headline)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(.top, 20)
+
+                Text("Make sure all text is visible and in focus")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
-                    .padding(.top, 16)
+                    .foregroundColor(.white.opacity(0.6))
+                    .padding(.top, 4)
 
                 Spacer()
 
-                // MARK: - Scan Frame (Corner Brackets)
-                // ZStack with 4 corner brackets positioned at the corners
-                // The brackets guide users to align their syllabus within the scanning area
+                // MARK: - Preview Area
+                // Shows the captured image or a placeholder
                 ZStack {
-                    // Top Left Corner - bracket pointing into frame
-                    CornerBracket(rotation: 0)
-                        .position(x: 40, y: 40)
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 300, height: 400)
 
-                    // Top Right Corner - bracket rotated 90 degrees
-                    CornerBracket(rotation: 90)
-                        .position(x: 260, y: 40)
+                    if let image = capturedImage {
+                        // Show the captured photo
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 300, height: 400)
+                            .clipped()
+                            .cornerRadius(12)
+                    } else {
+                        // Show placeholder
+                        VStack(spacing: 12) {
+                            Image(systemName: "doc.text.viewfinder")
+                                .font(.system(size: 60))
+                                .foregroundColor(.white.opacity(0.4))
 
-                    // Bottom Left Corner - bracket rotated 270 degrees
-                    CornerBracket(rotation: 270)
-                        .position(x: 40, y: 340)
-
-                    // Bottom Right Corner - bracket rotated 180 degrees
-                    CornerBracket(rotation: 180)
-                        .position(x: 260, y: 340)
-                }
-                .frame(width: 300, height: 380)
-             
-
-                Spacer()
-
-                // MARK: - Bottom Bar (Photo Library, Shutter, Spacing)
-                HStack {
-                    // Photo library button - lets user pick existing image instead of taking new photo
-                    Button(action: {
-                        showPhotoPicker = true
-                    }) {
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.title)
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 60)
-                    }
-
-                    Spacer()
-
-                    // Shutter button (main capture button) - circular white button with border
-                    // Tapping this takes a photo and shows the loading screen
-                    Button(action: {
-                        takePhoto()
-                    }) {
-                        ZStack {
-                            // Outer circle (white border)
-                            Circle()
-                                .stroke(Color.white, lineWidth: 4)
-                                .frame(width: 75, height: 75)
-
-                            // Inner circle (filled white)
-                            Circle()
-                                .fill(Color.white)
-                                .frame(width: 62, height: 62)
+                            Text("No photo yet")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.4))
                         }
                     }
-
-                    Spacer()
-
-                    // Empty space (clear color) - balances the layout so shutter button is centered
-                    Color.clear
-                        .frame(width: 60, height: 60)
                 }
-                .padding(.horizontal, 30)
-                .padding(.bottom, 40)
+
+                Spacer()
+
+                // MARK: - Bottom Buttons
+                if capturedImage != nil {
+                    // If we have a photo, show "Use Photo" and "Retake" buttons
+                    HStack(spacing: 20) {
+                        // Retake button
+                        Button(action: {
+                            capturedImage = nil
+                        }) {
+                            Text("Retake")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(width: 120, height: 50)
+                                .background(Color.gray.opacity(0.5))
+                                .cornerRadius(25)
+                        }
+
+                        // Use Photo button
+                        Button(action: {
+                            showLoading = true
+                        }) {
+                            Text("Use Photo")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(width: 120, height: 50)
+                                .background(AppColors.primary)
+                                .cornerRadius(25)
+                        }
+                    }
+                    .padding(.bottom, 40)
+
+                } else {
+                    // If no photo yet, show camera and library buttons
+                    HStack(spacing: 60) {
+                        // Photo library button
+                        Button(action: {
+                            showPhotoLibrary = true
+                        }) {
+                            VStack(spacing: 8) {
+                                Image(systemName: "photo.on.rectangle")
+                                    .font(.title)
+                                    .foregroundColor(.white)
+                                Text("Library")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+                            .frame(width: 70, height: 70)
+                        }
+
+                        // Camera button (big circle)
+                        Button(action: {
+                            showCamera = true
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.white, lineWidth: 4)
+                                    .frame(width: 75, height: 75)
+
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 62, height: 62)
+                            }
+                        }
+
+                        // Empty space for balance
+                        Color.clear
+                            .frame(width: 70, height: 70)
+                    }
+                    .padding(.bottom, 40)
+                }
             }
         }
-        // fullScreenCover: When showLoading becomes true, display LoadingView over entire screen
-        .fullScreenCover(isPresented: $showLoading) {
-            LoadingView()
-        }
-    }
 
-    // MARK: - Helper Functions
-    // Called when user taps the shutter button
-    private func takePhoto() {
-        // For now, just show loading screen
-        // Later: This will actually capture photo from camera and process it with OCR
-        showLoading = true
+        // MARK: - Camera Sheet
+        .fullScreenCover(isPresented: $showCamera) {
+            ImagePicker(image: $capturedImage, sourceType: .camera)
+                .ignoresSafeArea()
+        }
+
+        // MARK: - Photo Library Sheet
+        .sheet(isPresented: $showPhotoLibrary) {
+            ImagePicker(image: $capturedImage, sourceType: .photoLibrary)
+        }
+
+        // MARK: - Loading Screen
+        .fullScreenCover(isPresented: $showLoading) {
+            LoadingView(image: capturedImage)
+        }
     }
 }
 
-// MARK: - Corner Bracket Component
-// Draws one corner bracket (L-shaped white line) that can be rotated
-// Takes a rotation parameter to position brackets at different corners
-struct CornerBracket: View {
-    var rotation: Double
+// MARK: - Image Picker (UIKit Wrapper)
+// This wraps Apple's UIImagePickerController so we can use it in SwiftUI
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+    let sourceType: UIImagePickerController.SourceType
 
-    var body: some View {
-        Path { path in
-            // Move to starting point (bottom of bracket)
-            path.move(to: CGPoint(x: 0, y: 40))
-            // Draw line up (vertical part)
-            path.addLine(to: CGPoint(x: 0, y: 0))
-            // Draw line right (horizontal part)
-            path.addLine(to: CGPoint(x: 40, y: 0))
+    @Environment(\.dismiss) private var dismiss
+
+    // Create the UIKit view controller
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = sourceType
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    // Update the view controller (not needed but required by protocol)
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    // Create the coordinator that handles callbacks
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    // Coordinator handles the "delegate" callbacks from UIKit
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
         }
-        // Stroke: Draw the path as a white line with rounded corners
-        // lineWidth: 5 makes it thick enough to see clearly
-        .stroke(Color.white, style: StrokeStyle(lineWidth: 5, lineCap: .round))
-        // Apply rotation based on the parameter (0, 90, 180, 270 degrees)
-        .rotationEffect(.degrees(rotation))
+
+        // Called when user picks/takes a photo
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            // Get the image from the info dictionary
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
+            }
+            parent.dismiss()
+        }
+
+        // Called when user cancels
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
     }
 }
 
