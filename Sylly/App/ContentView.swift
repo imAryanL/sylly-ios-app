@@ -6,46 +6,86 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Navigation State Enum
+// Single source of truth for navigation in the app
+// This replaces multiple @State booleans with one clear, hierarchical state
+enum NavigationState {
+    case home                              // Home screen (default)
+    case scanning                          // ScannerView
+    case loading(UIImage?)                 // LoadingView (carries image to process)
+    case reviewing(ParsedSyllabus)         // ReviewView (carries parsed data)
+    case success(Int)                      // SuccessView (carries assignment count)
+}
+
 struct ContentView: View {
+    // MARK: - Navigation State
+    // Single @State that controls entire navigation flow
+    // Much cleaner than multiple boolean flags!
+    @State private var navigationState: NavigationState = .home
+
+    // MARK: - Tab Selection
+    // Separate state for tab bar (0=Home, 1=Scan, 2=Calendar)
     @State private var selectedTab = 0
-    @State private var showScanner = false
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            // Tab 1: Home
-            HomeView()
-                .tabItem {
-                    Image(systemName: AppIcons.homeTab)
-                    Text("Home")
-                }
-                .tag(0)
-            
-            // Tab 2: Scan (fake tab - just opens scanner)
-            Text("")
-                .tabItem {
-                    Image(systemName: AppIcons.scanTab)
-                    Text("Scan")
-                }
-                .tag(1)
-            
-            // Tab 3: Calendar/Schedule
-            ScheduleView()
-                .tabItem {
-                    Image(systemName: AppIcons.calendarTab)
-                    Text("Calendar")
-                }
-                .tag(2)
-        }
-        .tint(AppColors.primary)
-        .onChange(of: selectedTab) { oldValue, newValue in
-            // If user taps Scan tab, open scanner and go back to previous tab
-            if newValue == 1 {
-                showScanner = true
-                selectedTab = oldValue
+        ZStack {
+            // MARK: - Tab View (Main Navigation)
+            TabView(selection: $selectedTab) {
+                // Tab 1: Home
+                HomeView(navigationState: $navigationState)
+                    .tabItem {
+                        Image(systemName: AppIcons.homeTab)
+                        Text("Home")
+                    }
+                    .tag(0)
+
+                // Tab 2: Scan (fake tab - just opens scanner)
+                Text("")
+                    .tabItem {
+                        Image(systemName: AppIcons.scanTab)
+                        Text("Scan")
+                    }
+                    .tag(1)
+
+                // Tab 3: Calendar/Schedule
+                ScheduleView()
+                    .tabItem {
+                        Image(systemName: AppIcons.calendarTab)
+                        Text("Calendar")
+                    }
+                    .tag(2)
             }
-        }
-        .fullScreenCover(isPresented: $showScanner) {
-            ScannerView()
+            .tint(AppColors.primary)
+            .onChange(of: selectedTab) { oldValue, newValue in
+                // If user taps Scan tab, open scanner and go back to previous tab
+                if newValue == 1 {
+                    navigationState = .scanning
+                    selectedTab = oldValue
+                }
+            }
+
+            // MARK: - Navigation Overlays
+            // Single switch statement handles all navigation states
+            // Much cleaner than multiple .fullScreenCovers
+            if case .scanning = navigationState {
+                ScannerView(navigationState: $navigationState)
+                    .transition(.move(edge: .bottom))
+            }
+
+            if case .loading(let image) = navigationState {
+                LoadingView(image: image, navigationState: $navigationState)
+                    .transition(.move(edge: .bottom))
+            }
+
+            if case .reviewing(let syllabus) = navigationState {
+                ReviewView(parsedSyllabus: syllabus, navigationState: $navigationState)
+                    .transition(.move(edge: .bottom))
+            }
+
+            if case .success(let count) = navigationState {
+                SuccessView(assignmentCount: count, navigationState: $navigationState, selectedTab: $selectedTab)
+                    .transition(.move(edge: .bottom))
+            }
         }
     }
 }

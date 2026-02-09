@@ -68,12 +68,10 @@ struct DayButton: View {
             }
             .foregroundColor(isSelected ? .white : .primary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .background(
                 Circle()
                     .fill(isSelected ? AppColors.primary : Color.clear)
-                    .frame(width: 55, height: 55)
-                    
             )
         }
     }

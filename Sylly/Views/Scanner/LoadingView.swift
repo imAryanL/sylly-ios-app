@@ -13,11 +13,11 @@ import Combine
 struct LoadingView: View {
 
     // MARK: - Properties
-    // The image passed from ScannerView (optional because it might be nil)
     let image: UIImage?
 
-    // MARK: - Environment
-    @Environment(\.dismiss) private var dismiss
+    // MARK: - Navigation
+    // Single binding to control entire navigation
+    @Binding var navigationState: NavigationState
 
     // MARK: - State Properties
     // Tracks the animated dots (. → .. → ... → ....)
@@ -110,7 +110,7 @@ struct LoadingView: View {
 
             // MARK: - Cancel Button
             Button(action: {
-                dismiss()
+                navigationState = .home
             }) {
                 Text("Cancel")
                     .font(.body)
@@ -132,9 +132,11 @@ struct LoadingView: View {
         }
 
         // MARK: - Navigate to ReviewView
-        .fullScreenCover(isPresented: $showReview) {
-            if let syllabus = parsedSyllabus {
-                ReviewView(parsedSyllabus: syllabus)
+        // When parsing completes, show ReviewView with the parsed syllabus
+        .onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
+            // Check if review view should be shown
+            if showReview, let syllabus = parsedSyllabus {
+                navigationState = .reviewing(syllabus)
             }
         }
     }
@@ -193,6 +195,5 @@ struct LoadingView: View {
 
 // MARK: - Preview
 #Preview {
-    // Preview with test image
-    LoadingView(image: UIImage(named: "TestSyllabus"))
+    LoadingView(image: UIImage(named: "TestSyllabus"), navigationState: .constant(.loading(nil)))
 }

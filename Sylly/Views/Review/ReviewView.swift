@@ -12,12 +12,15 @@ import SwiftData
 struct ReviewView: View {
 
     // MARK: - Properties
-    // The parsed data from Claude API
     let parsedSyllabus: ParsedSyllabus
 
+    // MARK: - Navigation
+    // Single binding to control entire navigation
+    @Binding var navigationState: NavigationState
+
     // MARK: - Environment
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext  // Database access
+    @Environment(\.dismiss) private var dismiss  // For closing sheets
 
     // MARK: - State Properties: Course Information
     // These are editable by the user
@@ -72,7 +75,7 @@ struct ReviewView: View {
                     }
                 }
                 .padding()
-                .background(Color.white)
+                .background(AppColors.cardBackground)
                 .cornerRadius(12)
                 .padding(.horizontal)
                 .padding(.top, 8)
@@ -92,11 +95,12 @@ struct ReviewView: View {
                             // Divider between rows
                             if index < assignments.count - 1 {
                                 Divider()
+                                    .foregroundColor(.secondary.opacity(0.3))
                                     .padding(.leading, 50)
                             }
                         }
                     }
-                    .background(Color.white)
+                    .background(AppColors.cardBackground)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     .padding(.top, 16)
@@ -160,9 +164,6 @@ struct ReviewView: View {
             if let index = selectedAssignmentIndex {
                 EditAssignmentSheet(assignment: $assignments[index])
             }
-        }
-        .fullScreenCover(isPresented: $showSuccess) {
-            SuccessView(assignmentCount: selectedCount)
         }
     }
 
@@ -309,8 +310,15 @@ struct ReviewView: View {
         // Save to SwiftData
         modelContext.insert(course)
 
-        // Show success screen
-        showSuccess = true
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving to database: \(error)")
+            return
+        }
+
+        // Navigate to success screen
+        navigationState = .success(selectedCount)
     }
 }
 
@@ -392,6 +400,9 @@ struct ReviewAssignmentRow: View {
         ]
     )
 
-    return ReviewView(parsedSyllabus: sampleSyllabus)
-        .modelContainer(for: [Course.self, Assignment.self], inMemory: true)
+    ReviewView(
+        parsedSyllabus: sampleSyllabus,
+        navigationState: .constant(.reviewing(sampleSyllabus))
+    )
+    .modelContainer(for: [Course.self, Assignment.self], inMemory: true)
 }

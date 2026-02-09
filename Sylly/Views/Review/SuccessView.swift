@@ -8,13 +8,16 @@
 import SwiftUI
 
 struct SuccessView: View {
-    
+
     // MARK: - Properties
-    // The number of assignments that were saved (passed from ReviewView)
     let assignmentCount: Int
-    
-    // MARK: - Environment
-    @Environment(\.dismiss) private var dismiss
+
+    // MARK: - Navigation
+    // Single binding to control entire navigation
+    @Binding var navigationState: NavigationState
+
+    // Separate binding for tab selection (needed to switch tabs after success)
+    @Binding var selectedTab: Int
     
     // MARK: - Body
     var body: some View {
@@ -47,8 +50,10 @@ struct SuccessView: View {
             Spacer()
             
             // MARK: - View Calendar Button
+            // When tapped: go back to home and switch to Calendar tab
             Button(action: {
-                dismiss()
+                selectedTab = 2                    // Switch to Calendar tab
+                navigationState = .home            // Go back to home (clears all overlays)
             }) {
                 Text("View Calendar")
                     .font(.headline)
@@ -59,10 +64,12 @@ struct SuccessView: View {
                     .cornerRadius(12)
             }
             .padding(.horizontal)
-            
+
             // MARK: - Back to Home Button
+            // When tapped: go back to home screen
             Button(action: {
-                dismiss()
+                selectedTab = 0                    // Stay on Home tab
+                navigationState = .home            // Go back to home (clears all overlays)
             }) {
                 Text("Back to home")
                     .foregroundColor(AppColors.primary)
@@ -76,5 +83,9 @@ struct SuccessView: View {
 
 // MARK: - Preview
 #Preview {
-    SuccessView(assignmentCount: 5)
+    SuccessView(
+        assignmentCount: 5,
+        navigationState: .constant(.success(5)),
+        selectedTab: .constant(0)
+    )
 }

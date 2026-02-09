@@ -84,9 +84,9 @@ struct CourseCard: View {
     // MARK: - Helper: Next Assignment
     private func getNextAssignment() -> Assignment? {
         let upcoming = course.assignments
-            // Filter: Throw away tasks that are finished or past due
+            // Filter: Only show assignments that aren't completed
             // (!$0 means "this assignment is NOT done")
-            .filter { !$0.isCompleted && $0.dueDate > Date() }
+            .filter { !$0.isCompleted }
             // Sort: Put the assignments in order by date (soonest first)
             .sorted { $0.dueDate < $1.dueDate }
         // Picking the very first assignment from the sorted list
@@ -97,29 +97,36 @@ struct CourseCard: View {
     private func dueText(for assignment: Assignment) -> String {
         // Count how many days are between 'Right Now' and the 'Due Date'
         let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
-        
-        // Choosing the best words based on the number of the due date
+
+        // For close assignments, show relative time
         if days == 0 {
-                    return "Due today" // 0 days left
-                } else if days == 1 {
-                    return "in 1 day"  // 1 day left
-                } else if days < 7 {
-                    return "in \(days) days" // 2 to 6 days left
-                } else if days < 14 {
-                    return "in 1 week" // 7 to 13 days left
-                } else {
-                    // Divide days by 7 to get the number of weeks
-                    return "in \(days / 7) weeks"
-                }
+            return "Due today"
+        } else if days == 1 {
+            return "in 1 day"
+        } else if days > 1 && days < 7 {
+            return "in \(days) days"
+        } else if days >= 7 && days < 14 {
+            return "in 1 week"
+        } else if days >= 14 && days < 105 { // ~15 weeks: show relative time
+            return "in \(days / 7) weeks"
+        } else {
+            // For far away assignments or past due, just show the date
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+            return formatter.string(from: assignment.dueDate)
+        }
     }
 
     // MARK: - Helper: Urgency Color
     private func urgencyColor(for assignment: Assignment) -> Color {
-    let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
-        
+        let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
+
         // Pick a color based on that number
-        if days <= 2 {
-        // Very close! Use the 'Urgent' color (Red)
+        if days < 0 {
+            // Past due. Use the 'Neutral' color (Gray/Blue)
+            return AppColors.neutral
+        } else if days <= 2 {
+            // Very close! Use the 'Urgent' color (Red)
             return AppColors.urgent
         } else if days <= 7 {
             // Coming up soon. Use the 'Warning' color (Yellow/Orange)
@@ -128,7 +135,7 @@ struct CourseCard: View {
             // Far away. Use the 'Neutral' color (Gray/Blue)
             return AppColors.neutral
         }
-        }
+    }
     }
 
 // MARK: - Preview

@@ -10,14 +10,14 @@ import SwiftUI
 
 struct ScannerView: View {
 
-    // MARK: - Environment
-    @Environment(\.dismiss) private var dismiss
+    // MARK: - Navigation
+    // Single binding to control entire navigation
+    @Binding var navigationState: NavigationState
 
     // MARK: - State Properties
     @State private var showCamera = false           // Shows the camera
     @State private var showPhotoLibrary = false     // Shows photo picker
     @State private var capturedImage: UIImage?      // The photo user took
-    @State private var showLoading = false          // Shows loading screen
 
     // MARK: - Body
     var body: some View {
@@ -31,8 +31,9 @@ struct ScannerView: View {
                 // MARK: - Top Bar
                 HStack {
                     // Close button
+                    // Navigate back to home when tapped
                     Button(action: {
-                        dismiss()
+                        navigationState = .home
                     }) {
                         Image(systemName: "xmark")
                             .font(.title2)
@@ -64,15 +65,16 @@ struct ScannerView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.white.opacity(0.1))
-                        .frame(width: 300, height: 400)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 500)
 
                     if let image = capturedImage {
                         // Show the captured photo
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFill()
-                            .frame(width: 300, height: 400)
-                            .clipped()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 500)
                             .cornerRadius(12)
                     } else {
                         // Show placeholder
@@ -101,24 +103,28 @@ struct ScannerView: View {
                             Text("Retake")
                                 .font(.headline)
                                 .foregroundColor(.white)
-                                .frame(width: 120, height: 50)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
                                 .background(Color.gray.opacity(0.5))
                                 .cornerRadius(25)
                         }
 
                         // Use Photo button
+                        // Navigate to loading state with the captured image
                         Button(action: {
-                            showLoading = true
+                            navigationState = .loading(capturedImage)
                         }) {
                             Text("Use Photo")
                                 .font(.headline)
                                 .foregroundColor(.white)
-                                .frame(width: 120, height: 50)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
                                 .background(AppColors.primary)
                                 .cornerRadius(25)
                         }
                     }
                     .padding(.bottom, 40)
+                    .padding(.horizontal, 20)
 
                 } else {
                     // If no photo yet, show camera and library buttons
@@ -173,10 +179,6 @@ struct ScannerView: View {
             ImagePicker(image: $capturedImage, sourceType: .photoLibrary)
         }
 
-        // MARK: - Loading Screen
-        .fullScreenCover(isPresented: $showLoading) {
-            LoadingView(image: capturedImage)
-        }
     }
 }
 
@@ -230,5 +232,5 @@ struct ImagePicker: UIViewControllerRepresentable {
 
 // MARK: - Preview
 #Preview {
-    ScannerView()
+    ScannerView(navigationState: .constant(.scanning))
 }

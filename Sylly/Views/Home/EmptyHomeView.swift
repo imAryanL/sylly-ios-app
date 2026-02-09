@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct EmptyHomeView: View {
+
+    // MARK: - Navigation
+    // Binding to navigation state
+    @Binding var navigationState: NavigationState
+
     // MARK: - Body
     var body: some View {
         VStack(spacing: 20) {
@@ -16,20 +21,21 @@ struct EmptyHomeView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 100))
                 .foregroundColor(AppColors.primary)
-            
+
             Text("No syllabi yet")
                 .font(.title2)
                 .fontWeight(.semibold)
-            
+
             Text("Scan your first one to get started")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
+
             Spacer()
 
             // MARK: - Scan Button
+            // Navigate to scanning state when tapped
             Button(action: {
-              // This is where I'll eventually put the code to open the camera
+                navigationState = .scanning
             }) {
                 Text("Scan your syllabus")
                     .font(.headline)
@@ -48,5 +54,5 @@ struct EmptyHomeView: View {
 
 // MARK: - Preview
 #Preview {
-    EmptyHomeView()
+    EmptyHomeView(navigationState: .constant(.home))
 }

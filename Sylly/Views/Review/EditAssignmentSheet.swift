@@ -38,7 +38,7 @@ struct EditAssignmentSheet: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white)
+                    .background(AppColors.cardBackground)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -54,7 +54,7 @@ struct EditAssignmentSheet: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white)
+                    .background(AppColors.cardBackground)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -69,7 +69,7 @@ struct EditAssignmentSheet: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white)
+                    .background(AppColors.cardBackground)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -98,7 +98,7 @@ struct EditAssignmentSheet: View {
                     }
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white)
+                    .background(AppColors.cardBackground)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -117,7 +117,7 @@ struct EditAssignmentSheet: View {
                         .frame(maxWidth: .infinity)
                     }
                     .padding()
-                    .background(Color.white)
+                    .background(AppColors.cardBackground)
                     .cornerRadius(12)
                     .padding(.horizontal)
                 }

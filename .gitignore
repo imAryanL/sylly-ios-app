@@ -38,3 +38,6 @@ build/
 # User-specific files
 *.xcworkspace/xcuserdata/
 xcuserdata/
+
+# Claude Code project files
+.claude/

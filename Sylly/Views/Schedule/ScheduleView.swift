@@ -29,7 +29,7 @@ struct ScheduleView: View {
                 }
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
-                .background(Color.white)
+                .background(AppColors.background)
                 .cornerRadius(16)
                 .padding(.horizontal)
                 .padding(.top, 8)

@@ -12,15 +12,19 @@ struct HomeView: View {
     // Query tells the app to go into the database and find every 'Course' you have saved and put them in a new list called 'courses'
     @Query private var courses: [Course]
 
+    // MARK: - Navigation
+    // Binding to entire navigation state (cleaner than multiple booleans!)
+    @Binding var navigationState: NavigationState
+
     // MARK: - Body
     var body: some View {
 
         NavigationStack { // componenet that handles the sliding animation to the next screen when tapping on a course card
             Group {
                 if courses.isEmpty {
-                    EmptyHomeView()
+                    EmptyHomeView(navigationState: $navigationState)
                 } else {
-                    FilledHomeView(courses: courses)
+                    FilledHomeView(courses: courses, navigationState: $navigationState)
                 }
             }
             .navigationTitle("Sylly")
@@ -43,6 +47,10 @@ struct HomeView: View {
 struct FilledHomeView: View {
 
     let courses: [Course]
+
+    // MARK: - Navigation
+    // Binding to entire navigation state
+    @Binding var navigationState: NavigationState
 
     // MARK: - Helper: Next Due Date
     private func getNextDueDate(for course: Course) -> Date {
@@ -90,8 +98,9 @@ struct FilledHomeView: View {
                         .buttonStyle(.plain)
                     }
                         // '+ Add another syllabus' button
+                        // When tapped, navigate to scanning state
                         Button(action: {
-                            // I'll put the code to open the Camera/Scanner here later
+                            navigationState = .scanning
                         }) {
                             Text("+ Add another syllabus")
                                 .font(.headline)
@@ -100,7 +109,7 @@ struct FilledHomeView: View {
                                 .padding()
                                 .background(AppColors.primary)
                                 .cornerRadius(12)
-                            
+
                     }
                     .padding(.horizontal)
                     .padding(.top, 8)
@@ -170,7 +179,7 @@ struct FilledHomeView: View {
     container.mainContext.insert(course1)
     container.mainContext.insert(course2)
     container.mainContext.insert(course3)
-    
-    return HomeView()
+
+    return HomeView(navigationState: .constant(.home))
         .modelContainer(container)
 }
