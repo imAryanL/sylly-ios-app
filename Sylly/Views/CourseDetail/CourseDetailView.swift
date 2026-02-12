@@ -15,6 +15,8 @@ struct CourseDetailView: View {
 
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
+    @State private var selectedAssignment: Assignment?
+    @State private var showEditAssignmentSheet = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -50,30 +52,15 @@ struct CourseDetailView: View {
             } else if course.assignments.isEmpty {
                 EmptyCourseView()
             } else {
-                AssignmentListView(course: course)
+                AssignmentListView(
+                    course: course,
+                    onAssignmentTap: { assignment in
+                        selectedAssignment = assignment
+                        showEditAssignmentSheet = true
+                    }
+                )
             }
 
-            // Push the rescan button to the bottom
-            Spacer()
-
-            // MARK: - Rescan Button
-            // Button to re-scan the syllabus PDF (functionality added later)
-            Button(action: {
-                // TODO: Connect to scanner view
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "document.viewfinder.fill")
-                    Text("Rescan Syllabus")
-                }
-                    .font(.title3.bold())
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(AppColors.primary)
-                    .cornerRadius(25)
-            }
-            .padding(.horizontal, 80)
-            .padding(.bottom, 20)
         }
         .background(AppColors.background)
         .navigationBarTitleDisplayMode(.inline)
@@ -116,6 +103,13 @@ struct CourseDetailView: View {
                     set: { course.color = $0 }
                 )
             )
+        }
+
+        // MARK: - Edit Assignment Sheet
+        .sheet(isPresented: $showEditAssignmentSheet) {
+            if let assignment = selectedAssignment {
+                EditAssignmentDetailSheet(assignment: assignment)
+            }
         }
 
         // MARK: - Delete Confirmation Alert

@@ -1,25 +1,27 @@
 //
-//  EditAssignmentSheet.swift
+//  EditAssignmentDetailSheet.swift
 //  Sylly
 //
 
 import SwiftUI
+import SwiftData
 
-struct EditAssignmentSheet: View {
+struct EditAssignmentDetailSheet: View {
 
     // MARK: - Properties
     @Environment(\.dismiss) private var dismiss
-    @Binding var assignment: ReviewAssignment
+    @Environment(\.modelContext) private var modelContext
 
-    // Local state for editing
     @State private var title: String = ""
-    @State private var date: Date = Date()
-    @State private var time: Date = Date()
-    @State private var selectedType: String = "Exam"
+    @State private var dueDate: Date = Date()
+    @State private var assignmentTime: Date = Date()
+    @State private var assignmentType: String = "homework"
+    @State private var isCompleted: Bool = false
 
     @State private var showDeleteAlert = false
 
-    let types = ["Exam", "Quiz", "HW", "Project"]
+    let assignment: Assignment
+    let assignmentTypes = ["Exam", "Quiz", "HW", "Project"]
 
     // MARK: - Body
     var body: some View {
@@ -51,7 +53,7 @@ struct EditAssignmentSheet: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
 
-                            DatePicker("", selection: $date, displayedComponents: .date)
+                            DatePicker("", selection: $dueDate, displayedComponents: .date)
                                 .labelsHidden()
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -64,7 +66,7 @@ struct EditAssignmentSheet: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
 
-                            DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
+                            DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
                                 .labelsHidden()
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -80,8 +82,8 @@ struct EditAssignmentSheet: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.secondary)
 
-                        Picker("Assignment Type", selection: $selectedType) {
-                            ForEach(types, id: \.self) { type in
+                        Picker("Assignment Type", selection: $assignmentType) {
+                            ForEach(assignmentTypes, id: \.self) { type in
                                 Text(type)
                                     .font(.body)
                                     .fontWeight(.semibold)
@@ -97,6 +99,25 @@ struct EditAssignmentSheet: View {
 
                     Spacer()
                         .frame(height: 12)
+
+                    // MARK: - Completion Toggle
+                    Button(action: {
+                        isCompleted.toggle()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                                .font(.headline)
+                                .foregroundColor(isCompleted ? AppColors.primary : .gray)
+                            Text(isCompleted ? "Mark as Incomplete" : "Mark as Completed")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(12)
+                        .background(.thinMaterial)
+                        .cornerRadius(10)
+                    }
+                    .padding(.horizontal)
 
                     // MARK: - Delete Button
                     Button(action: {
@@ -139,14 +160,18 @@ struct EditAssignmentSheet: View {
             .alert("Delete Assignment?", isPresented: $showDeleteAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Delete", role: .destructive) {
+                    deleteAssignment()
                     dismiss()
                 }
             } message: {
-                Text("This assignment will be removed from the list.")
+                Text("This assignment will be deleted from the course.")
             }
             .onAppear {
                 title = assignment.title
-                selectedType = assignment.type
+                dueDate = assignment.dueDate
+                assignmentTime = assignment.dueDate
+                assignmentType = assignment.type
+                isCompleted = assignment.isCompleted
             }
         }
         .presentationDetents([.large])
@@ -155,19 +180,60 @@ struct EditAssignmentSheet: View {
 
     // MARK: - Helper Functions
     private func saveAssignment() {
+        // Step 1: Update basic assignment fields from the edit form
         assignment.title = title
-        assignment.type = selectedType
+        assignment.type = assignmentType
+        assignment.isCompleted = isCompleted
+
+        // Step 2: Separate date and time into individual components
+        // The date picker and time picker work independently, but we need to combine them
+        let calendar = Calendar.current
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: dueDate)
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: assignmentTime)
+
+        // Step 3: Merge date and time components back together
+        // Create a new DateComponents object with both date (year/month/day) and time (hour/minute)
+        var combinedComponents = DateComponents()
+        combinedComponents.year = dateComponents.year
+        combinedComponents.month = dateComponents.month
+        combinedComponents.day = dateComponents.day
+        combinedComponents.hour = timeComponents.hour
+        combinedComponents.minute = timeComponents.minute
+
+        // Step 4: Convert combined components back to a single Date object for the database
+        // ?? dueDate means "if conversion fails, use the original date as fallback"
+        assignment.dueDate = calendar.date(from: combinedComponents) ?? dueDate
+
+        // Step 5: Save the updated assignment to the SwiftData database
+        // do/try/catch is error handling - if save fails, it prints the error
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving assignment: \(error)")
+        }
+    }
+
+    private func deleteAssignment() {
+        // Step 1: Remove the assignment from the database
+        modelContext.delete(assignment)
+
+        // Step 2: Commit the deletion to the database
+        // do/try/catch is error handling - if deletion fails, it prints the error
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error deleting assignment: \(error)")
+        }
     }
 }
 
 // MARK: - Preview
 #Preview {
-    EditAssignmentSheet(
-        assignment: .constant(ReviewAssignment(
+    EditAssignmentDetailSheet(
+        assignment: Assignment(
             title: "Midterm Exam",
-            date: "Feb 12",
-            type: "Exam",
-            isSelected: true
-        ))
+            dueDate: Date(),
+            type: "exam"
+        )
     )
 }

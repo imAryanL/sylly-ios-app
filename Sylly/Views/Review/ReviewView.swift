@@ -75,7 +75,7 @@ struct ReviewView: View {
                     }
                 }
                 .padding()
-                .background(AppColors.cardBackground)
+                .background(Color(UIColor.secondarySystemBackground))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 .padding(.top, 8)
@@ -100,7 +100,7 @@ struct ReviewView: View {
                             }
                         }
                     }
-                    .background(AppColors.cardBackground)
+                    .background(Color(UIColor.secondarySystemBackground))
                     .cornerRadius(12)
                     .padding(.horizontal)
                     .padding(.top, 16)
@@ -139,7 +139,7 @@ struct ReviewView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
-                        dismiss()
+                        navigationState = .home
                     }
                     .foregroundColor(AppColors.primary)
                 }

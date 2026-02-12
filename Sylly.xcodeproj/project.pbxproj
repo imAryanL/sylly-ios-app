@@ -12,6 +12,7 @@
 		92131AB02F25F08C00276418 /* SyllyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92131AAC2F25F08C00276418 /* SyllyApp.swift */; };
 		921A1AFC2F2C0F4A004694BC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921A1AFB2F2C0F4A004694BC /* SettingsView.swift */; };
 		921A1AFE2F2C53B9004694BC /* CalendarPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921A1AFD2F2C53B9004694BC /* CalendarPickerView.swift */; };
+		921CA5C72F3AA27F00717B79 /* EditAssignmentDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921CA5C62F3AA27F00717B79 /* EditAssignmentDetailSheet.swift */; };
 		92232DF22F307E5D00566758 /* ScannerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92232DF12F307E5D00566758 /* ScannerService.swift */; };
 		924B9EDB2F26FDF5001C7C66 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDA2F26FDF5001C7C66 /* Constants.swift */; };
 		924B9EDD2F2731E6001C7C66 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924B9EDC2F2731E6001C7C66 /* Course.swift */; };
@@ -45,6 +46,7 @@
 		92131AAC2F25F08C00276418 /* SyllyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyllyApp.swift; sourceTree = "<group>"; };
 		921A1AFB2F2C0F4A004694BC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		921A1AFD2F2C53B9004694BC /* CalendarPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarPickerView.swift; sourceTree = "<group>"; };
+		921CA5C62F3AA27F00717B79 /* EditAssignmentDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAssignmentDetailSheet.swift; sourceTree = "<group>"; };
 		92232DF12F307E5D00566758 /* ScannerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerService.swift; sourceTree = "<group>"; };
 		924B9EDA2F26FDF5001C7C66 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		924B9EDC2F2731E6001C7C66 /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
@@ -222,6 +224,7 @@
 				92F1E50C2F2AF8F900A14A6D /* AssignmentDetailRow.swift */,
 				92F1E50E2F2AFBA700A14A6D /* EmptyCourseView.swift */,
 				92F1E5102F2B010500A14A6D /* CourseErrorView.swift */,
+				921CA5C62F3AA27F00717B79 /* EditAssignmentDetailSheet.swift */,
 			);
 			path = CourseDetail;
 			sourceTree = "<group>";
@@ -344,6 +347,7 @@
 				926603762F29493A006D0863 /* ScheduleCard.swift in Sources */,
 				926603742F2948E1006D0863 /* WeekStripView.swift in Sources */,
 				92DB6FFE2F2DC38D008C8FDE /* SuccessView.swift in Sources */,
+				921CA5C72F3AA27F00717B79 /* EditAssignmentDetailSheet.swift in Sources */,
 				92A1DB352F283C430009D82F /* CourseCard.swift in Sources */,
 				924B9EDB2F26FDF5001C7C66 /* Constants.swift in Sources */,
 			);

@@ -7,8 +7,9 @@
 import SwiftUI
 
 struct AssignmentDetailRow: View {
-    let assignment: Assignment  
+    let assignment: Assignment
     let isCompleted: Bool  // Whether this assignment is done or not
+    let onTap: () -> Void  // Callback when row is tapped
     
     var body: some View {
         // Arrange items horizontally with 12pt space between them
@@ -54,7 +55,10 @@ struct AssignmentDetailRow: View {
                 .foregroundColor(.gray)  
                 .font(.caption)  
         }
-        .padding()  
+        .padding()
+        .onTapGesture {
+            onTap()
+        }
     }
     
     // MARK: - Date Formatting Helper
@@ -78,17 +82,19 @@ struct AssignmentDetailRow: View {
         // Example 1: Upcoming assignment
         AssignmentDetailRow(
             assignment: Assignment(title: "Midterm Exam", dueDate: Date(), type: "exam"),
-            isCompleted: false  
+            isCompleted: false,
+            onTap: { }
         )
-        
+
         // Visual divider between rows
         Divider()
-        
+
         // Example 2: Completed assignment
         AssignmentDetailRow(
             assignment: Assignment(title: "Quiz 1", dueDate: Date(), type: "quiz"),
-            isCompleted: true  
+            isCompleted: true,
+            onTap: { }
         )
     }
-    .background(Color.white)  
+    .background(Color.white)
 }

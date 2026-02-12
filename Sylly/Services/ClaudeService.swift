@@ -59,9 +59,16 @@ class ClaudeService {
         }
         """
 
-        let userMessage = """
-        Please extract the course information and assignments from this syllabus:
+        // Get current year dynamically
+        let currentYear = Calendar.current.component(.year, from: Date())
 
+        let userMessage = """
+        Today's date is \(currentYear). Please extract the course information and assignments from this syllabus.
+
+        IMPORTANT: Ignore any years mentioned in the syllabus text (like "Fall 2023" or "Spring 2024").
+        Assume ALL dates are for year \(currentYear), since users scan current syllabi for their active courses.
+
+        Syllabus text:
         \(text)
         """
 

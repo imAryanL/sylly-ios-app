@@ -52,14 +52,15 @@ struct CourseCard: View {
                 if let nextAssignment = getNextAssignment() {
                     HStack (spacing: 4) {
                         Text("Next: \(nextAssignment.title)")
+                            .foregroundColor(.secondary)
                         Text("•")
+                            .foregroundColor(.secondary)
                         Text(dueText(for: nextAssignment))
                             .foregroundColor(urgencyColor(for: nextAssignment))
                             .fontWeight(.bold)
-                            
+
                     }
                     .font(.caption)
-                    .foregroundColor(.secondary)
                 } else {
                     Text("No upcoming assignments")
                         .font(.caption)
@@ -74,7 +75,7 @@ struct CourseCard: View {
                 .foregroundColor(.gray)
         }
         .padding()
-        .background(AppColors.cardBackground)
+        .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 5)
         .padding(.horizontal)
@@ -83,20 +84,28 @@ struct CourseCard: View {
 
     // MARK: - Helper: Next Assignment
     private func getNextAssignment() -> Assignment? {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())  // Get today's date at midnight
+
         let upcoming = course.assignments
-            // Filter: Only show assignments that aren't completed
-            // (!$0 means "this assignment is NOT done")
-            .filter { !$0.isCompleted }
+            // Filter: Only show incomplete assignments that are due in the future (not overdue)
+            .filter { !$0.isCompleted && calendar.startOfDay(for: $0.dueDate) >= today }
             // Sort: Put the assignments in order by date (soonest first)
             .sorted { $0.dueDate < $1.dueDate }
-        // Picking the very first assignment from the sorted list
+        // Picking the very first upcoming assignment from the sorted list
         return upcoming.first
     }
 
     // MARK: - Helper: Due Text
     private func dueText(for assignment: Assignment) -> String {
-        // Count how many days are between 'Right Now' and the 'Due Date'
-        let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
+        let calendar = Calendar.current
+
+        // IMPORTANT: Always use startOfDay() when comparing dates!
+        // Without it, time components affect the day count.
+        // Example: If today is Feb 11 at 5:00 PM and due date is Feb 13 at midnight,
+        // the difference might be 1.7 days, which rounds down to 1 instead of 2.
+        // startOfDay() sets both to 00:00:00, so we get a pure day count (2 days).
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: Date()), to: calendar.startOfDay(for: assignment.dueDate)).day ?? 0
 
         // For close assignments, show relative time
         if days == 0 {
@@ -119,14 +128,13 @@ struct CourseCard: View {
 
     // MARK: - Helper: Urgency Color
     private func urgencyColor(for assignment: Assignment) -> Color {
-        let days = Calendar.current.dateComponents([.day], from: Date(), to: assignment.dueDate).day ?? 0
+        // Strip time components for accurate day count (same pattern as dueText)
+        let calendar = Calendar.current
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: Date()), to: calendar.startOfDay(for: assignment.dueDate)).day ?? 0
 
         // Pick a color based on that number
-        if days < 0 {
-            // Past due. Use the 'Neutral' color (Gray/Blue)
-            return AppColors.neutral
-        } else if days <= 2 {
-            // Very close! Use the 'Urgent' color (Red)
+        if days <= 2 {
+            // Close date compared to current date. Use the 'Urgent' color (Red)
             return AppColors.urgent
         } else if days <= 7 {
             // Coming up soon. Use the 'Warning' color (Yellow/Orange)
