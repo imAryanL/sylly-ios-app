@@ -56,6 +56,7 @@
 		926603752F29493A006D0863 /* ScheduleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCard.swift; sourceTree = "<group>"; };
 		926603772F29495D006D0863 /* EmptyScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyScheduleView.swift; sourceTree = "<group>"; };
 		928A79E72F29FCB6008AE582 /* CourseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailView.swift; sourceTree = "<group>"; };
+		928D461F2F3EAD4B00FABA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		929715242F3523AD007E8BFE /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		92A1DB2E2F2823D20009D82F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		92A1DB322F28373F0009D82F /* EmptyHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyHomeView.swift; sourceTree = "<group>"; };
@@ -103,6 +104,7 @@
 		92131AAD2F25F08C00276418 /* Sylly */ = {
 			isa = PBXGroup;
 			children = (
+				928D461F2F3EAD4B00FABA6A /* Info.plist */,
 				92131AB82F25F76A00276418 /* Resources */,
 				92131AB72F25F18700276418 /* Utilities   */,
 				92131AB62F25F17A00276418 /* Components */,
@@ -487,8 +489,11 @@
 				DEVELOPMENT_TEAM = 2PS662V7G3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sylly/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Sylly needs camera access to scan user's syllabus";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Sylly needs access to your photo library so you can scan and upload your course syllabus";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -521,8 +526,11 @@
 				DEVELOPMENT_TEAM = 2PS662V7G3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sylly/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Sylly needs camera access to scan user's syllabus";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Sylly needs access to your photo library so you can scan and upload your course syllabus";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct EditAssignmentDetailSheet: View {
 
@@ -152,6 +153,7 @@ struct EditAssignmentDetailSheet: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveAssignment()
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         dismiss()
                     }
                     .foregroundColor(AppColors.primary)
@@ -161,6 +163,7 @@ struct EditAssignmentDetailSheet: View {
                 Button("Cancel", role: .cancel) { }
                 Button("Delete", role: .destructive) {
                     deleteAssignment()
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     dismiss()
                 }
             } message: {

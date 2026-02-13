@@ -14,14 +14,27 @@ struct ScheduleView: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                
-                
+            ScrollView {
+                VStack(spacing: 12) {
+                    if assignmentsForSelectedDate.isEmpty {
+                        EmptyScheduleView()
+                    } else {
+                        ForEach(assignmentsForSelectedDate) { assignment in
+                            ScheduleCard(assignment: assignment)
+                        }
+                    }
+                }
+                .padding(.top, 8)
+            }
+            .background(AppColors.background)
+            .navigationTitle("Schedule")
+            .safeAreaInset(edge: .top) {
+                // MARK: - Fixed Header
                 // Week Strip Card background (white)
                 VStack(spacing: 10){
-                // Week Strip, when clicking a day in this sub-view, it updates the state here
-                WeekStripView(selectedDate: $selectedDate)
-                
+                    // Week Strip, when clicking a day in this sub-view, it updates the state here
+                    WeekStripView(selectedDate: $selectedDate)
+
                     // Selected Date Label
                     Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day().year()))
                         .font(.subheadline)
@@ -33,16 +46,7 @@ struct ScheduleView: View {
                 .cornerRadius(16)
                 .padding(.horizontal)
                 .padding(.top, 8)
-                
-                // Content
-                if assignmentsForSelectedDate.isEmpty {
-                    EmptyScheduleView()
-                } else {
-                    FilledScheduleView(assignments: assignmentsForSelectedDate)
-                }
             }
-            .background(AppColors.background)
-            .navigationTitle("Schedule")
         }
     }
 

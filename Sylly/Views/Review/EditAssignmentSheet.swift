@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct EditAssignmentSheet: View {
 
@@ -131,6 +132,7 @@ struct EditAssignmentSheet: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveAssignment()
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         dismiss()
                     }
                     .foregroundColor(AppColors.primary)
@@ -139,6 +141,8 @@ struct EditAssignmentSheet: View {
             .alert("Delete Assignment?", isPresented: $showDeleteAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Delete", role: .destructive) {
+                    assignment.isSelected = false
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     dismiss()
                 }
             } message: {
@@ -157,6 +161,11 @@ struct EditAssignmentSheet: View {
     private func saveAssignment() {
         assignment.title = title
         assignment.type = selectedType
+
+        // Convert date back to string format "YYYY-MM-dd"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        assignment.date = dateFormatter.string(from: date)
     }
 }
 

@@ -82,12 +82,24 @@ struct LoadingView: View {
 
             // MARK: - Error Message (if any)
             if let error = errorMessage {
-                VStack(spacing: 12) {
-                    Text(error)
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                VStack(spacing: 16) {
+                    // Error message with icon and light red background
+                    HStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(.red)
+
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.leading)
+
+                        Spacer()
+                    }
+                    .padding(16)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(12)
+                    .padding(.horizontal, 24)
 
                     // Retry button
                     Button(action: {
@@ -103,7 +115,7 @@ struct LoadingView: View {
                             .cornerRadius(10)
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 16)
             }
 
             Spacer()

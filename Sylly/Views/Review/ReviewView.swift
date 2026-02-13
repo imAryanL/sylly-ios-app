@@ -287,10 +287,14 @@ struct ReviewView: View {
 
         // Create Assignment objects for selected items only
         for reviewAssignment in assignments where reviewAssignment.isSelected {
-            // Convert date string to Date
+            // Convert date string to Date with error handling
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
-            let dueDate = dateFormatter.date(from: reviewAssignment.date) ?? Date()
+
+            guard let dueDate = dateFormatter.date(from: reviewAssignment.date) else {
+                print("Error: Failed to parse date '\(reviewAssignment.date)' for assignment '\(reviewAssignment.title)'. Skipping this assignment.")
+                continue
+            }
 
             // Convert type to lowercase for database
             let type = reviewAssignment.type.lowercased()

@@ -54,11 +54,13 @@ struct FilledHomeView: View {
 
     // MARK: - Helper: Next Due Date
     private func getNextDueDate(for course: Course) -> Date {
-            
+
             // FILTER: Focused on only homework that isn't done yet
             // AND has a deadline in the future (ignores past-due or finished work)
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
             let upcoming = course.assignments
-                .filter { !$0.isCompleted && $0.dueDate > Date() }
+                .filter { !$0.isCompleted && calendar.startOfDay(for: $0.dueDate) >= today }
                 
                 // SORT: Line them up by date so the soonest one is at index [0]
                 // ($0 < $1) means 'earlier date comes first'

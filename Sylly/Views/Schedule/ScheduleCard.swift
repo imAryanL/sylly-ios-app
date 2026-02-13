@@ -10,8 +10,19 @@ struct ScheduleCard: View {
 
     // MARK: - Body
     var body: some View {
+        if let course = assignment.course {
+            NavigationLink(destination: CourseDetailView(course: course)) {
+                cardContent
+            }
+        } else {
+            cardContent
+        }
+    }
+
+    // MARK: - Card Content
+    private var cardContent: some View {
         HStack(spacing: 12) {
-            
+
             // Course icon in colored box
             if let course = assignment.course {
                 Image(systemName: course.icon)
@@ -21,39 +32,39 @@ struct ScheduleCard: View {
                     .background(getColor(from: course.color))
                     .cornerRadius(10)
             }
-            
+
             // Assignment info
             VStack(alignment: .leading, spacing: 4) {
-                
+
                 // Assignment title
                 Text(assignment.title)
                     .font(.headline)
                     .foregroundColor(.primary)
-                
+
                 // Course name
                 if let course = assignment.course {
                     Text(course.name)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                
+
                 // Due time
                 Text("Due Today at \(getTimeString(from: assignment.dueDate))")
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(AppColors.urgent)
             }
-            
+
             Spacer()
-            
+
             // Chevron arrow
             Image(systemName: AppIcons.chevronRight)
                 .foregroundColor(.gray)
         }
         .padding()
-        .background(AppColors.cardBackground)
+        .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.05), radius: 5)
+        .shadow(color: .black.opacity(0.1), radius: 5)
         .padding(.horizontal)
     }
 
