@@ -39,6 +39,11 @@ struct ReviewView: View {
     @State private var selectedAssignmentIndex: Int? = nil
     @State private var showSuccess = false
 
+    // MARK: - State Properties: Error Handling
+    // Tracks assignments that failed to save due to bad dates
+    @State private var showDateError = false
+    @State private var failedAssignmentNames: [String] = []
+
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -51,7 +56,7 @@ struct ReviewView: View {
                         .font(.title2)
                         .foregroundColor(.white)
                         .frame(width: 50, height: 50)
-                        .background(getColor(from: courseColor))
+                        .background(AppColors.color(from: courseColor))
                         .cornerRadius(10)
 
                     // Course name and code
@@ -165,6 +170,17 @@ struct ReviewView: View {
                 EditAssignmentSheet(assignment: $assignments[index])
             }
         }
+        // Alert when some assignments had unparseable dates
+        .alert("Some Dates Couldn't Be Read", isPresented: $showDateError) {
+            Button("OK") {
+                // Still navigate to success — the good assignments were saved
+                let savedCount = selectedCount - failedAssignmentNames.count
+                navigationState = .success(savedCount)
+            }
+        } message: {
+            let names = failedAssignmentNames.joined(separator: ", ")
+            Text("These assignments were skipped because their dates couldn't be understood:\n\n\(names)\n\nYou can add them manually later.")
+        }
     }
 
     // MARK: - Computed Properties
@@ -258,23 +274,6 @@ struct ReviewView: View {
         return formatter.string(from: date)
     }
 
-    // Convert color name to Color
-    private func getColor(from colorName: String) -> Color {
-        switch colorName.lowercased() {
-        case "brandprimary": return Color("BrandPrimary")
-        case "red": return .red
-        case "green": return .green
-        case "orange": return .orange
-        case "blue": return Color("ICON_Blue")
-        case "pink": return Color("ICON_Pink")
-        case "purple": return Color("ICON_Purple")
-        case "yellow": return .yellow
-        case "black": return .black
-        case "gray": return .gray
-        default: return Color("BrandPrimary")
-        }
-    }
-
     // MARK: - Save to Database
     private func saveToDatabase() {
         // Create the Course object
@@ -285,14 +284,19 @@ struct ReviewView: View {
             color: courseColor
         )
 
+        // Track any assignments with dates we can't understand
+        var failed: [String] = []
+        var savedCount = 0
+
         // Create Assignment objects for selected items only
         for reviewAssignment in assignments where reviewAssignment.isSelected {
-            // Convert date string to Date with error handling
+            // Convert date string to Date
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
 
             guard let dueDate = dateFormatter.date(from: reviewAssignment.date) else {
-                print("Error: Failed to parse date '\(reviewAssignment.date)' for assignment '\(reviewAssignment.title)'. Skipping this assignment.")
+                // Track this failure instead of silently skipping
+                failed.append(reviewAssignment.title)
                 continue
             }
 
@@ -309,6 +313,7 @@ struct ReviewView: View {
             // Link assignment to course
             assignment.course = course
             course.assignments.append(assignment)
+            savedCount += 1
         }
 
         // Save to SwiftData
@@ -321,8 +326,14 @@ struct ReviewView: View {
             return
         }
 
-        // Navigate to success screen
-        navigationState = .success(selectedCount)
+        // If some assignments had bad dates, warn the user
+        if !failed.isEmpty {
+            failedAssignmentNames = failed
+            showDateError = true
+        } else {
+            // All good — go to success screen
+            navigationState = .success(savedCount)
+        }
     }
 }
 

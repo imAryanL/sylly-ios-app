@@ -96,5 +96,5 @@ struct AssignmentDetailRow: View {
             onTap: { }
         )
     }
-    .background(Color.white)
+    .background(Color(UIColor.secondarySystemBackground))
 }

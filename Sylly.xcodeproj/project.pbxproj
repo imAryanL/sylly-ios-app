@@ -56,7 +56,6 @@
 		926603752F29493A006D0863 /* ScheduleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCard.swift; sourceTree = "<group>"; };
 		926603772F29495D006D0863 /* EmptyScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyScheduleView.swift; sourceTree = "<group>"; };
 		928A79E72F29FCB6008AE582 /* CourseDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseDetailView.swift; sourceTree = "<group>"; };
-		928D461F2F3EAD4B00FABA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		929715242F3523AD007E8BFE /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		92A1DB2E2F2823D20009D82F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		92A1DB322F28373F0009D82F /* EmptyHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyHomeView.swift; sourceTree = "<group>"; };
@@ -72,6 +71,8 @@
 		92F1E50C2F2AF8F900A14A6D /* AssignmentDetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssignmentDetailRow.swift; sourceTree = "<group>"; };
 		92F1E50E2F2AFBA700A14A6D /* EmptyCourseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCourseView.swift; sourceTree = "<group>"; };
 		92F1E5102F2B010500A14A6D /* CourseErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseErrorView.swift; sourceTree = "<group>"; };
+		92F563002F3FD87D00EC8539 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		92F563012F3FD96A00EC8539 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +89,7 @@
 		92131A8C2F25BBE400276418 = {
 			isa = PBXGroup;
 			children = (
+				92F563002F3FD87D00EC8539 /* Secrets.xcconfig */,
 				92131AAD2F25F08C00276418 /* Sylly */,
 				92131A962F25BBE400276418 /* Products */,
 			);
@@ -104,7 +106,7 @@
 		92131AAD2F25F08C00276418 /* Sylly */ = {
 			isa = PBXGroup;
 			children = (
-				928D461F2F3EAD4B00FABA6A /* Info.plist */,
+				92F563012F3FD96A00EC8539 /* Info.plist */,
 				92131AB82F25F76A00276418 /* Resources */,
 				92131AB72F25F18700276418 /* Utilities   */,
 				92131AB62F25F17A00276418 /* Components */,
@@ -481,6 +483,7 @@
 		};
 		92131AA12F25BBE500276418 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 92F563002F3FD87D00EC8539 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -518,6 +521,7 @@
 		};
 		92131AA22F25BBE500276418 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 92F563002F3FD87D00EC8539 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

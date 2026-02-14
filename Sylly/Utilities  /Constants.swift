@@ -9,12 +9,12 @@ import SwiftUI
 struct AppColors {
     // Primary brand color (from Assets)
     static let primary = Color("BrandPrimary")
-    
+
     // Urgency colors
     static let urgent = Color.red              // Due in 1-2 days
     static let warning = Color.orange          // Due in 3-7 days
     static let neutral = Color.gray            // Due in 1+ weeks
-    
+
     // Course colors (for icon backgrounds)
     static let courseColors: [Color] = [
         Color("BrandPrimary"),
@@ -28,10 +28,30 @@ struct AppColors {
         .gray,
         .yellow,
     ]
-    
+
     // Background colors
     static let background = Color(.systemGroupedBackground)
     static let cardBackground = Color(.systemBackground)
+
+    // MARK: - Color from String
+    // Converts a color name string (stored in the database) to an actual SwiftUI Color.
+    // Used everywhere a course's color needs to be displayed.
+    // This is the SINGLE source of truth — don't duplicate this elsewhere!
+    static func color(from name: String) -> Color {
+        switch name.lowercased() {
+        case "brandprimary": return Color("BrandPrimary")
+        case "red": return .red
+        case "green": return .green
+        case "orange": return .orange
+        case "blue": return Color("ICON_Blue")
+        case "pink": return Color("ICON_Pink")
+        case "purple": return Color("ICON_Purple")
+        case "yellow": return .yellow
+        case "black": return .black
+        case "gray": return .gray
+        default: return Color("BrandPrimary")
+        }
+    }
 }
 
 // MARK: - SF Symbols for Courses

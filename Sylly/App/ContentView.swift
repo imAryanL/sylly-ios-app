@@ -48,7 +48,7 @@ struct ContentView: View {
                     .tag(1)
 
                 // Tab 3: Calendar/Schedule
-                ScheduleView()
+                ScheduleView(navigationState: $navigationState)
                     .tabItem {
                         Image(systemName: AppIcons.calendarTab)
                         Text("Calendar")

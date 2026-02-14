@@ -12,6 +12,8 @@ struct CourseDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     let course: Course
+    // Navigation binding so we can trigger the scanner from here
+    @Binding var navigationState: NavigationState
 
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
@@ -48,7 +50,11 @@ struct CourseDetailView: View {
             // MARK: - Main Content Section
             // Shows error state, empty state, or list of assignments (checks error first)
             if course.hasError {
-                CourseErrorView()
+                CourseErrorView(onRescan: {
+                    // Go back to the previous screen, then open the scanner
+                    dismiss()
+                    navigationState = .scanning
+                })
             } else if course.assignments.isEmpty {
                 EmptyCourseView()
             } else {
@@ -171,6 +177,6 @@ struct CourseDetailView: View {
 
     // Preview wrapped in NavigationStack so back button works
     return NavigationStack {
-        CourseDetailView(course: course)
+        CourseDetailView(course: course, navigationState: .constant(.home))
     }
 }

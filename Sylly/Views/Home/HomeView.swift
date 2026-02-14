@@ -94,7 +94,7 @@ struct FilledHomeView: View {
                     
                     // For every course in database, it generates one CourseCard. If there's 5 courses, it makes 5 cards
                     ForEach(sortedCourses) { course in
-                        NavigationLink(destination: CourseDetailView(course: course)) {
+                        NavigationLink(destination: CourseDetailView(course: course, navigationState: $navigationState)) {
                             CourseCard(course: course)
                         }
                         .buttonStyle(.plain)

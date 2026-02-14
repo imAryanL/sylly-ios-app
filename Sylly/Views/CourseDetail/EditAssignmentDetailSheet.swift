@@ -173,8 +173,23 @@ struct EditAssignmentDetailSheet: View {
                 title = assignment.title
                 dueDate = assignment.dueDate
                 assignmentTime = assignment.dueDate
-                assignmentType = assignment.type
                 isCompleted = assignment.isCompleted
+
+                // Map the stored lowercase type to the picker's display format
+                // Database stores: "exam", "quiz", "homework", "project"
+                // Picker expects: "Exam", "Quiz", "HW", "Project"
+                switch assignment.type.lowercased() {
+                case "homework", "hw":
+                    assignmentType = "HW"
+                case "exam":
+                    assignmentType = "Exam"
+                case "quiz":
+                    assignmentType = "Quiz"
+                case "project":
+                    assignmentType = "Project"
+                default:
+                    assignmentType = assignment.type
+                }
             }
         }
         .presentationDetents([.large])
@@ -185,7 +200,9 @@ struct EditAssignmentDetailSheet: View {
     private func saveAssignment() {
         // Step 1: Update basic assignment fields from the edit form
         assignment.title = title
-        assignment.type = assignmentType
+        // Convert picker display format back to lowercase for database
+        // "HW" -> "homework", everything else just lowercased
+        assignment.type = assignmentType == "HW" ? "homework" : assignmentType.lowercased()
         assignment.isCompleted = isCompleted
 
         // Step 2: Separate date and time into individual components

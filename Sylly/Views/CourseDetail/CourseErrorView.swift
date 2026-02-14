@@ -12,6 +12,10 @@
 import SwiftUI
 
 struct CourseErrorView: View {
+    // Action to run when the user taps "Rescan"
+    // This is a closure (a block of code) passed in from the parent view
+    var onRescan: () -> Void
+
     var body: some View {
         // MARK: - Main Container
         VStack(spacing: 16) {
@@ -41,7 +45,7 @@ struct CourseErrorView: View {
             // MARK: - Rescan Button
             // Button to let users retry scanning their syllabus
             Button(action: {
-                // TODO: Connect to scanner view when button is tapped
+                onRescan()
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: "document.viewfinder.fill")
@@ -68,5 +72,5 @@ struct CourseErrorView: View {
 
 #Preview {
     // Show the error state for testing in Xcode preview
-    CourseErrorView()
+    CourseErrorView(onRescan: { })
 }

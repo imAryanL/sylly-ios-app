@@ -151,6 +151,14 @@ struct EditAssignmentSheet: View {
             .onAppear {
                 title = assignment.title
                 selectedType = assignment.type
+
+                // Parse the assignment's date string into a Date object
+                // so the DatePicker shows the actual due date, not today
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
+                if let parsed = dateFormatter.date(from: assignment.date) {
+                    date = parsed
+                }
             }
         }
         .presentationDetents([.large])

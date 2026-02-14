@@ -18,6 +18,7 @@ Podfile.lock
 
 # Configuration with secrets
 Config.swift
+Secrets.xcconfig
 
 # Compiled binaries
 *.app

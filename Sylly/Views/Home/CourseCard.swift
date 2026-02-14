@@ -10,22 +10,6 @@ struct CourseCard: View {
 
     let course: Course
 
-    // MARK: - Helper: Color from String
-    private func colorFromString(_ colorName: String) -> Color {
-        switch colorName.lowercased() {
-        case "brandprimary": return Color("BrandPrimary")
-        case "red": return .red
-        case "green": return .green
-        case "orange": return .orange
-        case "blue": return .blue
-        case "pink": return .pink
-        case "purple": return .purple
-        case "black": return .black
-        case "gray": return .gray
-        default: return Color("BrandPrimary")
-        }
-    }
-
     // MARK: - Body
     var body: some View {
         HStack(spacing: 12) {
@@ -35,7 +19,7 @@ struct CourseCard: View {
                 .font(.title2)
                 .foregroundColor(.white)
                 .frame(width: 50, height: 50)
-                .background(colorFromString(course.color))
+                .background(AppColors.color(from: course.color))
                 .cornerRadius(10)
             
             // Course info
