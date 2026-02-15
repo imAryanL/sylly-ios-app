@@ -2,52 +2,46 @@
 //  CalendarPickerView.swift
 //  Sylly
 //
+//  This view used to show a fake list of calendars, but since
+//  EventKit (Apple's calendar framework) isn't built yet,
+//  Replaced it with a "coming soon" placeholder
+//  Once we build calendar export, I will replace this with real calendars
+//
 
 import SwiftUI
 
 struct CalendarPickerView: View {
 
-    // MARK: - AppStorage: Persistent User Settings
-    // @AppStorage with the same key name ("selectedCalendar") connects to SettingsView
-    // Both views read/write to the same device storage location automatically
-    // When user selects a calendar here, it updates immediately in SettingsView too
-    @AppStorage("selectedCalendar") private var selectedCalendar = "School"
-    @Environment(\.dismiss) private var dismiss
-
-
-    // MARK: - Data
-    // List of calendar options user can choose from
-    let calendars = ["School", "Personal", "Work", "Family"]
-
     // MARK: - Body
     var body: some View {
-        List {
-            // Loop through each calendar option
-            // id: \.self tells SwiftUI to use the string itself as the unique identifier
-            ForEach(calendars, id: \.self) { calendar in
-                Button(action: {
-                    // When user taps a calendar, update the parent's selectedCalendar value
-                    selectedCalendar = calendar
-                    // Close this view and return to Settings
-                    dismiss()
-                }) {
-                    HStack {
-                        Text(calendar)
-                            .foregroundColor(.primary)
 
-                        Spacer()
+        // VStack stacks everything vertically with 20pt spacing between items
+        VStack(spacing: 20) {
 
-                        // MARK: - Checkmark Indicator
-                        // Show a checkmark next to the currently selected calendar
-                        if calendar == selectedCalendar {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(AppColors.primary)
-                        }
-                    }
-                }
-            }
+            // Pushes content to the center of the screen
+            Spacer()
+
+            // A calendar icon to visually communicate what this feature is about
+            Image(systemName: "calendar.badge.clock")
+                .font(.system(size: 60))
+                .foregroundColor(.secondary.opacity(0.5))
+
+            // Feature title
+            Text("Calendar Export")
+                .font(.title2)
+                .fontWeight(.bold)
+
+            // Short explanation so the user knows this isn't broken, just not ready yet
+            Text("Automatically add assignments to your Apple Calendar. This feature is coming soon!")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)  // Centers text when it wraps to multiple lines
+                .padding(.horizontal, 40)          // Adds side padding so text doesn't touch screen edges
+
+            // Pushes content to the center (Spacer top + Spacer bottom = centered)
+            Spacer()
         }
-        .navigationTitle("Select Calendar")
+        .navigationTitle("Calendar")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

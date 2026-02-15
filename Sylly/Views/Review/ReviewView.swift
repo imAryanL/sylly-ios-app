@@ -300,8 +300,9 @@ struct ReviewView: View {
                 continue
             }
 
-            // Convert type to lowercase for database
-            let type = reviewAssignment.type.lowercased()
+            // Convert display type back to database format
+            // "HW" → "homework", everything else just lowercased
+            let type = reviewAssignment.type == "HW" ? "homework" : reviewAssignment.type.lowercased()
 
             // Create the Assignment
             let assignment = Assignment(

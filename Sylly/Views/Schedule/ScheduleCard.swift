@@ -53,7 +53,7 @@ struct ScheduleCard: View {
                 Text("\(getDueDateLabel(from: assignment.dueDate)) at \(getTimeString(from: assignment.dueDate))")
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundColor(AppColors.urgent)
+                    .foregroundColor(urgencyColor(for: assignment))
             }
 
             Spacer()
@@ -80,6 +80,21 @@ struct ScheduleCard: View {
             let formatter = DateFormatter()
             formatter.dateFormat = "MMM d" // "Feb 18"
             return "Due \(formatter.string(from: date))"
+        }
+    }
+
+    // MARK: - Helper: Urgency Color
+    // Red for ≤2 days, yellow/orange for ≤7 days, gray/blue for further out
+    private func urgencyColor(for assignment: Assignment) -> Color {
+        let calendar = Calendar.current
+        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: Date()), to: calendar.startOfDay(for: assignment.dueDate)).day ?? 0
+
+        if days <= 2 {
+            return AppColors.urgent
+        } else if days <= 7 {
+            return AppColors.warning
+        } else {
+            return AppColors.neutral
         }
     }
 

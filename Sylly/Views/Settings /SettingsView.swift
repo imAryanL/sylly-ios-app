@@ -22,11 +22,6 @@ struct SettingsView: View {
     // State for alerts
     @State private var showDeleteAlert = false
 
-    // MARK: - AppStorage: Persistent User Settings
-    // @AppStorage automatically saves/loads values to device storage (UserDefaults)
-    // "selectedCalendar" is the key name for storing this value persistently
-    // When user picks a calendar, it saves automatically and syncs with CalendarPickerView
-    @AppStorage("selectedCalendar") private var selectedCalendar = "School"
 
     // MARK: - Body
     var body: some View {
@@ -37,13 +32,13 @@ struct SettingsView: View {
                 // MARK: - PREFERENCES Section
                 Section(header: Text("PREFERENCES")) {
 
-                    // Calendar picker with navigation
+                    // Calendar export — navigates to "coming soon" placeholder
                     NavigationLink(destination: CalendarPickerView()) {
                         HStack {
                             SettingsIcon(icon: "calendar", color: .blue)
                             Text("Calendar")
                             Spacer()
-                            Text(selectedCalendar)
+                            Text("Coming Soon")
                                 .foregroundColor(.secondary)
                         }
                     }

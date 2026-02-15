@@ -32,11 +32,12 @@ struct WeekStripView: View {
         let today = Date()
         
         // Walk backward and forward from today using Apple's Calendar math.
-            let day1 = Calendar.current.date(byAdding: .day, value: -2, to: today)! // 2 days ago
-            let day2 = Calendar.current.date(byAdding: .day, value: -1, to: today)! // Yesterday
-            let day3 = today                                                       // Today
-            let day4 = Calendar.current.date(byAdding: .day, value: 1, to: today)!  // Tomorrow
-            let day5 = Calendar.current.date(byAdding: .day, value: 2, to: today)!  // Day after tomorrow
+        // ?? today means "if calendar math fails, fall back to today instead of crashing"
+            let day1 = Calendar.current.date(byAdding: .day, value: -2, to: today) ?? today // 2 days ago
+            let day2 = Calendar.current.date(byAdding: .day, value: -1, to: today) ?? today // Yesterday
+            let day3 = today                                                                // Today
+            let day4 = Calendar.current.date(byAdding: .day, value: 1, to: today) ?? today  // Tomorrow
+            let day5 = Calendar.current.date(byAdding: .day, value: 2, to: today) ?? today  // Day after tomorrow
             
             return [day1, day2, day3, day4, day5]
         }

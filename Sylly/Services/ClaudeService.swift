@@ -16,9 +16,8 @@ import SwiftUI
 class ClaudeService {
 
     // MARK: - API Configuration
-    // ⚠️ TEMPORARY: For testing only!
-    // In a real app, you'd use a backend server to hide this key
-    // We'll discuss secure options before you ship to App Store
+    // API key loaded from Secrets.xcconfig via Info.plist → Config.swift
+    // For App Store, move to a backend proxy so the key isn't in the app bundle
     private let apiKey = Config.claudeAPIKey
     private let apiURL = "https://api.anthropic.com/v1/messages"
     private let model = "claude-haiku-4-5-20251001"  // Fast & cheap model

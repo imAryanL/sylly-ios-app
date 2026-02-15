@@ -91,6 +91,7 @@ struct EditCourseSheet: View {
                     Spacer()
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(AppColors.background)
             .navigationTitle("Edit course")
             .navigationBarTitleDisplayMode(.inline)
@@ -106,7 +107,8 @@ struct EditCourseSheet: View {
                     Button("Save") {
                         dismiss()
                     }
-                    .foregroundColor(AppColors.primary)
+                    .foregroundColor(courseName.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
+                    .disabled(courseName.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }

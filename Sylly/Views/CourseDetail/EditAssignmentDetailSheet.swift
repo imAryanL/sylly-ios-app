@@ -139,6 +139,7 @@ struct EditAssignmentDetailSheet: View {
                     .padding(.bottom, 8)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Color(UIColor.secondarySystemBackground))
             .navigationTitle("Edit assignment")
             .navigationBarTitleDisplayMode(.inline)
@@ -156,7 +157,8 @@ struct EditAssignmentDetailSheet: View {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         dismiss()
                     }
-                    .foregroundColor(AppColors.primary)
+                    .foregroundColor(title.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
+                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
             .alert("Delete Assignment?", isPresented: $showDeleteAlert) {
