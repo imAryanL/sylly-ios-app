@@ -13,7 +13,7 @@ import Combine
 struct LoadingView: View {
 
     // MARK: - Properties
-    let image: UIImage?
+    let images: [UIImage]
 
     // MARK: - Navigation
     // Single binding to control entire navigation
@@ -156,22 +156,22 @@ struct LoadingView: View {
     // MARK: - Processing Function
     // This runs OCR and Claude API
     private func startProcessing() {
-        // Make sure we have an image
-        guard let image = image else {
-            errorMessage = "No image to process"
+        // Make sure we have images to process
+        guard !images.isEmpty else {
+            errorMessage = "No images to process"
             return
         }
 
         // Run the processing in a background task
         Task {
             do {
-                // Step 1: OCR - Extract text from image
+                // Step 1: OCR - Extract text from all scanned pages
                 await MainActor.run {
-                    statusMessage = "Extracting text..."
+                    statusMessage = "Extracting text from \(images.count) page\(images.count == 1 ? "" : "s")..."
                 }
 
                 let scannerService = ScannerService()
-                let extractedText = try await scannerService.extractText(from: image)
+                let extractedText = try await scannerService.extractText(from: images)
 
                 // Debug: Print extracted text
                 print("Extracted text:\n\(extractedText)")
@@ -207,5 +207,5 @@ struct LoadingView: View {
 
 // MARK: - Preview
 #Preview {
-    LoadingView(image: UIImage(named: "TestSyllabus"), navigationState: .constant(.loading(nil)))
+    LoadingView(images: [UIImage(named: "TestSyllabus")].compactMap { $0 }, navigationState: .constant(.loading([])))
 }

@@ -12,7 +12,7 @@ import SwiftData
 enum NavigationState {
     case home                              // Home screen (default)
     case scanning                          // ScannerView
-    case loading(UIImage?)                 // LoadingView (carries image to process)
+    case loading([UIImage])                 // LoadingView (carries images to process)
     case reviewing(ParsedSyllabus)         // ReviewView (carries parsed data)
     case success(Int)                      // SuccessView (carries assignment count)
 }
@@ -72,8 +72,8 @@ struct ContentView: View {
                     .transition(.move(edge: .bottom))
             }
 
-            if case .loading(let image) = navigationState {
-                LoadingView(image: image, navigationState: $navigationState)
+            if case .loading(let images) = navigationState {
+                LoadingView(images: images, navigationState: $navigationState)
                     .transition(.move(edge: .bottom))
             }
 

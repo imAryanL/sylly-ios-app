@@ -92,7 +92,7 @@ class ClaudeService {
         // This is the actual data I'm sending to Claude's API integration, SDK
         let requestBody: [String: Any] = [
             "model": model,
-            "max_tokens": 1024,
+            "max_tokens": 4096,
             "system": systemPrompt,
             "messages": [
                 ["role": "user", "content": userMessage]

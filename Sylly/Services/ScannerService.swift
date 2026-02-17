@@ -14,7 +14,27 @@ import Vision
 // Classes work better with the Vision framework for this purpose
 class ScannerService {
     
-    // MARK: - Main Function: Extract Text from Image
+    // MARK: - Multi-Image OCR
+    // Takes an array of images (from multi-page scanner) and extracts text from all of them
+    // Returns one big combined string with all the text from every page
+    func extractText(from images: [UIImage]) async throws -> String {
+        var allText: [String] = []
+
+        for image in images {
+            let pageText = try await extractText(from: image)
+            allText.append(pageText)
+        }
+
+        let combined = allText.joined(separator: "\n\n")
+
+        if combined.isEmpty {
+            throw ScannerError.noTextFound
+        }
+
+        return combined
+    }
+
+    // MARK: - Single Image OCR
     // I call this function from other parts of the app when I need to scan an image
     // - async: This takes time to run, so my app won't freeze while processing
     // - throws: If something goes wrong, I throw an error
