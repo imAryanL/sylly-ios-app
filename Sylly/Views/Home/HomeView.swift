@@ -97,11 +97,12 @@ struct FilledHomeView: View {
                         NavigationLink(destination: CourseDetailView(course: course, navigationState: $navigationState)) {
                             CourseCard(course: course)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PressableButtonStyle())
                     }
                         // '+ Add another syllabus' button
                         // When tapped, navigate to scanning state
                         Button(action: {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             navigationState = .scanning
                         }) {
                             Text("+ Add another syllabus")
@@ -113,6 +114,7 @@ struct FilledHomeView: View {
                                 .cornerRadius(12)
 
                     }
+                    .buttonStyle(PressableButtonStyle())
                     .padding(.horizontal)
                     .padding(.top, 8)
                 }

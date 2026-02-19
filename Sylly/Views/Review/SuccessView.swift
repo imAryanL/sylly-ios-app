@@ -52,6 +52,7 @@ struct SuccessView: View {
             // MARK: - View Calendar Button
             // When tapped: go back to home and switch to Calendar tab
             Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 selectedTab = 2                    // Switch to Calendar tab
                 navigationState = .home            // Go back to home (clears all overlays)
             }) {
@@ -63,6 +64,7 @@ struct SuccessView: View {
                     .background(AppColors.primary)
                     .cornerRadius(12)
             }
+            .buttonStyle(PressableButtonStyle())
             .padding(.horizontal)
 
             // MARK: - Back to Home Button

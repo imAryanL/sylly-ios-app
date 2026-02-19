@@ -11,6 +11,7 @@ import VisionKit
 import PhotosUI
 import PDFKit                  // Convert PDF pages → images
 import UniformTypeIdentifiers  // UTType.pdf for file picker filter
+import UIKit                   // For haptic feedback
 
 struct ScannerView: View {
 
@@ -26,171 +27,18 @@ struct ScannerView: View {
 
     // MARK: - Body
     var body: some View {
-        ZStack {
-            // Black background (like a camera app)
-            Color.black
-                .ignoresSafeArea()
-
-            VStack(spacing: 0) {
-
-                // MARK: - Top Bar
-                HStack {
-                    // Close button
-                    // Navigate back to home when tapped
-                    Button(action: {
-                        navigationState = .home
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(width: 44, height: 44)
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                // MARK: - Instructions
-                Text("Scan your syllabus")
-                    .font(.headline)
-                    .foregroundColor(.white.opacity(0.9))
-                    .padding(.top, 20)
-
-                Text("Scan multiple pages or pick a photo from your library")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.6))
-                    .padding(.top, 4)
-
-                Spacer()
-
-                // MARK: - Preview Area
-                // Shows scanned pages (swipeable) or a placeholder
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.white.opacity(0.1))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 500)
-
-                    if !capturedImages.isEmpty {
-                        VStack(spacing: 8) {
-                            // Swipeable carousel of all scanned/selected images
-                            TabView {
-                                // Loop through each image with its index
-                                ForEach(Array(capturedImages.enumerated()), id: \.offset) { index, image in
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFit()       // Fit without stretching
-                                        .cornerRadius(12)
-                                        .padding(.horizontal, 8)
-                                }
-                            }
-                            // Page style shows swipeable cards with automatic dot indicators
-                            .tabViewStyle(.page(indexDisplayMode: .automatic))
-                            .frame(height: 460)
-
-                            // Show hint text only when multiple pages exist
-                            if capturedImages.count > 1 {
-                                Text("\(capturedImages.count) pages — swipe to preview")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.6))
-                            }
-                        }
-                    } else {
-                        // Show placeholder
-                        VStack(spacing: 12) {
-                            Image(systemName: "doc.text.viewfinder")
-                                .font(.system(size: 60))
-                                .foregroundColor(.white.opacity(0.4))
-
-                            Text("No pages scanned yet")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.4))
-                        }
-                    }
-                }
-
-                Spacer()
-
-                // MARK: - Bottom Buttons
-                if !capturedImages.isEmpty {
-                    // If we have scanned pages, show "Rescan" and "Continue" buttons
-                    HStack(spacing: 20) {
-                        // Rescan button — clears all pages
-                        Button(action: {
-                            capturedImages = []
-                        }) {
-                            Text("Rescan")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color.gray.opacity(0.5))
-                                .cornerRadius(25)
-                        }
-
-                        // Continue button — sends all images to loading
-                        Button(action: {
-                            navigationState = .loading(capturedImages)
-                        }) {
-                            Text("Continue")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(AppColors.primary)
-                                .cornerRadius(25)
-                        }
-                    }
-                    .padding(.bottom, 40)
-                    .padding(.horizontal, 20)
-
+        NavigationStack {
+            Group {
+                if capturedImages.isEmpty {
+                    // No images yet — show the 3 import option cards
+                    launchPadView
                 } else {
-                    // If no pages yet, show scan and library buttons
-                    HStack(spacing: 60) {
-                        // Photo library button (single image fallback)
-                        Button(action: {
-                            showPhotoLibrary = true
-                        }) {
-                            VStack(spacing: 8) {
-                                Image(systemName: "photo.on.rectangle")
-                                    .font(.title)
-                                    .foregroundColor(.white)
-                                Text("Library")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                            .frame(width: 70, height: 70)
-                        }
-
-                        // Scan button (big circle) — opens Apple's document scanner
-                        Button(action: {
-                            showDocumentScanner = true
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .stroke(Color.white, lineWidth: 4)
-                                    .frame(width: 75, height: 75)
-
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 62, height: 62)
-
-                                // Small document icon inside the button
-                                Image(systemName: "doc.viewfinder")
-                                    .font(.title2)
-                                    .foregroundColor(.black)
-                            }
-                        }
-
-                        // Empty space for balance
-                        Color.clear
-                            .frame(width: 70, height: 70)
-                    }
-                    .padding(.bottom, 40)
+                    // Images captured — show preview with Rescan/Continue
+                    previewView
                 }
             }
+            .navigationTitle("Scanner")
+            .background(AppColors.background)
         }
 
         // MARK: - Document Scanner Sheet
@@ -211,7 +59,161 @@ struct ScannerView: View {
         .sheet(isPresented: $showFilePicker) {
             FilePicker(capturedImages: $capturedImages)
         }
+    }
 
+    // MARK: - Launch Pad View
+    // Three cards that let the user choose how to import their syllabus
+    private var launchPadView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+
+                // Subtitle explaining what this screen does
+                Text("Scan your syllabus or import a file")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+
+                // Card 1: Scan Document (opens the camera scanner)
+                scannerCard(
+                    icon: "doc.viewfinder",
+                    color: Color("ICON_Blue"),
+                    title: "Scan Document",
+                    description: "Use your camera to scan pages"
+                ) {
+                    showDocumentScanner = true
+                }
+
+                // Card 2: Photo Library (pick photos from your library)
+                scannerCard(
+                    icon: "photo.on.rectangle",
+                    color: Color("ICON_Purple"),
+                    title: "Photo Library",
+                    description: "Select photos from your library"
+                ) {
+                    showPhotoLibrary = true
+                }
+
+                // Card 3: Import PDF (pick a PDF from Files app)
+                scannerCard(
+                    icon: "doc.richtext",
+                    color: .orange,
+                    title: "Import PDF",
+                    description: "Import a PDF from Files"
+                ) {
+                    showFilePicker = true
+                }
+            }
+            .padding(.vertical)
+        }
+        .background(Color(UIColor.systemBackground))
+    }
+
+    // MARK: - Scanner Card Helper
+    // Builds one vertical card — icon on top, title + description below
+    // We call this 3 times with different values instead of copy-pasting
+    private func scannerCard(
+        icon: String,
+        color: Color,
+        title: String,
+        description: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            // Haptic feedback — medium impact vibration when pressed
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            action()
+        } label: {
+            VStack(spacing: 14) {
+                // Icon — white on colored card background
+                Image(systemName: icon)
+                    .font(.system(size: 48))
+                    .foregroundColor(.white)
+                    .frame(width: 60, height: 60)
+
+                // Title + description centered below — white text
+                VStack(spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text(description)
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.85))
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .padding(.horizontal, 16)
+            .background(color)
+            .cornerRadius(14)
+        }
+        // Custom style handles the scale + opacity press animation
+        .buttonStyle(PressableButtonStyle())
+        .padding(.horizontal)
+    }
+
+    // MARK: - Preview View
+    // Shows captured images in a swipeable carousel with Rescan/Continue buttons
+    private var previewView: some View {
+        VStack(spacing: 0) {
+
+            // Swipeable carousel of all scanned/selected images
+            TabView {
+                ForEach(Array(capturedImages.enumerated()), id: \.offset) { index, image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .cornerRadius(12)
+                        .padding(.horizontal, 8)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .frame(maxHeight: .infinity)
+
+            // Show hint text only when there are multiple pages
+            if capturedImages.count > 1 {
+                Text("\(capturedImages.count) pages — swipe to preview")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 4)
+            }
+
+            // Rescan + Continue buttons
+            HStack(spacing: 16) {
+                // Rescan — clears images, goes back to Launch Pad
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    capturedImages = []
+                }) {
+                    Text("Rescan")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(12)
+                }
+                .buttonStyle(PressableButtonStyle())
+
+                // Continue — sends images to OCR/Claude pipeline
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    navigationState = .loading(capturedImages)
+                }) {
+                    Text("Continue")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(AppColors.primary)
+                        .cornerRadius(12)
+                }
+                .buttonStyle(PressableButtonStyle())
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+            .padding(.top, 12)
+        }
     }
 }
 
@@ -456,7 +458,20 @@ struct FilePicker: UIViewControllerRepresentable {
     }
 }
 
+// MARK: - Pressable Button Style
+// Custom ButtonStyle that scales down + dims when pressed, then springs back
+// SwiftUI gives us "configuration.isPressed" for free — no @State needed
+// This is reusable on any Button in the app
+struct PressableButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
 // MARK: - Preview
 #Preview {
-    ScannerView(navigationState: .constant(.scanning))
+    ScannerView(navigationState: .constant(.home))
 }

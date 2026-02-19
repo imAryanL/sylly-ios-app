@@ -11,16 +11,22 @@ import SwiftData
 // This replaces multiple @State booleans with one clear, hierarchical state
 enum NavigationState {
     case home                              // Home screen (default)
-    case scanning                          // ScannerView
+    case scanning                          // Triggers switch to Scanner tab
     case loading([UIImage])                 // LoadingView (carries images to process)
     case reviewing(ParsedSyllabus)         // ReviewView (carries parsed data)
     case success(Int)                      // SuccessView (carries assignment count)
+
+    // Helper so ContentView can detect when other views request scanning
+    var isScanning: Bool {
+        if case .scanning = self { return true }
+        return false
+    }
 }
 
 struct ContentView: View {
     // MARK: - Navigation State
     // Single @State that controls entire navigation flow
-    // Much cleaner than multiple boolean flags!
+    // Much cleaner than multiple boolean flags
     @State private var navigationState: NavigationState = .home
 
     // MARK: - Tab Selection
@@ -39,8 +45,8 @@ struct ContentView: View {
                     }
                     .tag(0)
 
-                // Tab 2: Scan (fake tab - just opens scanner)
-                Text("")
+                // Tab 2: Scanner (real tab with Launch Pad cards)
+                ScannerView(navigationState: $navigationState)
                     .tabItem {
                         Image(systemName: AppIcons.scanTab)
                         Text("Scan")
@@ -56,22 +62,18 @@ struct ContentView: View {
                     .tag(2)
             }
             .tint(AppColors.primary)
-            .onChange(of: selectedTab) { oldValue, newValue in
-                // If user taps Scan tab, open scanner and go back to previous tab
-                if newValue == 1 {
-                    navigationState = .scanning
-                    selectedTab = oldValue
+            // When other views set .scanning (e.g. "Add another syllabus"),
+            // switch to the Scanner tab and reset navigation state
+            .onChange(of: navigationState.isScanning) { _, isScanning in
+                if isScanning {
+                    selectedTab = 1
+                    navigationState = .home
                 }
             }
 
             // MARK: - Navigation Overlays
-            // Single switch statement handles all navigation states
-            // Much cleaner than multiple .fullScreenCovers
-            if case .scanning = navigationState {
-                ScannerView(navigationState: $navigationState)
-                    .transition(.move(edge: .bottom))
-            }
-
+            // These overlay the tab view for the scan pipeline
+            // (Scanner itself is now a real tab, not an overlay)
             if case .loading(let images) = navigationState {
                 LoadingView(images: images, navigationState: $navigationState)
                     .transition(.move(edge: .bottom))
