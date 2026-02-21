@@ -26,6 +26,7 @@
 		92A1DB2F2F2823D20009D82F /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A1DB2E2F2823D20009D82F /* HomeView.swift */; };
 		92A1DB332F28373F0009D82F /* EmptyHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A1DB322F28373F0009D82F /* EmptyHomeView.swift */; };
 		92A1DB352F283C430009D82F /* CourseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A1DB342F283C430009D82F /* CourseCard.swift */; };
+		92BEED682F491F9900866AE0 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BEED672F491F9900866AE0 /* CalendarService.swift */; };
 		92DB6FF82F2DA12C008C8FDE /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DB6FF72F2DA12C008C8FDE /* ScannerView.swift */; };
 		92DB6FFA2F2DA526008C8FDE /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DB6FF92F2DA526008C8FDE /* LoadingView.swift */; };
 		92DB6FFC2F2DBC5B008C8FDE /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92DB6FFB2F2DBC5B008C8FDE /* ReviewView.swift */; };
@@ -60,6 +61,7 @@
 		92A1DB2E2F2823D20009D82F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		92A1DB322F28373F0009D82F /* EmptyHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyHomeView.swift; sourceTree = "<group>"; };
 		92A1DB342F283C430009D82F /* CourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseCard.swift; sourceTree = "<group>"; };
+		92BEED672F491F9900866AE0 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		92DB6FF72F2DA12C008C8FDE /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
 		92DB6FF92F2DA526008C8FDE /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		92DB6FFB2F2DBC5B008C8FDE /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 		92131AB52F25F16E00276418 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				92BEED672F491F9900866AE0 /* CalendarService.swift */,
 				92232DF12F307E5D00566758 /* ScannerService.swift */,
 				92DF49ED2F31998E00AC2350 /* ClaudeService.swift */,
 			);
@@ -338,6 +341,7 @@
 				92DB6FFC2F2DBC5B008C8FDE /* ReviewView.swift in Sources */,
 				921A1AFE2F2C53B9004694BC /* CalendarPickerView.swift in Sources */,
 				92A1DB332F28373F0009D82F /* EmptyHomeView.swift in Sources */,
+				92BEED682F491F9900866AE0 /* CalendarService.swift in Sources */,
 				92DB6FF82F2DA12C008C8FDE /* ScannerView.swift in Sources */,
 				92DF49EE2F31998E00AC2350 /* ClaudeService.swift in Sources */,
 				92A1DB2F2F2823D20009D82F /* HomeView.swift in Sources */,
@@ -495,6 +499,7 @@
 				INFOPLIST_FILE = Sylly/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Sylly adds your assignment due dates to Apple Calendar so you never miss a deadline.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Sylly needs camera access to scan user's syllabus";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Sylly needs access to your photo library so you can scan and upload your course syllabus";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -533,6 +538,7 @@
 				INFOPLIST_FILE = Sylly/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Sylly adds your assignment due dates to Apple Calendar so you never miss a deadline.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Sylly needs camera access to scan user's syllabus";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Sylly needs access to your photo library so you can scan and upload your course syllabus";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

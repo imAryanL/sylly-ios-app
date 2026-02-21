@@ -43,6 +43,7 @@ struct ReviewView: View {
     // Tracks assignments that failed to save due to bad dates
     @State private var showDateError = false
     @State private var failedAssignmentNames: [String] = []
+    @State private var savedCourse: Course? = nil  // Holds course for the error alert path
 
     // MARK: - Body
     var body: some View {
@@ -175,7 +176,11 @@ struct ReviewView: View {
             Button("OK") {
                 // Still navigate to success — the good assignments were saved
                 let savedCount = selectedCount - failedAssignmentNames.count
-                navigationState = .success(savedCount)
+                if let course = savedCourse {
+                    navigationState = .success(savedCount, course)
+                } else {
+                    navigationState = .home  // Fallback (shouldn't happen)
+                }
             }
         } message: {
             let names = failedAssignmentNames.joined(separator: ", ")
@@ -327,13 +332,16 @@ struct ReviewView: View {
             return
         }
 
+        // Store course in @State so the error alert closure can reach it
+        savedCourse = course
+
         // If some assignments had bad dates, warn the user
         if !failed.isEmpty {
             failedAssignmentNames = failed
             showDateError = true
         } else {
-            // All good — go to success screen
-            navigationState = .success(savedCount)
+            // All good — go to success screen with the Course for calendar export
+            navigationState = .success(savedCount, course)
         }
     }
 }

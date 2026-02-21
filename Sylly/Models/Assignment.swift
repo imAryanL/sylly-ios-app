@@ -17,7 +17,11 @@ class Assignment {
     var type: String
     var isCompleted: Bool
     var course: Course?  //   '?' means it's optional, this assignment belongs to a course, but it might exist without one temporarily
-    
+
+    // Stores the Apple Calendar event ID after export.
+    // nil = not exported yet, String = already in calendar (prevents duplicates)
+    var calendarEventID: String?
+
     init(
         title: String,
         dueDate: Date,
@@ -29,5 +33,6 @@ class Assignment {
         self.dueDate = dueDate
         self.type = type
         self.isCompleted = isCompleted
+        self.calendarEventID = nil  // No calendar event yet
     }
 }

@@ -16,11 +16,11 @@ struct CourseCard: View {
             
             // Course icon in colored container
             Image(systemName: course.icon)
-                .font(.title2)
+                .font(.title)
                 .foregroundColor(.white)
-                .frame(width: 50, height: 50)
+                .frame(width: 56, height: 56)
                 .background(AppColors.color(from: course.color))
-                .cornerRadius(10)
+                .cornerRadius(12)
             
             // Course info
             VStack(alignment: .leading, spacing: 4) {
@@ -34,17 +34,17 @@ struct CourseCard: View {
                 
                 // Next assignment info, this checks if there is an upcoming assignment to show
                 if let nextAssignment = getNextAssignment() {
-                    HStack (spacing: 4) {
-                        Text("Next: \(nextAssignment.title)")
-                            .foregroundColor(.secondary)
-                        Text("•")
-                            .foregroundColor(.secondary)
-                        Text(dueText(for: nextAssignment))
-                            .foregroundColor(urgencyColor(for: nextAssignment))
-                            .fontWeight(.bold)
+                    // Assignment name on first line
+                    Text("Next: \(nextAssignment.title)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
 
-                    }
-                    .font(.caption)
+                    // Urgency text on second line (more visible this way)
+                    Text(dueText(for: nextAssignment))
+                        .font(.caption)
+                        .foregroundColor(urgencyColor(for: nextAssignment))
+                        .fontWeight(.bold)
                 } else {
                     Text("No upcoming assignments")
                         .font(.caption)

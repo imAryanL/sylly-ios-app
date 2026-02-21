@@ -14,7 +14,7 @@ enum NavigationState {
     case scanning                          // Triggers switch to Scanner tab
     case loading([UIImage])                 // LoadingView (carries images to process)
     case reviewing(ParsedSyllabus)         // ReviewView (carries parsed data)
-    case success(Int)                      // SuccessView (carries assignment count)
+    case success(Int, Course)              // SuccessView (carries count + Course for calendar export)
 
     // Helper so ContentView can detect when other views request scanning
     var isScanning: Bool {
@@ -84,8 +84,8 @@ struct ContentView: View {
                     .transition(.move(edge: .bottom))
             }
 
-            if case .success(let count) = navigationState {
-                SuccessView(assignmentCount: count, navigationState: $navigationState, selectedTab: $selectedTab)
+            if case .success(let count, let course) = navigationState {
+                SuccessView(assignmentCount: count, course: course, navigationState: $navigationState, selectedTab: $selectedTab)
                     .transition(.move(edge: .bottom))
             }
         }
