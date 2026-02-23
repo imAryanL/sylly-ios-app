@@ -19,6 +19,7 @@ struct CourseDetailView: View {
     @State private var showDeleteAlert = false
     @State private var selectedAssignment: Assignment?
     @State private var showEditAssignmentSheet = false
+    @State private var showAddAssignmentSheet = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -76,17 +77,31 @@ struct CourseDetailView: View {
             // Three-dot menu for edit/delete options
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {  // Creates a dropdown menu
-                    Button("Edit Course", action: {
+                    Button(action: {
+                        showAddAssignmentSheet = true
+                    }) {
+                        Label("Add Assignment", systemImage: "plus")
+                    }
+                    Button(action: {
                         showEditSheet = true
-                    })
-                    Button("Delete Course", role: .destructive, action: {
+                    }) {
+                        Label("Edit Course", systemImage: "pencil")
+                    }
+                    Button(role: .destructive, action: {
                         showDeleteAlert = true
-                    })
+                    }) {
+                        Label("Delete Course", systemImage: "trash")
+                    }
                 } label: {
                     Image(systemName: "ellipsis")  // Three dots icon
                         .foregroundColor(AppColors.primary)  // Make it blue
                 }
             }
+        }
+
+        // MARK: - Add Assignment Sheet
+        .sheet(isPresented: $showAddAssignmentSheet) {
+            AddAssignmentSheet(course: course)
         }
 
         // MARK: - Edit Course Sheet

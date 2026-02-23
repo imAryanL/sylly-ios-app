@@ -4,7 +4,11 @@
 <dict>
 	<key>CLAUDE_API_KEY</key>
 	<string>$(CLAUDE_API_KEY)</string>
-	<key>Privacy - Calendars Full Access Usage Description </key>
-	<string>Sylly adds your assignment due dates to Apple Calendar so you never miss a deadline. </string>
+	<key>NSCameraUsageDescription</key>
+	<string>Sylly uses your camera to scan syllabus documents and extract assignment due dates.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Sylly accesses your photo library so you can select photos of your syllabus to scan.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Sylly adds your assignment due dates to Apple Calendar so you never miss a deadline.</string>
 </dict>
 </plist>

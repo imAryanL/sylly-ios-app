@@ -21,6 +21,12 @@ enum NavigationState {
         if case .scanning = self { return true }
         return false
     }
+
+    // Helper so ScannerView can detect when navigation resets to home
+    var isHome: Bool {
+        if case .home = self { return true }
+        return false
+    }
 }
 
 struct ContentView: View {

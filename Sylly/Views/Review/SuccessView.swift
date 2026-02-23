@@ -27,6 +27,8 @@ struct SuccessView: View {
     @State private var showPartialFailureAlert = false
     // Names of assignments that failed to export
     @State private var failedExportTitles: [String] = []
+    // Controls the "something went wrong" error alert
+    @State private var showCalendarErrorAlert = false
 
     // MARK: - Body
     var body: some View {
@@ -133,6 +135,13 @@ struct SuccessView: View {
             Text("Sylly needs calendar access to add your assignments. Please enable it in Settings > Sylly > Calendars.")
         }
 
+        // MARK: - Calendar Error Alert
+        .alert("Something Went Wrong", isPresented: $showCalendarErrorAlert) {
+            Button("Try Again", role: .cancel) { }
+        } message: {
+            Text("Couldn't access your calendar. Please try again.")
+        }
+
         // MARK: - Partial Failure Alert
         .alert("Some Assignments Weren't Added", isPresented: $showPartialFailureAlert) {
             Button("OK", role: .cancel) { }
@@ -185,6 +194,7 @@ struct SuccessView: View {
             } catch {
                 await MainActor.run {
                     calendarState = .idle
+                    showCalendarErrorAlert = true
                 }
             }
         }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import EventKit
 
 struct SettingsView: View {
 
@@ -32,13 +33,13 @@ struct SettingsView: View {
                 // MARK: - PREFERENCES Section
                 Section(header: Text("PREFERENCES")) {
 
-                    // Calendar export — navigates to "coming soon" placeholder
+                    // Calendar export — shows current permission status
                     NavigationLink(destination: CalendarPickerView()) {
                         HStack {
                             SettingsIcon(icon: "calendar", color: .blue)
                             Text("Calendar")
                             Spacer()
-                            Text("Coming Soon")
+                            Text(CalendarService.shared.isAuthorized ? "Enabled" : "Off")
                                 .foregroundColor(.secondary)
                         }
                     }

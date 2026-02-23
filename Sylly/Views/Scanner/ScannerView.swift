@@ -41,6 +41,18 @@ struct ScannerView: View {
             .background(AppColors.background)
         }
 
+        // MARK: - Reset After Flow Completes
+        // When the user finishes the scan pipeline (Success → Home),
+        // clear the captured images so the Launch Pad shows again.
+        // We check navigationState.isHome instead of the enum directly
+        // because NavigationState can't easily conform to Equatable
+        // (it carries complex types like [UIImage] and Course).
+        .onChange(of: navigationState.isHome) { _, isHome in
+            if isHome {
+                capturedImages = []
+            }
+        }
+
         // MARK: - Document Scanner Sheet
         // Apple's built-in multi-page scanner (like in Notes app)
         .fullScreenCover(isPresented: $showDocumentScanner) {
