@@ -41,6 +41,7 @@ struct ScheduleCard: View {
                 Text(assignment.title)
                     .font(.headline)
                     .foregroundColor(.primary)
+                    .multilineTextAlignment(.leading)
 
                 // Course name
                 if let course = assignment.course {
@@ -54,6 +55,7 @@ struct ScheduleCard: View {
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(urgencyColor(for: assignment))
+                    .multilineTextAlignment(.leading)
             }
 
             Spacer()

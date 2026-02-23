@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SuccessView: View {
 
@@ -17,6 +18,9 @@ struct SuccessView: View {
     // MARK: - Navigation
     @Binding var navigationState: NavigationState
     @Binding var selectedTab: Int
+
+    // MARK: - Environment
+    @Environment(\.modelContext) private var modelContext
 
     // MARK: - State Properties
     // Tracks the "Add to Calendar" button state (idle → loading → done)
@@ -173,7 +177,12 @@ struct SuccessView: View {
                 // Step 2: Export all assignments to Apple Calendar
                 let result = await CalendarService.shared.exportAssignments(from: course)
 
-                // Step 3: Update UI based on results
+                // Step 3: Save calendarEventIDs so duplicate exports are prevented
+                if result.successCount > 0 {
+                    await MainActor.run { try? modelContext.save() }
+                }
+
+                // Step 4: Update UI based on results
                 await MainActor.run {
                     if result.failedTitles.isEmpty {
                         // All exported!

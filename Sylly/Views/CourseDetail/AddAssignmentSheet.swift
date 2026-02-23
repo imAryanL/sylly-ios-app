@@ -23,6 +23,7 @@ struct AddAssignmentSheet: View {
     @State private var dueDate: Date = Date()
     @State private var assignmentTime: Date = Date()
     @State private var assignmentType: String = "HW"
+    @State private var showSaveError: Bool = false
 
     let assignmentTypes = ["Exam", "Quiz", "HW", "Project"]
 
@@ -115,9 +116,13 @@ struct AddAssignmentSheet: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Add") {
-                        addAssignment()
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        dismiss()
+                        // Only dismiss if save succeeds — otherwise show error alert
+                        if addAssignment() {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            dismiss()
+                        } else {
+                            showSaveError = true
+                        }
                     }
                     .foregroundColor(title.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
                     .fontWeight(.semibold)
@@ -127,10 +132,17 @@ struct AddAssignmentSheet: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        // Show alert if saving to SwiftData fails
+        .alert("Couldn't Save", isPresented: $showSaveError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Something went wrong saving this assignment. Please try again.")
+        }
     }
 
     // MARK: - Helper Functions
-    private func addAssignment() {
+    // Returns true if save succeeded, false if it failed
+    private func addAssignment() -> Bool {
         // Step 1: Combine the date and time pickers into a single Date
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: dueDate)
@@ -157,8 +169,10 @@ struct AddAssignmentSheet: View {
         // Step 4: Save to SwiftData
         do {
             try modelContext.save()
+            return true
         } catch {
             print("Error saving new assignment: \(error)")
+            return false
         }
     }
 }

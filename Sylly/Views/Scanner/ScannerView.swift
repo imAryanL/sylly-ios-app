@@ -343,13 +343,15 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
             var images: [UIImage] = []
             // DispatchGroup waits for all image loads to complete before continuing
             let group = DispatchGroup()
+            // Serial queue so only one photo appends at a time (prevents crash when multiple photos load simultaneously)
+            let imageQueue = DispatchQueue(label: "com.sylly.imageload")
 
             for result in results {
                 // Mark the start of an async task
                 group.enter()
                 result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                     if let image = object as? UIImage {
-                        images.append(image)
+                        imageQueue.sync { images.append(image) }
                     }
                     // Mark the end of this async task
                     group.leave()

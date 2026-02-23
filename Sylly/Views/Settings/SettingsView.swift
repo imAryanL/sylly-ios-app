@@ -22,6 +22,7 @@ struct SettingsView: View {
     // MARK: - State Properties
     // State for alerts
     @State private var showDeleteAlert = false
+    @State private var showAboutSheet = false
 
 
     // MARK: - Body
@@ -88,6 +89,23 @@ struct SettingsView: View {
                     }
                 }
 
+                // MARK: - ABOUT Section
+                Section(header: Text("ABOUT")) {
+                    Button(action: {
+                        showAboutSheet = true
+                    }) {
+                        HStack {
+                            SettingsIcon(icon: "info.circle.fill", color: .indigo)
+                            Text("About Sylly")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                        }
+                    }
+                }
+
                 // MARK: - DANGER ZONE Section
                 // Destructive actions (delete all data)
                 Section(header: Text("DANGER ZONE")) {
@@ -116,6 +134,10 @@ struct SettingsView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
+        // About sheet
+        .sheet(isPresented: $showAboutSheet) {
+            AboutView()
+        }
         // Delete confirmation alert - prevents accidental data loss
         .alert("Delete All Data?", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
