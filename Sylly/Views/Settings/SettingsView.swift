@@ -49,16 +49,18 @@ struct SettingsView: View {
                 // MARK: - SUPPORT Section
                 Section(header: Text("SUPPORT")) {
 
-                    // Rate Sylly button - opens App Store
-                    Button(action: openAppStore) {
-                        HStack {
-                            SettingsIcon(icon: "star.fill", color: .yellow)
-                            Text("Rate Sylly")
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.gray)
-                                .font(.caption)
+                    // Rate Sylly button - only visible once the app is on the App Store
+                    if AppConfig.isOnAppStore {
+                        Button(action: openAppStore) {
+                            HStack {
+                                SettingsIcon(icon: "star.fill", color: .yellow)
+                                Text("Rate Sylly")
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            }
                         }
                     }
 
@@ -170,8 +172,7 @@ struct SettingsView: View {
     // MARK: - Helper: Open Email
     // Open email for feedback
     private func openEmail() {
-        // Replace with my email later 
-        if let url = URL(string: "mailto:your.email@example.com?subject=Sylly%20Feedback") {
+        if let url = URL(string: "mailto:sylly.feedback@gmail.com?subject=Sylly%20Feedback") {
             UIApplication.shared.open(url)
         }
     }
@@ -179,8 +180,7 @@ struct SettingsView: View {
     // MARK: - Helper: Open Privacy Policy
     // Open Privacy Policy webpage
     private func openPrivacyPolicy() {
-        // Replace with privacy policy URL later
-        if let url = URL(string: "https://yourwebsite.com/privacy") {
+        if let url = URL(string: "https://imaryanl.github.io/sylly-privacy") {
             UIApplication.shared.open(url)
         }
     }

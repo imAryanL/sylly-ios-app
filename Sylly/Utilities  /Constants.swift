@@ -133,6 +133,12 @@ struct AppIcons {   // icons that will be used in this app for courses
     static let sparkles = "sparkles"
 }
 
+// MARK: - App Config
+struct AppConfig {
+    // Flip to true once the app is live on the App Store
+    static let isOnAppStore = false
+}
+
 // MARK: - Assignment Types
 // Enum: A type that defines a fixed list of related options (no other values allowed)
 // This prevents typos and bugs by restricting assignment types to these 4 values only

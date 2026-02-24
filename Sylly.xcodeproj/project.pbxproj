@@ -40,6 +40,7 @@
 		92F1E50D2F2AF8F900A14A6D /* AssignmentDetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E50C2F2AF8F900A14A6D /* AssignmentDetailRow.swift */; };
 		92F1E50F2F2AFBA700A14A6D /* EmptyCourseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E50E2F2AFBA700A14A6D /* EmptyCourseView.swift */; };
 		92F1E5112F2B010500A14A6D /* CourseErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E5102F2B010500A14A6D /* CourseErrorView.swift */; };
+		92FA7A142F4D2F3000A4B2E6 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FA7A132F4D2F3000A4B2E6 /* SplashView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -79,6 +80,7 @@
 		92F1E5102F2B010500A14A6D /* CourseErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseErrorView.swift; sourceTree = "<group>"; };
 		92F563002F3FD87D00EC8539 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		92F563012F3FD96A00EC8539 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		92FA7A132F4D2F3000A4B2E6 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +130,7 @@
 		92131AB12F25F0AE00276418 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				92FA7A132F4D2F3000A4B2E6 /* SplashView.swift */,
 				92131AAC2F25F08C00276418 /* SyllyApp.swift */,
 				92131AAB2F25F08C00276418 /* ContentView.swift */,
 			);
@@ -357,6 +360,7 @@
 				929715252F3523AD007E8BFE /* Config.swift in Sources */,
 				92DB70062F2DC7CB008C8FDE /* EditAssignmentSheet.swift in Sources */,
 				92F1E50B2F2ADFD100A14A6D /* AssignmentListView.swift in Sources */,
+				92FA7A142F4D2F3000A4B2E6 /* SplashView.swift in Sources */,
 				928A79E82F29FCB6008AE582 /* CourseDetailView.swift in Sources */,
 				924B9EDF2F274080001C7C66 /* Assignment.swift in Sources */,
 				92F1E50F2F2AFBA700A14A6D /* EmptyCourseView.swift in Sources */,
