@@ -88,7 +88,7 @@ struct CourseCard: View {
         // Without it, time components affect the day count.
         // Example: If today is Feb 11 at 5:00 PM and due date is Feb 13 at midnight,
         // the difference might be 1.7 days, which rounds down to 1 instead of 2.
-        // startOfDay() sets both to 00:00:00, so we get a pure day count (2 days).
+        // startOfDay() sets both to 00:00:00, giving a pure day count (2 days).
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: Date()), to: calendar.startOfDay(for: assignment.dueDate)).day ?? 0
 
         // For close assignments, show relative time

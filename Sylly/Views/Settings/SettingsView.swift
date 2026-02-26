@@ -13,7 +13,7 @@ import EventKit
 struct SettingsView: View {
 
     // MARK: - Database Access
-    // Access the database so we can delete data
+    // Access the database so I can delete data
     // Enviornment - property wrapper that acccess shared values from app's enviornment
     // modelContext is SwiftData's database manager for saving, deleting, fetching/querying data from database
     @Environment(\.modelContext) private var modelContext
@@ -195,11 +195,11 @@ struct SettingsIcon: View {
     // MARK: - Body
     var body: some View {
         Image(systemName: icon)
-            .font(.body)
+            .font(.body.weight(.medium))
             .foregroundColor(.white)
-            .frame(width: 28, height: 28)
+            .frame(width: 32, height: 32)
             .background(color)
-            .cornerRadius(6)
+            .cornerRadius(7)
     }
 }
 

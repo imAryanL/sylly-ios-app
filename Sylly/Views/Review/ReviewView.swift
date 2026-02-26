@@ -174,17 +174,22 @@ struct ReviewView: View {
         // Alert when some assignments had unparseable dates
         .alert("Some Dates Couldn't Be Read", isPresented: $showDateError) {
             Button("OK") {
-                // Still navigate to success — the good assignments were saved
-                let savedCount = selectedCount - failedAssignmentNames.count
                 if let course = savedCourse {
+                    // Some assignments saved successfully — go to success
+                    let savedCount = selectedCount - failedAssignmentNames.count
                     navigationState = .success(savedCount, course)
                 } else {
-                    navigationState = .home  // Fallback (shouldn't happen)
+                    // All assignments failed — no course was saved, go home
+                    navigationState = .home
                 }
             }
         } message: {
             let names = failedAssignmentNames.joined(separator: ", ")
-            Text("These assignments were skipped because their dates couldn't be understood:\n\n\(names)\n\nYou can add them manually later.")
+            if savedCourse != nil {
+                Text("These assignments were skipped because their dates couldn't be understood:\n\n\(names)\n\nYou can add them manually later.")
+            } else {
+                Text("None of the assignments could be saved because their dates couldn't be understood:\n\n\(names)\n\nPlease try scanning again or add assignments manually.")
+            }
         }
     }
 
@@ -289,7 +294,7 @@ struct ReviewView: View {
             color: courseColor
         )
 
-        // Track any assignments with dates we can't understand
+        // Track any assignments with dates that can't be parsed
         var failed: [String] = []
         var savedCount = 0
 
@@ -320,6 +325,14 @@ struct ReviewView: View {
             assignment.course = course
             course.assignments.append(assignment)
             savedCount += 1
+        }
+
+        // Only save if at least one assignment was successfully parsed
+        // This prevents "ghost" courses with zero assignments
+        if savedCount == 0 && !failed.isEmpty {
+            failedAssignmentNames = failed
+            showDateError = true
+            return
         }
 
         // Save to SwiftData

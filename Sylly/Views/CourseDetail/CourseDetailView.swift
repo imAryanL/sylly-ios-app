@@ -12,7 +12,7 @@ struct CourseDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     let course: Course
-    // Navigation binding so we can trigger the scanner from here
+    // Navigation binding so I can trigger the scanner from here
     @Binding var navigationState: NavigationState
 
     @State private var showEditSheet = false

@@ -29,7 +29,7 @@ class ClaudeService {
     func parseSyllabus(from text: String) async throws -> ParsedSyllabus {
 
         // Step 1: Create the prompt for Claude
-        // This tells Claude exactly what we want it to do
+        // This tells Claude exactly what to do
         let systemPrompt = """
         You are a helpful assistant that extracts assignment information from college syllabi.
 
@@ -83,7 +83,7 @@ class ClaudeService {
         request.httpMethod = "POST"
 
         // Claude API headers that must be included 
-        // Headers tell the API who we are and what format we're using
+        // Headers tell the API who I am and what format I'm using
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
@@ -99,7 +99,7 @@ class ClaudeService {
             ]
         ]
 
-        // Convert our dictionary to JSON data
+        // Convert the dictionary to JSON data
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
         // Step 4: Send the request and wait for response
@@ -141,7 +141,7 @@ class ClaudeService {
             .replacingOccurrences(of: "```", with: "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Step 8: Parse the JSON into our Swift struct
+        // Step 8: Parse the JSON into my Swift struct
         guard let jsonData = cleanedResponse.data(using: .utf8) else {
             throw ClaudeError.parsingError
         }

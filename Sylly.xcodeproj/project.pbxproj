@@ -152,7 +152,6 @@
 				924B9ED82F26F8BB001C7C66 /* Settings */,
 				924B9ED72F26F8B2001C7C66 /* Schedule */,
 				924B9ED62F26F8A8001C7C66 /* CourseDetail */,
-				924B9ED52F26F8A0001C7C66 /* Success */,
 				924B9ED42F26F894001C7C66 /* Review */,
 				924B9ED32F26F88B001C7C66 /* Scanner */,
 				924B9ED22F26F886001C7C66 /* Home */,
@@ -221,13 +220,6 @@
 				92DB70052F2DC7CB008C8FDE /* EditAssignmentSheet.swift */,
 			);
 			path = Review;
-			sourceTree = "<group>";
-		};
-		924B9ED52F26F8A0001C7C66 /* Success */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Success;
 			sourceTree = "<group>";
 		};
 		924B9ED62F26F8A8001C7C66 /* CourseDetail */ = {

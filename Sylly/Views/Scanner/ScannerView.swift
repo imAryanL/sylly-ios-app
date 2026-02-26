@@ -44,7 +44,7 @@ struct ScannerView: View {
         // MARK: - Reset After Flow Completes
         // When the user finishes the scan pipeline (Success → Home),
         // clear the captured images so the Launch Pad shows again.
-        // We check navigationState.isHome instead of the enum directly
+        // Check navigationState.isHome instead of the enum directly
         // because NavigationState can't easily conform to Equatable
         // (it carries complex types like [UIImage] and Course).
         .onChange(of: navigationState.isHome) { _, isHome in
@@ -122,7 +122,7 @@ struct ScannerView: View {
 
     // MARK: - Scanner Card Helper
     // Builds one vertical card — icon on top, title + description below
-    // We call this 3 times with different values instead of copy-pasting
+    // Reusable helper — called 3 times with different values instead of copy-pasting
     private func scannerCard(
         icon: String,
         color: Color,
@@ -369,7 +369,7 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
 
 // MARK: - File Picker (PDF Import)
 // Wraps Apple's UIDocumentPickerViewController to let users pick a PDF from Files
-// After picking, we convert each PDF page into a UIImage using PDFKit
+// After picking, each PDF page is converted into a UIImage using PDFKit
 // Those images then go into the same capturedImages array as camera/library
 struct FilePicker: UIViewControllerRepresentable {
     // Store all pages as images (same array the other pickers use)
@@ -406,15 +406,15 @@ struct FilePicker: UIViewControllerRepresentable {
 
         // User picked a PDF — convert each page to an image
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            // Get the first URL (we only allow one file)
+            // Get the first URL (only one file allowed)
             guard let url = urls.first else { return }
 
-            // iOS requires us to ask permission to access the file
+            // iOS requires permission to access the file from Files app
             // startAccessingSecurityScopedResource() / stopAccessingSecurityScopedResource()
             // is like saying "I need to read this file now" and "I'm done reading"
             let didStart = url.startAccessingSecurityScopedResource()
 
-            // Make sure we stop accessing when we're done (even if something fails)
+            // Make sure to stop accessing when done (even if something fails)
             defer {
                 if didStart { url.stopAccessingSecurityScopedResource() }
             }
@@ -474,7 +474,7 @@ struct FilePicker: UIViewControllerRepresentable {
 
 // MARK: - Pressable Button Style
 // Custom ButtonStyle that scales down + dims when pressed, then springs back
-// SwiftUI gives us "configuration.isPressed" for free — no @State needed
+// SwiftUI gives "configuration.isPressed" for free — no @State needed
 // This is reusable on any Button in the app
 struct PressableButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

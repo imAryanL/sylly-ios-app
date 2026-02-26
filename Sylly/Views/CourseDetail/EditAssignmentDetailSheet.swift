@@ -208,7 +208,7 @@ struct EditAssignmentDetailSheet: View {
         assignment.isCompleted = isCompleted
 
         // Step 2: Separate date and time into individual components
-        // The date picker and time picker work independently, but we need to combine them
+        // The date picker and time picker work independently, so I need to combine them
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: dueDate)
         let timeComponents = calendar.dateComponents([.hour, .minute], from: assignmentTime)

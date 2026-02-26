@@ -156,7 +156,7 @@ struct LoadingView: View {
     // MARK: - Processing Function
     // This runs OCR and Claude API
     private func startProcessing() {
-        // Make sure we have images to process
+        // Make sure there are images to process
         guard !images.isEmpty else {
             errorMessage = "No images to process"
             return

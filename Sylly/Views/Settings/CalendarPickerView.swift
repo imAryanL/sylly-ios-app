@@ -13,7 +13,7 @@ struct CalendarPickerView: View {
 
     // MARK: - Properties
     // Tracks whether the user has granted calendar permission
-    // We read this from CalendarService which uses EventKit under the hood
+    // Read from CalendarService which uses EventKit under the hood
     @State private var isAuthorized: Bool = CalendarService.shared.isAuthorized
 
     // MARK: - Body
