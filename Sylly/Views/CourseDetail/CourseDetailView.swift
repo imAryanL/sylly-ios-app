@@ -18,7 +18,6 @@ struct CourseDetailView: View {
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
     @State private var selectedAssignment: Assignment?
-    @State private var showEditAssignmentSheet = false
     @State private var showAddAssignmentSheet = false
 
     var body: some View {
@@ -63,7 +62,6 @@ struct CourseDetailView: View {
                     course: course,
                     onAssignmentTap: { assignment in
                         selectedAssignment = assignment
-                        showEditAssignmentSheet = true
                     }
                 )
             }
@@ -127,10 +125,10 @@ struct CourseDetailView: View {
         }
 
         // MARK: - Edit Assignment Sheet
-        .sheet(isPresented: $showEditAssignmentSheet) {
-            if let assignment = selectedAssignment {
-                EditAssignmentDetailSheet(assignment: assignment)
-            }
+        // Uses .sheet(item:) instead of .sheet(isPresented:) to avoid a SwiftUI race condition where the sheet opens before
+        // selectedAssignment is set, causing a blank screen on first tap
+        .sheet(item: $selectedAssignment) { assignment in
+            EditAssignmentDetailSheet(assignment: assignment)
         }
 
         // MARK: - Delete Confirmation Alert

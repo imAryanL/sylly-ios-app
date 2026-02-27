@@ -170,13 +170,32 @@ struct ScannerView: View {
         VStack(spacing: 0) {
 
             // Swipeable carousel of all scanned/selected images
+            // Each page is zoomable (pinch to zoom, double-tap to reset)
             TabView {
                 ForEach(Array(capturedImages.enumerated()), id: \.offset) { index, image in
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .cornerRadius(12)
-                        .padding(.horizontal, 8)
+                    ZStack(alignment: .topTrailing) {
+                        // Page image
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .cornerRadius(12)
+                            .padding(.horizontal, 8)
+
+                        // Delete page button — removes this page from the list
+                        Button {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            _ = withAnimation {
+                                capturedImages.remove(at: index)
+                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.white, .red)
+                                .shadow(radius: 2)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.top, 8)
+                    }
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))

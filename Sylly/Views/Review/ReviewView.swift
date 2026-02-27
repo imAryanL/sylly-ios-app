@@ -35,8 +35,7 @@ struct ReviewView: View {
 
     // MARK: - State Properties: Sheets & Navigation
     @State private var showEditCourse = false
-    @State private var showEditAssignment = false
-    @State private var selectedAssignmentIndex: Int? = nil
+    @State private var selectedAssignmentIndex: AssignmentIndex? = nil
     @State private var showSuccess = false
 
     // MARK: - State Properties: Error Handling
@@ -88,30 +87,53 @@ struct ReviewView: View {
 
                 // MARK: - Assignments List
                 ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(Array(assignments.enumerated()), id: \.element.id) { index, assignment in
-                            ReviewAssignmentRow(
-                                assignment: $assignments[index],
-                                onTap: {
-                                    selectedAssignmentIndex = index
-                                    showEditAssignment = true
-                                }
-                            )
+                    if assignments.isEmpty {
+                        // MARK: - Empty State
+                        // Shown when Claude couldn't find any dated assignments
+                        // (e.g. syllabus lists "3 exams" but no specific dates)
+                        VStack(spacing: 12) {
+                            Image("SyllySad")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 130, height: 130)
+                                .padding(.top, 32)
 
-                            // Divider between rows
-                            if index < assignments.count - 1 {
-                                Divider()
-                                    .foregroundColor(.secondary.opacity(0.3))
-                                    .padding(.leading, 50)
+                            Text("No dated assignments found")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+
+                            Text("This syllabus may not have specific\ndue dates listed. You can add\nassignments manually below.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 16)
+                    } else {
+                        VStack(spacing: 0) {
+                            ForEach(Array(assignments.enumerated()), id: \.element.id) { index, assignment in
+                                ReviewAssignmentRow(
+                                    assignment: $assignments[index],
+                                    onTap: {
+                                        selectedAssignmentIndex = AssignmentIndex(id: index)
+                                    }
+                                )
+
+                                // Divider between rows
+                                if index < assignments.count - 1 {
+                                    Divider()
+                                        .foregroundColor(.secondary.opacity(0.3))
+                                        .padding(.leading, 50)
+                                }
                             }
                         }
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
                     }
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 16)
 
-                    // Add manually button
+                    // Add manually button (always visible)
                     Button(action: {
                         addManualAssignment()
                     }) {
@@ -166,10 +188,11 @@ struct ReviewView: View {
                 courseColor: $courseColor
             )
         }
-        .sheet(isPresented: $showEditAssignment) {
-            if let index = selectedAssignmentIndex {
-                EditAssignmentSheet(assignment: $assignments[index])
-            }
+        // Uses .sheet(item:) instead of .sheet(isPresented:) to avoid
+        // a SwiftUI race condition where the sheet opens before the
+        // index is set, causing a blank screen on first tap
+        .sheet(item: $selectedAssignmentIndex) { selected in
+            EditAssignmentSheet(assignment: $assignments[selected.id])
         }
         // Alert when some assignments had unparseable dates
         .alert("Some Dates Couldn't Be Read", isPresented: $showDateError) {
@@ -357,6 +380,13 @@ struct ReviewView: View {
             navigationState = .success(savedCount, course)
         }
     }
+}
+
+// MARK: - Assignment Index Wrapper
+// Small helper so .sheet(item:) can work with an array index
+// (Int alone isn't Identifiable, so this wraps it)
+struct AssignmentIndex: Identifiable {
+    let id: Int
 }
 
 // MARK: - Review Assignment Model
