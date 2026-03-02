@@ -13,13 +13,15 @@ Sylly is an iOS app built for college and high school students who are tired of 
 
 ## Screenshots
 
-<!-- Add your iPhone screenshots here (use 3-4 for best layout): -->
-<!-- <p align="center"> -->
-<!--   <img src="screenshots/home.png" width="230"> -->
-<!--   <img src="screenshots/scanner.png" width="230"> -->
-<!--   <img src="screenshots/review.png" width="230"> -->
-<!--   <img src="screenshots/schedule.png" width="230"> -->
-<!-- </p> -->
+<p align="center">
+  <img width="250" alt="Home Screen" src="https://github.com/user-attachments/assets/e9db644a-e861-470b-baf2-729069f1b4f9" />
+  <img width="250" alt="Scanner Screen" src="https://github.com/user-attachments/assets/d0b56629-a01c-4119-ab55-b112b53e6413" />
+  <img width="250" alt="Preview Screen" src="https://github.com/user-attachments/assets/eefb37a5-f9e8-4003-b92b-087ff6ef3a3a" />
+  <img width="250" alt="Loading Screen" src="https://github.com/user-attachments/assets/7022fe46-aabe-4f42-92ad-a94f1bf3fb41" />
+  <img width="250"  alt="Success Screen" src="https://github.com/user-attachments/assets/9cafe0eb-0e0d-4068-8f8a-b1bc096a9c2b" />
+  <img width="250" alt="Schedule Screen" src="https://github.com/user-attachments/assets/81489bfc-400d-402d-821d-32764753e4cd" />
+</p>
+
 
 ## Features
 
