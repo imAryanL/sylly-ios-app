@@ -135,8 +135,8 @@ struct AppIcons {   // icons that will be used in this app for courses
 
 // MARK: - App Config
 struct AppConfig {
-    // Flip to true once the app is live on the App Store
-    static let isOnAppStore = false
+    // App is live on the App Store (approved 2026-03-05)
+    static let isOnAppStore = true
 }
 
 // MARK: - Assignment Types

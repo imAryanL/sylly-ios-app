@@ -160,10 +160,9 @@ struct SettingsView: View {
     }
 
     // MARK: - Helper: Open App Store
-    // Open App Store (replace app link later)
+    // Opens Sylly's App Store page so users can leave a rating
     private func openAppStore() {
-        // Will replace this with my actual link later
-        if let url = URL(string: "https://apps.apple.com/app/idYOURAPPID") {
+        if let url = URL(string: "https://apps.apple.com/app/id6759631749") {
             // UIApplication is main IOS app object and controls everything in this app
             UIApplication.shared.open(url)
         }
