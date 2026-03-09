@@ -11,6 +11,9 @@
 
 Sylly is an iOS app built for college and high school students who are tired of manually copying due dates from their syllabi. Scan a syllabus with your camera, import photos, or upload a PDF — Sylly uses OCR and AI to extract every assignment and due date, then lets you review everything before saving it to the app and exporting to Apple Calendar.
 
+##### Link to the App Store
+https://apps.apple.com/us/app/sylly-ai-syllabus-scanner/id6759631749
+
 ## Screenshots
 
 <p align="center">
