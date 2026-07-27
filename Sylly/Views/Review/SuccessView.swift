@@ -4,10 +4,12 @@
 //
 //  This view shows after successfully saving assignments.
 //  Users can export their assignments to Apple Calendar from here.
+//  It also asks for an App Store review once the user has saved a couple of times.
 //
 
 import SwiftUI
 import SwiftData
+import StoreKit
 
 struct SuccessView: View {
 
@@ -21,6 +23,13 @@ struct SuccessView: View {
 
     // MARK: - Environment
     @Environment(\.modelContext) private var modelContext
+    // Apple's built-in way to ask for an App Store review
+    @Environment(\.requestReview) private var requestReview
+
+    // MARK: - Saved to the Device
+    // Counts how many syllabi the user has saved, in total, ever.
+    // @AppStorage saves this on the phone, so it survives closing the app.
+    @AppStorage("successfulSaveCount") private var successfulSaveCount = 0
 
     // MARK: - State Properties
     // Tracks the "Add to Calendar" button state (idle → loading → done)
@@ -127,6 +136,12 @@ struct SuccessView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
 
+        // MARK: - Ask for a Review
+        // .task runs when this screen appears, and cancels itself if the user leaves
+        .task {
+            await askForReviewIfReady()
+        }
+
         // MARK: - Permission Denied Alert
         .alert("Calendar Access Required", isPresented: $showPermissionDeniedAlert) {
             Button("Open Settings") {
@@ -153,6 +168,28 @@ struct SuccessView: View {
             let names = failedExportTitles.joined(separator: ", ")
             Text("These assignments couldn't be added to your calendar:\n\n\(names)")
         }
+    }
+
+    // MARK: - Ask for a Review
+    // Only asks from the 2nd saved syllabus onward — on the first one
+    // the user is still trying Sylly out.
+    private func askForReviewIfReady() async {
+
+        successfulSaveCount += 1
+
+        if successfulSaveCount < 2 {
+            return
+        }
+
+        // Let them see "You're all set!" first. Cancelled if they leave the screen.
+        do {
+            try await Task.sleep(for: .seconds(2))
+        } catch {
+            return
+        }
+
+        // iOS decides whether to actually show it (max 3 per user per year)
+        requestReview()
     }
 
     // MARK: - Add to Calendar
