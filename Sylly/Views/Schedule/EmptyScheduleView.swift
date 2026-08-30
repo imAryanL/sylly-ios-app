@@ -21,7 +21,7 @@ struct EmptyScheduleView: View {
                 .font(.title2)
                 .fontWeight(.semibold)
             
-            Text("You're all caught up for\ntoday. Enjoy your free time.")
+            Text("You're all caught up.\nEnjoy your free time.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

@@ -13,6 +13,11 @@ import PDFKit                  // Convert PDF pages → images
 import UniformTypeIdentifiers  // UTType.pdf for file picker filter
 import UIKit                   // For haptic feedback
 
+// Syllabi run 2–10 pages. Past this it's a course packet, and rendering every
+// page at 2x will exhaust memory long before it finds anything useful.
+// Applies to both PDF import and photo selection.
+let maxImportPages = 20
+
 struct ScannerView: View {
 
     // MARK: - Navigation
@@ -24,6 +29,8 @@ struct ScannerView: View {
     @State private var showPhotoLibrary = false     // Shows photo picker (multi-select)
     @State private var showFilePicker = false       // Shows Files app picker for PDFs
     @State private var capturedImages: [UIImage] = [] // All scanned/selected/imported pages
+    @State private var showImportError = false      // True when photos or a PDF couldn't be brought in
+    @State private var importErrorMessage = ""
 
     // MARK: - Body
     var body: some View {
@@ -63,13 +70,29 @@ struct ScannerView: View {
         // MARK: - Photo Library Sheet
         // Multi-select photo picker for syllabus screenshots
         .sheet(isPresented: $showPhotoLibrary) {
-            PhotoLibraryPicker(capturedImages: $capturedImages)
+            PhotoLibraryPicker(
+                capturedImages: $capturedImages,
+                errorMessage: $importErrorMessage,
+                showError: $showImportError
+            )
+        }
+
+        // MARK: - Import Failure
+        // Shared by the photo picker and the PDF picker
+        .alert("Couldn't add pages", isPresented: $showImportError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(importErrorMessage)
         }
 
         // MARK: - File Picker Sheet
         // Opens the Files app so users can pick a PDF syllabus
         .sheet(isPresented: $showFilePicker) {
-            FilePicker(capturedImages: $capturedImages)
+            FilePicker(
+                capturedImages: $capturedImages,
+                errorMessage: $importErrorMessage,
+                showError: $showImportError
+            )
         }
     }
 
@@ -86,13 +109,17 @@ struct ScannerView: View {
                     .padding(.horizontal)
 
                 // Card 1: Scan Document (opens the camera scanner)
-                scannerCard(
-                    icon: "doc.viewfinder",
-                    color: Color("ICON_Blue"),
-                    title: "Scan Document",
-                    description: "Use your camera to scan pages"
-                ) {
-                    showDocumentScanner = true
+                // Hidden on Mac — no document camera there, and creating the
+                // scanner without this check crashes the app.
+                if VNDocumentCameraViewController.isSupported {
+                    scannerCard(
+                        icon: "doc.viewfinder",
+                        color: Color("ICON_Blue"),
+                        title: "Scan Document",
+                        description: "Use your camera to scan pages"
+                    ) {
+                        showDocumentScanner = true
+                    }
                 }
 
                 // Card 2: Photo Library (pick photos from your library)
@@ -184,7 +211,10 @@ struct ScannerView: View {
                         // Delete page button — removes this page from the list
                         Button {
                             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                            _ = withAnimation {
+                            // Index comes from enumerated(), so it goes stale once a
+                            // page is deleted. Bail out rather than crash.
+                            guard capturedImages.indices.contains(index) else { return }
+                            _ = withAnimation(.snappy) {
                                 capturedImages.remove(at: index)
                             }
                         } label: {
@@ -315,6 +345,9 @@ struct DocumentScannerView: UIViewControllerRepresentable {
 struct PhotoLibraryPicker: UIViewControllerRepresentable {
     // Store all selected photos
     @Binding var capturedImages: [UIImage]
+    // Message + flag for the shared import alert on ScannerView
+    @Binding var errorMessage: String
+    @Binding var showError: Bool
     // Ability to close the picker
     @Environment(\.dismiss) private var dismiss
 
@@ -323,7 +356,7 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
         // Set up the picker configuration
         var config = PHPickerConfiguration()
         config.filter = .images          // Only show images (no videos)
-        config.selectionLimit = 0        // 0 means unlimited selection
+        config.selectionLimit = maxImportPages  // Picker itself blocks going over
         config.preferredAssetRepresentationMode = .current
 
         let picker = PHPickerViewController(configuration: config)
@@ -379,7 +412,13 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
 
             // Once all photos are loaded, send them back to SwiftUI and close
             group.notify(queue: .main) {
-                self.parent.capturedImages = images
+                if images.isEmpty {
+                    self.parent.errorMessage = "None of those photos could be loaded. Please try again."
+                    self.parent.showError = true
+                } else {
+                    // Append so a second trip to the picker doesn't wipe earlier pages
+                    self.parent.capturedImages.append(contentsOf: images)
+                }
                 self.parent.dismiss()
             }
         }
@@ -393,6 +432,9 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
 struct FilePicker: UIViewControllerRepresentable {
     // Store all pages as images (same array the other pickers use)
     @Binding var capturedImages: [UIImage]
+    // Message + flag for the shared import alert on ScannerView
+    @Binding var errorMessage: String
+    @Binding var showError: Bool
     // Ability to close the picker
     @Environment(\.dismiss) private var dismiss
 
@@ -440,7 +482,17 @@ struct FilePicker: UIViewControllerRepresentable {
 
             // Try to open the PDF
             guard let pdfDocument = PDFDocument(url: url) else {
-                print("Failed to open PDF: \(url.lastPathComponent)")
+                parent.errorMessage = "That PDF couldn't be opened. It may be damaged or password protected."
+                parent.showError = true
+                return
+            }
+
+            // Refuse oversized files rather than reading the first 20 pages —
+            // the schedule is often near the end, so a partial read would quietly
+            // hand back a syllabus with assignments missing.
+            guard pdfDocument.pageCount <= maxImportPages else {
+                parent.errorMessage = "This PDF has \(pdfDocument.pageCount) pages. Sylly reads syllabi up to \(maxImportPages) pages — try importing just the schedule pages."
+                parent.showError = true
                 return
             }
 
@@ -481,7 +533,7 @@ struct FilePicker: UIViewControllerRepresentable {
             }
 
             // Send all page images back to SwiftUI
-            parent.capturedImages = images
+            parent.capturedImages.append(contentsOf: images)
         }
 
         // User tapped "Cancel" — nothing to do, picker closes automatically

@@ -43,6 +43,7 @@ struct ReviewView: View {
     @State private var showDateError = false
     @State private var failedAssignmentNames: [String] = []
     @State private var savedCourse: Course? = nil  // Holds course for the error alert path
+    @State private var showSaveError = false       // Database save failed — nothing was written
 
     // MARK: - Body
     var body: some View {
@@ -214,6 +215,13 @@ struct ReviewView: View {
                 Text("None of the assignments could be saved because their dates couldn't be understood:\n\n\(names)\n\nPlease try scanning again or add assignments manually.")
             }
         }
+        // Alert when the database write itself fails — the review screen stays
+        // up so nothing the user entered is lost
+        .alert("Couldn't Save", isPresented: $showSaveError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Your course couldn't be saved. Please try again. If it keeps failing, check that your phone has free storage.")
+        }
     }
 
     // MARK: - Computed Properties
@@ -364,7 +372,10 @@ struct ReviewView: View {
         do {
             try modelContext.save()
         } catch {
+            // Roll the course back out so a retry doesn't insert it twice
+            modelContext.delete(course)
             print("Error saving to database: \(error)")
+            showSaveError = true
             return
         }
 

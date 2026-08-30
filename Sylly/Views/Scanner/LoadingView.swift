@@ -38,6 +38,9 @@ struct LoadingView: View {
     // Stores the parsed results from Claude
     @State private var parsedSyllabus: ParsedSyllabus?
 
+    // onAppear can fire more than once — this keeps the paid API call to one run
+    @State private var hasStarted = false
+
     // MARK: - Timer
     // Timer for the dot animation (fires every 0.5 seconds)
     let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
@@ -140,6 +143,8 @@ struct LoadingView: View {
 
         // MARK: - Start Processing When View Appears
         .onAppear {
+            guard !hasStarted else { return }
+            hasStarted = true
             startProcessing()
         }
 

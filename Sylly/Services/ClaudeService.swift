@@ -79,6 +79,8 @@ class ClaudeService {
 
         // Creates a request object and gives it the API URL
         var request = URLRequest(url: url)
+        // Default is 60s, which is a long time to stare at a spinner
+        request.timeoutInterval = 30
         // Set the HTTP method to POST which means to send data
         request.httpMethod = "POST"
 

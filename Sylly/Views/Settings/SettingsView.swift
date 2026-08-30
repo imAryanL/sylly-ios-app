@@ -128,7 +128,7 @@ struct SettingsView: View {
             Spacer()
             
             // App version footer (outside List so it stays at bottom)
-            Text("Sylly v1.0.0")
+            Text("Sylly v\(AppConfig.version)")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.bottom, 20)

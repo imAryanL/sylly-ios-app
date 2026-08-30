@@ -137,6 +137,10 @@ struct AppIcons {   // icons that will be used in this app for courses
 struct AppConfig {
     // App is live on the App Store (approved 2026-03-05)
     static let isOnAppStore = true
+
+    // Read from the bundle so the footer follows the version I set in Xcode.
+    // It was hardcoded to 1.0.0 and stayed wrong through four releases.
+    static let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
 }
 
 // MARK: - Assignment Types

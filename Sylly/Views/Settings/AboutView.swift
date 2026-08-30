@@ -30,7 +30,7 @@ struct AboutView: View {
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("v1.0.0")
+            Text("v\(AppConfig.version)")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 

@@ -10,6 +10,7 @@ struct ScheduleView: View {
     // MARK: - Database
     @Query private var assignments: [Assignment]
     @State private var selectedDate: Date = Date()
+    @State private var showMonthPicker = false
     @Binding var navigationState: NavigationState
 
     // MARK: - Body
@@ -36,10 +37,17 @@ struct ScheduleView: View {
                     // Week Strip, when clicking a day in this sub-view, it updates the state here
                     WeekStripView(selectedDate: $selectedDate)
 
-                    // Selected Date Label
-                    Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day().year()))
+                    // Selected Date Label — tap to open the month picker
+                    Button {
+                        showMonthPicker = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day().year()))
+                            Image(systemName: "calendar")
+                        }
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                    }
                 }
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
@@ -47,6 +55,15 @@ struct ScheduleView: View {
                 .cornerRadius(16)
                 .padding(.horizontal)
                 .padding(.top, 8)
+            }
+            // MARK: - Month Picker Sheet
+            .sheet(isPresented: $showMonthPicker) {
+                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .padding()
+                    .presentationDetents([.medium])
+                    // Closes as soon as a day is picked — switching months doesn't fire this
+                    .onChange(of: selectedDate) { showMonthPicker = false }
             }
         }
     }

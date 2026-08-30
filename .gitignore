@@ -42,3 +42,6 @@ xcuserdata/
 
 # Claude Code project files
 .claude/
+
+# Local planning notes — never publish, repo is public
+SYLLY_UPDATE_PLAN.md

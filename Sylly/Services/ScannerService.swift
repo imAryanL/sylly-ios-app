@@ -22,7 +22,11 @@ class ScannerService {
 
         for image in images {
             let pageText = try await extractText(from: image)
-            allText.append(pageText)
+            // Skip blank or picture-only pages — they cost Claude tokens and
+            // carry nothing. Safe to drop because empty really is empty.
+            if pageText.trimmingCharacters(in: .whitespacesAndNewlines).count >= 20 {
+                allText.append(pageText)
+            }
         }
 
         let combined = allText.joined(separator: "\n\n")
@@ -124,92 +128,6 @@ enum ScannerError: Error, LocalizedError {
             return "Could not process the image. Please try again."
         case .noTextFound:
             return "No text found in the image. Please try a clearer photo."
-        }
-    }
-}
-
-// MARK: - Test Function
-// This is just for testing - I'll remove it later
-#Preview {
-    TestScannerView()
-}
-
-// A simple view to test my scanner
-struct TestScannerView: View {
-    @State private var extractedText = "Tap the button to test OCR..."
-    @State private var isLoading = false
-
-    var body: some View {
-        VStack(spacing: 20) {
-            // Show the test image
-            Image("TestSyllabus")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 300)
-                .border(Color.gray)
-
-            // Button to run OCR
-            Button(action: {
-                testOCR()
-            }) {
-                Text(isLoading ? "Scanning..." : "Test OCR")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(isLoading ? Color.gray : Color.blue)
-                    .cornerRadius(10)
-            }
-            .disabled(isLoading)
-
-            // Show the extracted text
-            ScrollView {
-                Text(extractedText)
-                    .font(.system(.body, design: .monospaced))
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(10)
-            .padding()
-        }
-        .padding()
-    }
-
-    // Function to test OCR
-    private func testOCR() {
-        isLoading = true
-
-        // Get the test image from Assets
-        guard let image = UIImage(named: "TestSyllabus") else {
-            extractedText = "Error: Could not load TestSyllabus image"
-            isLoading = false
-            return
-        }
-
-        // Run OCR in background
-        // Task starts background work so app doesn't freeze the app
-        Task {
-            // error handling setup 
-            do {
-                let scanner = ScannerService()
-                // Run OCR on the image and wait for the results
-                let text = try await scanner.extractText(from: image)
-
-                // Success! Switch to main thread and update the UI
-                // MainActor.run = "Jump from background thread to main thread"
-                // (SwiftUI can ONLY update UI from the main thread)
-                await MainActor.run {
-                    extractedText = "SUCCESS!\n\n--- Extracted Text ---\n\n\(text)"
-                    isLoading = false
-                }
-            } catch {
-                // If OCR failed, catch the error and show it to the user
-                // MainActor.run switches back to main thread for safe UI update
-                await MainActor.run {
-                    extractedText = "Error: \(error.localizedDescription)"
-                    isLoading = false
-                }
-            }
         }
     }
 }

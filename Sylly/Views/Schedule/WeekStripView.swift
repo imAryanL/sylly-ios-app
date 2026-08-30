@@ -29,7 +29,7 @@ struct WeekStripView: View {
 
     // MARK: - Helper: Week Dates
     private func getWeekDates() -> [Date] {
-        let today = Date()
+        let today = selectedDate
         
         // Walk backward and forward from today using Apple's Calendar math.
         // ?? today means "if calendar math fails, fall back to today instead of crashing"
