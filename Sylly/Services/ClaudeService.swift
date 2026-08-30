@@ -79,8 +79,9 @@ class ClaudeService {
 
         // Creates a request object and gives it the API URL
         var request = URLRequest(url: url)
-        // Default is 60s, which is a long time to stare at a spinner
-        request.timeoutInterval = 30
+        // Back to URLSession's default. 30s was too tight — a long syllabus can take
+        // that long to come back, and a timeout loses the scan after the tokens are paid for.
+        request.timeoutInterval = 60
         // Set the HTTP method to POST which means to send data
         request.httpMethod = "POST"
 

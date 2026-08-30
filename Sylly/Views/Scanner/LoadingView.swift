@@ -149,10 +149,10 @@ struct LoadingView: View {
         }
 
         // MARK: - Navigate to ReviewView
-        // When parsing completes, show ReviewView with the parsed syllabus
-        .onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
-            // Check if review view should be shown
-            if showReview, let syllabus = parsedSyllabus {
+        // Fires once, the moment parsing finishes. parsedSyllabus is set just before
+        // showReview in the same block, so it's always ready by the time this runs.
+        .onChange(of: showReview) {
+            if let syllabus = parsedSyllabus {
                 navigationState = .reviewing(syllabus)
             }
         }

@@ -30,6 +30,19 @@ struct ScheduleView: View {
             }
             .background(AppColors.background)
             .navigationTitle("Schedule")
+            // Only shows once the user moves off today. The button appearing is
+            // itself the hint that they're looking at a week that isn't this one.
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !Calendar.current.isDateInToday(selectedDate) {
+                        Button("Today") {
+                            withAnimation {
+                                selectedDate = Date()
+                            }
+                        }
+                    }
+                }
+            }
             .safeAreaInset(edge: .top) {
                 // MARK: - Fixed Header
                 // Week Strip Card background (white)

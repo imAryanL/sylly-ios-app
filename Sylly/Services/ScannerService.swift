@@ -21,11 +21,17 @@ class ScannerService {
         var allText: [String] = []
 
         for image in images {
-            let pageText = try await extractText(from: image)
-            // Skip blank or picture-only pages — they cost Claude tokens and
-            // carry nothing. Safe to drop because empty really is empty.
-            if pageText.trimmingCharacters(in: .whitespacesAndNewlines).count >= 20 {
-                allText.append(pageText)
+            do {
+                let pageText = try await extractText(from: image)
+                // Skip blank or picture-only pages — they cost Claude tokens and
+                // carry nothing. Safe to drop because empty really is empty.
+                if pageText.trimmingCharacters(in: .whitespacesAndNewlines).count >= 20 {
+                    allText.append(pageText)
+                }
+            } catch ScannerError.noTextFound {
+                // A page with zero text throws instead of returning "", so without this
+                // one blank page would fail the whole scan. Skip it and keep going.
+                continue
             }
         }
 

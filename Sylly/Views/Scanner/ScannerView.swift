@@ -357,6 +357,8 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
         var config = PHPickerConfiguration()
         config.filter = .images          // Only show images (no videos)
         config.selectionLimit = maxImportPages  // Picker itself blocks going over
+        // .current is fine — HEIC loads on device. It only fails in the Simulator,
+        // which can't produce a HEIC representation. Don't "fix" this again.
         config.preferredAssetRepresentationMode = .current
 
         let picker = PHPickerViewController(configuration: config)
@@ -392,18 +394,22 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
             }
 
             // Load each selected photo asynchronously
-            var images: [UIImage] = []
+            // One slot per photo, filled by index. These finish in whatever order
+            // they finish, so appending would put the pages in the wrong order.
+            var images = [UIImage?](repeating: nil, count: results.count)
             // DispatchGroup waits for all image loads to complete before continuing
             let group = DispatchGroup()
-            // Serial queue so only one photo appends at a time (prevents crash when multiple photos load simultaneously)
+            // Serial queue so only one photo writes at a time (prevents crash when multiple photos load simultaneously)
             let imageQueue = DispatchQueue(label: "com.sylly.imageload")
 
-            for result in results {
+            for (index, result) in results.enumerated() {
                 // Mark the start of an async task
                 group.enter()
                 result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                     if let image = object as? UIImage {
-                        imageQueue.sync { images.append(image) }
+                        imageQueue.sync { images[index] = image }
+                    } else if let error = error {
+                        print("Photo \(index + 1) failed to load: \(error.localizedDescription)")
                     }
                     // Mark the end of this async task
                     group.leave()
@@ -412,12 +418,20 @@ struct PhotoLibraryPicker: UIViewControllerRepresentable {
 
             // Once all photos are loaded, send them back to SwiftUI and close
             group.notify(queue: .main) {
-                if images.isEmpty {
+                // Any slot still empty is a photo that failed to load
+                let loaded = images.compactMap { $0 }
+
+                if loaded.isEmpty {
                     self.parent.errorMessage = "None of those photos could be loaded. Please try again."
+                    self.parent.showError = true
+                } else if loaded.count < results.count {
+                    // Refuse a partial set rather than importing it, same as the PDF page cap —
+                    // the missing page could be the one with the final exam on it.
+                    self.parent.errorMessage = "Only \(loaded.count) of \(results.count) photos could be loaded. Please try again."
                     self.parent.showError = true
                 } else {
                     // Append so a second trip to the picker doesn't wipe earlier pages
-                    self.parent.capturedImages.append(contentsOf: images)
+                    self.parent.capturedImages.append(contentsOf: loaded)
                 }
                 self.parent.dismiss()
             }
