@@ -10,7 +10,10 @@ struct ScheduleView: View {
     // MARK: - Database
     @Query private var assignments: [Assignment]
     @State private var selectedDate: Date = Date()
-    @State private var showMonthPicker = false
+    // false = compact week strip, true = full month grid
+    @State private var showMonth = false
+    // Which month the grid is showing while browsing
+    @State private var displayedMonth = Date()
     @Binding var navigationState: NavigationState
 
     // MARK: - Body
@@ -38,6 +41,8 @@ struct ScheduleView: View {
                         Button("Today") {
                             withAnimation {
                                 selectedDate = Date()
+                                // Bring the grid back too, in case they browsed away
+                                displayedMonth = Date()
                             }
                         }
                     }
@@ -47,16 +52,26 @@ struct ScheduleView: View {
                 // MARK: - Fixed Header
                 // Week Strip Card background (white)
                 VStack(spacing: 10){
-                    // Week Strip, when clicking a day in this sub-view, it updates the state here
-                    WeekStripView(selectedDate: $selectedDate)
+                    // Five days by default, the whole month once expanded
+                    if showMonth {
+                        MonthGridView(
+                            displayedMonth: $displayedMonth,
+                            selectedDate: $selectedDate,
+                            assignments: assignments
+                        )
+                    } else {
+                        WeekStripView(selectedDate: $selectedDate)
+                    }
 
-                    // Selected Date Label — tap to open the month picker
+                    // Selected Date Label — tap to switch between week and month
                     Button {
-                        showMonthPicker = true
+                        withAnimation {
+                            showMonth.toggle()
+                        }
                     } label: {
                         HStack(spacing: 4) {
                             Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day().year()))
-                            Image(systemName: "calendar")
+                            Image(systemName: showMonth ? "chevron.up" : "chevron.down")
                         }
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -68,15 +83,6 @@ struct ScheduleView: View {
                 .cornerRadius(16)
                 .padding(.horizontal)
                 .padding(.top, 8)
-            }
-            // MARK: - Month Picker Sheet
-            .sheet(isPresented: $showMonthPicker) {
-                DatePicker("", selection: $selectedDate, displayedComponents: .date)
-                    .datePickerStyle(.graphical)
-                    .padding()
-                    .presentationDetents([.medium])
-                    // Closes as soon as a day is picked — switching months doesn't fire this
-                    .onChange(of: selectedDate) { showMonthPicker = false }
             }
         }
     }
