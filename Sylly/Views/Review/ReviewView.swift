@@ -379,6 +379,10 @@ struct ReviewView: View {
             return
         }
 
+        // Only now the save has actually gone through — a rolled-back course
+        // shouldn't leave reminders behind for assignments that don't exist.
+        NotificationService.shared.refreshAll(context: modelContext)
+
         // Store course in @State so the error alert closure can reach it
         savedCourse = course
 

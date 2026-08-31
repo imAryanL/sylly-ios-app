@@ -42,6 +42,7 @@
 		92F1E5112F2B010500A14A6D /* CourseErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F1E5102F2B010500A14A6D /* CourseErrorView.swift */; };
 		92F9A139304506050008CD2C /* MonthGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F9A138304506050008CD2C /* MonthGrid.swift */; };
 		92F9A13B3045073B0008CD2C /* MonthGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F9A13A3045073B0008CD2C /* MonthGridView.swift */; };
+		92F9A13D304548FA0008CD2C /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F9A13C304548FA0008CD2C /* NotificationService.swift */; };
 		92FA7A142F4D2F3000A4B2E6 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92FA7A132F4D2F3000A4B2E6 /* SplashView.swift */; };
 /* End PBXBuildFile section */
 
@@ -84,6 +85,7 @@
 		92F563012F3FD96A00EC8539 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		92F9A138304506050008CD2C /* MonthGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthGrid.swift; sourceTree = "<group>"; };
 		92F9A13A3045073B0008CD2C /* MonthGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthGridView.swift; sourceTree = "<group>"; };
+		92F9A13C304548FA0008CD2C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		92FA7A132F4D2F3000A4B2E6 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -166,6 +168,7 @@
 		92131AB52F25F16E00276418 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				92F9A13C304548FA0008CD2C /* NotificationService.swift */,
 				92BEED672F491F9900866AE0 /* CalendarService.swift */,
 				92232DF12F307E5D00566758 /* ScannerService.swift */,
 				92DF49ED2F31998E00AC2350 /* ClaudeService.swift */,
@@ -339,6 +342,7 @@
 				92232DF22F307E5D00566758 /* ScannerService.swift in Sources */,
 				92F1E5112F2B010500A14A6D /* CourseErrorView.swift in Sources */,
 				924B9EDD2F2731E6001C7C66 /* Course.swift in Sources */,
+				92F9A13D304548FA0008CD2C /* NotificationService.swift in Sources */,
 				926603782F29495D006D0863 /* EmptyScheduleView.swift in Sources */,
 				921A1AFC2F2C0F4A004694BC /* SettingsView.swift in Sources */,
 				92131AAF2F25F08C00276418 /* ContentView.swift in Sources */,

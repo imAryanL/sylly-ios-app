@@ -10,6 +10,7 @@
 import SwiftUI
 import SwiftData
 import StoreKit
+import UserNotifications
 
 struct SuccessView: View {
 
@@ -139,6 +140,7 @@ struct SuccessView: View {
         // MARK: - Ask for a Review
         // .task runs when this screen appears, and cancels itself if the user leaves
         .task {
+            await askForNotificationsIfNeeded()
             await askForReviewIfReady()
         }
 
@@ -167,6 +169,29 @@ struct SuccessView: View {
         } message: {
             let names = failedExportTitles.joined(separator: ", ")
             Text("These assignments couldn't be added to your calendar:\n\n\(names)")
+        }
+    }
+
+    // MARK: - Ask for Notification Permission
+    // Asked on the first save, when the point of reminders is obvious.
+    // iOS only shows this popup once ever — if the user says no, the only way
+    // back is the iOS Settings app, so the moment matters.
+    private func askForNotificationsIfNeeded() async {
+        let status = await NotificationService.shared.currentStatus()
+
+        // Already answered, one way or the other
+        if status != .notDetermined {
+            return
+        }
+
+        let granted = await NotificationService.shared.requestPermission()
+
+        // The reminders were booked during save, before permission existed.
+        // Book them again now it does — same ids, so this replaces rather than duplicates.
+        if granted {
+            for assignment in course.assignments {
+                NotificationService.shared.scheduleReminder(for: assignment)
+            }
         }
     }
 

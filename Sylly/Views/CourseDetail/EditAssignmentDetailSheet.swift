@@ -206,6 +206,7 @@ struct EditAssignmentDetailSheet: View {
         // "HW" -> "homework", everything else just lowercased
         assignment.type = assignmentType == "HW" ? "homework" : assignmentType.lowercased()
         assignment.isCompleted = isCompleted
+        NotificationService.shared.refreshAll(context: modelContext)
 
         // Step 2: Separate date and time into individual components
         // The date picker and time picker work independently, so I need to combine them
@@ -238,6 +239,7 @@ struct EditAssignmentDetailSheet: View {
     private func deleteAssignment() {
         // Step 1: Remove the assignment from the database
         modelContext.delete(assignment)
+        NotificationService.shared.refreshAll(context: modelContext)
 
         // Step 2: Commit the deletion to the database
         // do/try/catch is error handling - if deletion fails, it prints the error

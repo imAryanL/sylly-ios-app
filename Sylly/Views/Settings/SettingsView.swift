@@ -44,6 +44,23 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+
+                    // Due date reminders. iOS already owns the on/off switch for
+                    // these, so this just takes the user there rather than keeping
+                    // a second switch that could disagree with it.
+                    Button(action: openIOSSettings) {
+                        HStack {
+                            SettingsIcon(icon: "bell.fill", color: .red)
+                            Text("Reminders")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Text("iOS Settings")
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                        }
+                    }
                 }
 
                 // MARK: - SUPPORT Section
@@ -157,6 +174,7 @@ struct SettingsView: View {
         for course in courses {
             modelContext.delete(course)
         }
+        NotificationService.shared.cancelAll()
     }
 
     // MARK: - Helper: Open App Store
@@ -168,7 +186,14 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Helper: Open Email
+    // MARK: - Helper: Open iOS Settings
+    // Send them to Sylly's page in the iOS Settings app
+    private func openIOSSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+
     // Open email for feedback
     private func openEmail() {
         if let url = URL(string: "mailto:sylly.feedback@gmail.com?subject=Sylly%20Feedback") {
