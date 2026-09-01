@@ -50,6 +50,32 @@ class NotificationService {
         }
     }
 
+    // Used when the normal reminder day has already passed — someone added an exam
+    // three days out and the 7-day reminder is in the past. Returns the next 6pm
+    // that still lands before it's due, or nil if there's no room left.
+    func lateReminderDate(before dueDate: Date) -> Date? {
+        let calendar = Calendar.current
+        let now = Date()
+
+        guard var candidate = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: now) else {
+            return nil
+        }
+
+        // 6pm today is already gone, so aim for tomorrow
+        if candidate < now {
+            guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: candidate) else {
+                return nil
+            }
+            candidate = tomorrow
+        }
+
+        if candidate >= dueDate {
+            return nil
+        }
+
+        return candidate
+    }
+
     // Books one reminder for an assignment, at 6pm the right number of days before.
     // Uses the assignment's id so the reminder can be cancelled later.
     func scheduleReminder(for assignment: Assignment) {
@@ -59,23 +85,36 @@ class NotificationService {
         // Wind back from the due date, then pin it to 6pm — a lot of assignments
         // have no real time set and show as midnight, which is useless to notify at.
         guard let remindDay = calendar.date(byAdding: .day, value: -leadDays, to: assignment.dueDate),
-              let fireDate = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: remindDay) else {
+              var fireDate = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: remindDay) else {
             return
         }
 
-        // Already gone — nothing to book
+        // Added late, so the normal reminder day is behind us. Take the next 6pm
+        // that still beats the due date rather than booking nothing at all.
         if fireDate < Date() {
-            return
+            guard let lateDate = lateReminderDate(before: assignment.dueDate) else {
+                return
+            }
+            fireDate = lateDate
         }
 
-        var dayWord = "days"
-        if leadDays == 1 {
-            dayWord = "day"
+        // Count from when it actually fires, not from leadDays — a late reminder
+        // goes out tonight and would otherwise still claim "due in 7 days".
+        let fireDay = calendar.startOfDay(for: fireDate)
+        let dueDay = calendar.startOfDay(for: assignment.dueDate)
+        let daysLeft = calendar.dateComponents([.day], from: fireDay, to: dueDay).day ?? leadDays
+
+        var dueText = "due in \(daysLeft) days"
+        if daysLeft == 1 {
+            dueText = "due tomorrow"
+        }
+        if daysLeft == 0 {
+            dueText = "due today"
         }
 
         let content = UNMutableNotificationContent()
         content.title = assignment.title
-        content.body = "\(assignment.course?.name ?? "Sylly") · due in \(leadDays) \(dayWord)"
+        content.body = "\(assignment.course?.name ?? "Sylly") · \(dueText)"
         content.sound = .default
 
         let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate)
@@ -104,6 +143,10 @@ class NotificationService {
 
         let assignments = (try? context.fetch(FetchDescriptor<Assignment>())) ?? []
         for assignment in assignments {
+            // Ticked off already — nothing to remind about
+            if assignment.isCompleted {
+                continue
+            }
             scheduleReminder(for: assignment)
         }
     }

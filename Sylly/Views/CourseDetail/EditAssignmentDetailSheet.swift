@@ -206,7 +206,6 @@ struct EditAssignmentDetailSheet: View {
         // "HW" -> "homework", everything else just lowercased
         assignment.type = assignmentType == "HW" ? "homework" : assignmentType.lowercased()
         assignment.isCompleted = isCompleted
-        NotificationService.shared.refreshAll(context: modelContext)
 
         // Step 2: Separate date and time into individual components
         // The date picker and time picker work independently, so I need to combine them
@@ -231,6 +230,9 @@ struct EditAssignmentDetailSheet: View {
         // do/try/catch is error handling - if save fails, it prints the error
         do {
             try modelContext.save()
+            // Rebuild after the save, not before — the new due date has to be in
+            // the database first or the reminder gets booked on the old one
+            NotificationService.shared.refreshAll(context: modelContext)
         } catch {
             print("Error saving assignment: \(error)")
         }
@@ -239,12 +241,12 @@ struct EditAssignmentDetailSheet: View {
     private func deleteAssignment() {
         // Step 1: Remove the assignment from the database
         modelContext.delete(assignment)
-        NotificationService.shared.refreshAll(context: modelContext)
 
         // Step 2: Commit the deletion to the database
         // do/try/catch is error handling - if deletion fails, it prints the error
         do {
             try modelContext.save()
+            NotificationService.shared.refreshAll(context: modelContext)
         } catch {
             print("Error deleting assignment: \(error)")
         }

@@ -165,11 +165,11 @@ struct AddAssignmentSheet: View {
         let newAssignment = Assignment(title: title, dueDate: finalDate, type: dbType)
         newAssignment.course = course
         course.assignments.append(newAssignment)
-        NotificationService.shared.refreshAll(context: modelContext)
 
         // Step 4: Save to SwiftData
         do {
             try modelContext.save()
+            NotificationService.shared.refreshAll(context: modelContext)
             return true
         } catch {
             print("Error saving new assignment: \(error)")

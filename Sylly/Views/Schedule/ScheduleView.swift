@@ -8,6 +8,7 @@ import SwiftData
 
 struct ScheduleView: View {
     // MARK: - Database
+    @Environment(\.modelContext) private var modelContext
     @Query private var assignments: [Assignment]
     @State private var selectedDate: Date = Date()
     // false = compact week strip, true = full month grid
@@ -15,6 +16,31 @@ struct ScheduleView: View {
     // Which month the grid is showing while browsing
     @State private var displayedMonth = Date()
     @Binding var navigationState: NavigationState
+
+    // MARK: - Ask for Notification Permission
+    // Anyone who updated to 1.0.5 already scanned before reminders existed, so they
+    // never reach the ask in SuccessView. Catch them here, with their assignments
+    // on screen behind the popup so the reason for it is obvious.
+    private func askForNotificationsIfNeeded() async {
+        // Nothing to remind about — a brand new user gets asked after their first scan
+        if assignments.isEmpty {
+            return
+        }
+
+        let status = await NotificationService.shared.currentStatus()
+
+        // Already answered, one way or the other
+        if status != .notDetermined {
+            return
+        }
+
+        let granted = await NotificationService.shared.requestPermission()
+
+        // Their existing assignments have no reminders yet — book them all now
+        if granted {
+            NotificationService.shared.refreshAll(context: modelContext)
+        }
+    }
 
     // MARK: - Body
     var body: some View {
@@ -65,6 +91,11 @@ struct ScheduleView: View {
 
                     // Selected Date Label — tap to switch between week and month
                     Button {
+                        // Open on the month you're actually looking at — the arrows
+                        // can leave displayedMonth somewhere else entirely
+                        if !showMonth {
+                            displayedMonth = selectedDate
+                        }
                         withAnimation {
                             showMonth.toggle()
                         }
@@ -83,6 +114,9 @@ struct ScheduleView: View {
                 .cornerRadius(16)
                 .padding(.horizontal)
                 .padding(.top, 8)
+            }
+            .task {
+                await askForNotificationsIfNeeded()
             }
         }
     }

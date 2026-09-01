@@ -48,7 +48,11 @@ struct SettingsView: View {
                     // Due date reminders. iOS already owns the on/off switch for
                     // these, so this just takes the user there rather than keeping
                     // a second switch that could disagree with it.
-                    Button(action: openIOSSettings) {
+                    Button {
+                        Task {
+                            await openRemindersSetting()
+                        }
+                    } label: {
                         HStack {
                             SettingsIcon(icon: "bell.fill", color: .red)
                             Text("Reminders")
@@ -184,6 +188,26 @@ struct SettingsView: View {
             // UIApplication is main IOS app object and controls everything in this app
             UIApplication.shared.open(url)
         }
+    }
+
+    // MARK: - Helper: Reminders Row
+    // If they have never been asked, ask here. iOS shows no Notifications section
+    // for an app that has never requested, so sending them to Settings first is
+    // a dead end.
+    private func openRemindersSetting() async {
+        let status = await NotificationService.shared.currentStatus()
+
+        if status == .notDetermined {
+            let granted = await NotificationService.shared.requestPermission()
+
+            // Nothing has reminders yet — book them all now
+            if granted {
+                NotificationService.shared.refreshAll(context: modelContext)
+            }
+            return
+        }
+
+        openIOSSettings()
     }
 
     // MARK: - Helper: Open iOS Settings

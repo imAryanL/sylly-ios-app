@@ -159,10 +159,10 @@ struct CourseDetailView: View {
     private func deleteCourse() {
         // Remove the course from the model context
         modelContext.delete(course)
-        NotificationService.shared.refreshAll(context: modelContext)
 
         do {
             try modelContext.save()
+            NotificationService.shared.refreshAll(context: modelContext)
             // Go back to previous screen after successful deletion
             dismiss()
         } catch {
