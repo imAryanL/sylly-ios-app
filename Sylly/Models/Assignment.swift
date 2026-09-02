@@ -22,6 +22,13 @@ class Assignment {
     // nil = not exported yet, String = already in calendar (prevents duplicates)
     var calendarEventID: String?
 
+    // Midnight means no time was given — a scan only ever fills in the date.
+    // Computed, so SwiftData doesn't store it; it just reads dueDate.
+    var hasTime: Bool {
+        let parts = Calendar.current.dateComponents([.hour, .minute], from: dueDate)
+        return parts.hour != 0 || parts.minute != 0
+    }
+
     init(
         title: String,
         dueDate: Date,

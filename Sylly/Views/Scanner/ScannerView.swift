@@ -78,8 +78,9 @@ struct ScannerView: View {
         }
 
         // MARK: - Import Failure
-        // Shared by the photo picker and the PDF picker
-        .alert("Couldn't add pages", isPresented: $showImportError) {
+        // Shared by the photo picker, the PDF picker, and the page cap on Continue.
+        // Title stays vague on purpose — it covers "couldn't load" and "too many".
+        .alert("Check your pages", isPresented: $showImportError) {
             Button("OK", role: .cancel) { }
         } message: {
             Text(importErrorMessage)
@@ -259,6 +260,17 @@ struct ScannerView: View {
                 // Continue — sends images to OCR/Claude pipeline
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+                    // Last gate before we spend money and memory on these pages.
+                    // The document scanner has no page limit of its own, so this is
+                    // the only place all three import paths are guaranteed to pass.
+                    if capturedImages.count > maxImportPages {
+                        let extra = capturedImages.count - maxImportPages
+                        importErrorMessage = "Sylly reads up to \(maxImportPages) pages. Remove \(extra) with the ✕ button."
+                        showImportError = true
+                        return
+                    }
+
                     navigationState = .loading(capturedImages)
                 }) {
                     Text("Continue")

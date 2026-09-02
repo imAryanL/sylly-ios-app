@@ -16,10 +16,13 @@ struct EditAssignmentDetailSheet: View {
     @State private var title: String = ""
     @State private var dueDate: Date = Date()
     @State private var assignmentTime: Date = Date()
+    @State private var hasTime: Bool = false
     @State private var assignmentType: String = "homework"
     @State private var isCompleted: Bool = false
 
     @State private var showDeleteAlert = false
+    @State private var showSaveError = false
+    @State private var saveErrorMessage = ""
 
     let assignment: Assignment
     let assignmentTypes = ["Exam", "Quiz", "HW", "Project"]
@@ -62,16 +65,19 @@ struct EditAssignmentDetailSheet: View {
                         }
 
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Time (optional)")
+                            Toggle("Set a time", isOn: $hasTime)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
+                                .tint(AppColors.primary)
 
-                            DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
-                                .labelsHidden()
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
+                            if hasTime {
+                                DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
+                                    .labelsHidden()
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(12)
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -153,9 +159,14 @@ struct EditAssignmentDetailSheet: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        saveAssignment()
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        dismiss()
+                        // Only close if it actually saved — otherwise the sheet
+                        // slides away and you assume the edit went through
+                        if saveAssignment() {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            dismiss()
+                        } else {
+                            showSaveError = true
+                        }
                     }
                     .foregroundColor(title.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -164,18 +175,34 @@ struct EditAssignmentDetailSheet: View {
             .alert("Delete Assignment?", isPresented: $showDeleteAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Delete", role: .destructive) {
-                    deleteAssignment()
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    dismiss()
+                    if deleteAssignment() {
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        dismiss()
+                    } else {
+                        showSaveError = true
+                    }
                 }
             } message: {
                 Text("This assignment will be deleted from the course.")
             }
+            .alert("Something went wrong", isPresented: $showSaveError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(saveErrorMessage)
+            }
             .onAppear {
                 title = assignment.title
                 dueDate = assignment.dueDate
-                assignmentTime = assignment.dueDate
                 isCompleted = assignment.isCompleted
+                hasTime = assignment.hasTime
+
+                // No time set yet, so start the picker at 11:59 PM instead of midnight —
+                // midnight would just save straight back as "no time".
+                if hasTime {
+                    assignmentTime = assignment.dueDate
+                } else {
+                    assignmentTime = Calendar.current.date(bySettingHour: 23, minute: 59, second: 0, of: assignment.dueDate) ?? assignment.dueDate
+                }
 
                 // Map the stored lowercase type to the picker's display format
                 // Database stores: "exam", "quiz", "homework", "project"
@@ -199,7 +226,8 @@ struct EditAssignmentDetailSheet: View {
     }
 
     // MARK: - Helper Functions
-    private func saveAssignment() {
+    // Returns true if the save succeeded, false if it failed
+    private func saveAssignment() -> Bool {
         // Step 1: Update basic assignment fields from the edit form
         assignment.title = title
         // Convert picker display format back to lowercase for database
@@ -219,8 +247,15 @@ struct EditAssignmentDetailSheet: View {
         combinedComponents.year = dateComponents.year
         combinedComponents.month = dateComponents.month
         combinedComponents.day = dateComponents.day
-        combinedComponents.hour = timeComponents.hour
-        combinedComponents.minute = timeComponents.minute
+
+        if hasTime {
+            combinedComponents.hour = timeComponents.hour
+            combinedComponents.minute = timeComponents.minute
+        } else {
+            // Toggle off means no time given — store midnight, same as a fresh scan
+            combinedComponents.hour = 0
+            combinedComponents.minute = 0
+        }
 
         // Step 4: Convert combined components back to a single Date object for the database
         // ?? dueDate means "if conversion fails, use the original date as fallback"
@@ -233,12 +268,19 @@ struct EditAssignmentDetailSheet: View {
             // Rebuild after the save, not before — the new due date has to be in
             // the database first or the reminder gets booked on the old one
             NotificationService.shared.refreshAll(context: modelContext)
+            return true
         } catch {
+            // Throw away the edits sitting in memory too, or the screen keeps
+            // showing changes the database never took
+            modelContext.rollback()
+            saveErrorMessage = "Your changes couldn't be saved. Please try again."
             print("Error saving assignment: \(error)")
+            return false
         }
     }
 
-    private func deleteAssignment() {
+    // Returns true if the deletion succeeded, false if it failed
+    private func deleteAssignment() -> Bool {
         // Step 1: Remove the assignment from the database
         modelContext.delete(assignment)
 
@@ -247,8 +289,13 @@ struct EditAssignmentDetailSheet: View {
         do {
             try modelContext.save()
             NotificationService.shared.refreshAll(context: modelContext)
+            return true
         } catch {
+            // Put the assignment back — it's only gone from memory so far
+            modelContext.rollback()
+            saveErrorMessage = "This assignment couldn't be deleted. Please try again."
             print("Error deleting assignment: \(error)")
+            return false
         }
     }
 }

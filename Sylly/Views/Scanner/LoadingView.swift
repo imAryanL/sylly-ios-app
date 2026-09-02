@@ -178,9 +178,6 @@ struct LoadingView: View {
                 let scannerService = ScannerService()
                 let extractedText = try await scannerService.extractText(from: images)
 
-                // Debug: Print extracted text
-                print("Extracted text:\n\(extractedText)")
-
                 // Step 2: Claude API - Parse the text
                 await MainActor.run {
                     statusMessage = "Finding assignments..."

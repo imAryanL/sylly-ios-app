@@ -51,7 +51,7 @@ struct ScheduleCard: View {
                 }
 
                 // Due date & time
-                Text("\(getDueDateLabel(from: assignment.dueDate)) at \(getTimeString(from: assignment.dueDate))")
+                Text(dueLabel(for: assignment))
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(urgencyColor(for: assignment))
@@ -98,6 +98,18 @@ struct ScheduleCard: View {
         } else {
             return AppColors.neutral
         }
+    }
+
+    // MARK: - Helper: Due Date Line
+    // Without the hasTime check every scanned assignment read "at 12:00 AM".
+    private func dueLabel(for assignment: Assignment) -> String {
+        let dayLabel = getDueDateLabel(from: assignment.dueDate)
+
+        if !assignment.hasTime {
+            return dayLabel
+        }
+
+        return "\(dayLabel) at \(getTimeString(from: assignment.dueDate))"
     }
 
     // MARK: - Helper: Get Time String

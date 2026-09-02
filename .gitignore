@@ -16,8 +16,8 @@ DerivedData/
 Pods/
 Podfile.lock
 
-# Configuration with secrets
-Config.swift
+# Configuration with secrets — only the xcconfig holds the actual key.
+# Config.swift just reads it at runtime, so it stays tracked or a clean clone can't build.
 Secrets.xcconfig
 
 # Compiled binaries

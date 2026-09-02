@@ -178,7 +178,16 @@ struct SettingsView: View {
         for course in courses {
             modelContext.delete(course)
         }
-        NotificationService.shared.cancelAll()
+
+        // delete() only marks them in memory — nothing leaves the database until
+        // save(), and the reminders shouldn't go until the data actually has
+        do {
+            try modelContext.save()
+            NotificationService.shared.cancelAll()
+        } catch {
+            modelContext.rollback()
+            print("Error deleting all data: \(error)")
+        }
     }
 
     // MARK: - Helper: Open App Store

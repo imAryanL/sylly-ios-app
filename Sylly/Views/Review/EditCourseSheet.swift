@@ -14,6 +14,14 @@ struct EditCourseSheet: View {
     @Binding var courseCode: String
     @Binding var courseIcon: String
     @Binding var courseColor: String
+
+    // Edit copies. The bindings point straight at ReviewView's values, so editing
+    // them directly is what made Cancel do nothing — there was no original left
+    // to go back to. These get written back only on Save.
+    @State private var draftName: String = ""
+    @State private var draftCode: String = ""
+    @State private var draftIcon: String = ""
+    @State private var draftColor: String = ""
     
     // MARK: - Body
     var body: some View {
@@ -22,11 +30,11 @@ struct EditCourseSheet: View {
                 VStack(spacing: 24) {
                     
                     // MARK: - Course Icon Preview
-                    Image(systemName: courseIcon)
+                    Image(systemName: draftIcon)
                         .font(.system(size: 40))
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80)
-                        .background(AppColors.color(from: courseColor))
+                        .background(AppColors.color(from: draftColor))
                         .cornerRadius(16)
                         .padding(.top, 20)
                     
@@ -37,7 +45,7 @@ struct EditCourseSheet: View {
                             .foregroundColor(.secondary)
 
                         VStack(spacing: 4) {
-                            TextField("", text: $courseName)
+                            TextField("", text: $draftName)
                                 .font(.headline)
                                 .textFieldStyle(.plain)
                                 .multilineTextAlignment(.center)
@@ -54,7 +62,7 @@ struct EditCourseSheet: View {
                             .foregroundColor(.secondary)
 
                         VStack(spacing: 4) {
-                            TextField("", text: $courseCode)
+                            TextField("", text: $draftCode)
                                 .font(.subheadline.bold())
                                 .foregroundColor(.secondary)
                                 .textFieldStyle(.plain)
@@ -74,7 +82,7 @@ struct EditCourseSheet: View {
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
                         
-                        IconPickerGrid(selectedIcon: $courseIcon)
+                        IconPickerGrid(selectedIcon: $draftIcon)
                     }
                     .padding(.top, 8)
                     
@@ -85,7 +93,7 @@ struct EditCourseSheet: View {
                             .foregroundColor(.secondary)
                             .padding(.horizontal)
                         
-                        ColorPickerRow(selectedColor: $courseColor)
+                        ColorPickerRow(selectedColor: $draftColor)
                     }
                     
                     Spacer()
@@ -105,11 +113,21 @@ struct EditCourseSheet: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
+                        courseName = draftName
+                        courseCode = draftCode
+                        courseIcon = draftIcon
+                        courseColor = draftColor
                         dismiss()
                     }
-                    .foregroundColor(courseName.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
-                    .disabled(courseName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .foregroundColor(draftName.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
+                    .disabled(draftName.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
+            }
+            .onAppear {
+                draftName = courseName
+                draftCode = courseCode
+                draftIcon = courseIcon
+                draftColor = courseColor
             }
         }
     }

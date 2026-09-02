@@ -15,7 +15,6 @@ struct EditAssignmentSheet: View {
     // Local state for editing
     @State private var title: String = ""
     @State private var date: Date = Date()
-    @State private var time: Date = Date()
     @State private var selectedType: String = "Exam"
 
     @State private var showDeleteAlert = false
@@ -44,7 +43,7 @@ struct EditAssignmentSheet: View {
                     .padding(.horizontal)
                     .padding(.top, 12)
 
-                    // MARK: - Date & Time Section
+                    // MARK: - Date Section
                     VStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Date")
@@ -53,19 +52,6 @@ struct EditAssignmentSheet: View {
                                 .foregroundColor(.secondary)
 
                             DatePicker("", selection: $date, displayedComponents: .date)
-                                .labelsHidden()
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Time (optional)")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
-
-                            DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
                                 .labelsHidden()
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)

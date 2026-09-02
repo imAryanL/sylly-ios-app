@@ -30,6 +30,12 @@ enum NavigationState {
 }
 
 struct ContentView: View {
+    // MARK: - Database
+    @Environment(\.modelContext) private var modelContext
+
+    // Tells us when the app comes back to the foreground
+    @Environment(\.scenePhase) private var scenePhase
+
     // MARK: - Navigation State
     // Single @State that controls entire navigation flow
     // Much cleaner than multiple boolean flags
@@ -94,6 +100,26 @@ struct ContentView: View {
                 SuccessView(assignmentCount: count, course: course, navigationState: $navigationState, selectedTab: $selectedTab)
                     .transition(.move(edge: .bottom))
             }
+        }
+
+        // Cold launch — scenePhase is already .active here, so onChange never fires
+        .task {
+            await rebuildRemindersIfAllowed()
+        }
+
+        // Coming back from iOS Settings with the app still in the background
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await rebuildRemindersIfAllowed() }
+            }
+        }
+    }
+
+    // Notifications can be switched on in iOS Settings long after we asked, and
+    // nothing else books reminders until an assignment changes.
+    private func rebuildRemindersIfAllowed() async {
+        if await NotificationService.shared.currentStatus() == .authorized {
+            NotificationService.shared.refreshAll(context: modelContext)
         }
     }
 }

@@ -69,8 +69,19 @@ class NotificationService {
             candidate = tomorrow
         }
 
+        // Even the next 6pm is past the deadline — added at 7pm, due 9am tomorrow.
+        // Give them an hour's notice instead of nothing at all. Not 5 minutes: that
+        // fires while the phone is still in their hand.
         if candidate >= dueDate {
-            return nil
+            guard let soon = calendar.date(byAdding: .hour, value: 1, to: now) else {
+                return nil
+            }
+
+            if soon >= dueDate {
+                return nil
+            }
+
+            return soon
         }
 
         return candidate
@@ -139,9 +150,17 @@ class NotificationService {
     // completed, deleted. Rebuilding is cheap and local, and it means the
     // reminders can never drift out of step with the database.
     func refreshAll(context: ModelContext) {
+        let request = FetchDescriptor<Assignment>()
+
+        // Read before wiping — cancelling first meant a failed read left zero
+        // reminders and nothing to rebuild them from.
+        guard let assignments = try? context.fetch(request) else {
+            print("Couldn't read assignments — leaving the existing reminders alone")
+            return
+        }
+
         cancelAll()
 
-        let assignments = (try? context.fetch(FetchDescriptor<Assignment>())) ?? []
         for assignment in assignments {
             // Ticked off already — nothing to remind about
             if assignment.isCompleted {

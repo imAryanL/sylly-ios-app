@@ -21,7 +21,10 @@ struct AddAssignmentSheet: View {
     // MARK: - State Properties
     @State private var title: String = ""
     @State private var dueDate: Date = Date()
-    @State private var assignmentTime: Date = Date()
+    // Starts at 11:59 PM rather than "right now" — a deadline of 9:52 PM
+    // just because that's when you typed it in makes no sense.
+    @State private var assignmentTime: Date = Calendar.current.date(bySettingHour: 23, minute: 59, second: 0, of: Date()) ?? Date()
+    @State private var hasTime: Bool = false
     @State private var assignmentType: String = "HW"
     @State private var showSaveError: Bool = false
 
@@ -65,16 +68,19 @@ struct AddAssignmentSheet: View {
                         }
 
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Time (optional)")
+                            Toggle("Set a time", isOn: $hasTime)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.secondary)
+                                .tint(AppColors.primary)
 
-                            DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
-                                .labelsHidden()
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
+                            if hasTime {
+                                DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
+                                    .labelsHidden()
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(12)
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -152,8 +158,15 @@ struct AddAssignmentSheet: View {
         combinedComponents.year = dateComponents.year
         combinedComponents.month = dateComponents.month
         combinedComponents.day = dateComponents.day
-        combinedComponents.hour = timeComponents.hour
-        combinedComponents.minute = timeComponents.minute
+
+        if hasTime {
+            combinedComponents.hour = timeComponents.hour
+            combinedComponents.minute = timeComponents.minute
+        } else {
+            // Toggle off means no time given — store midnight, same as a fresh scan
+            combinedComponents.hour = 0
+            combinedComponents.minute = 0
+        }
 
         let finalDate = calendar.date(from: combinedComponents) ?? dueDate
 
@@ -172,6 +185,9 @@ struct AddAssignmentSheet: View {
             NotificationService.shared.refreshAll(context: modelContext)
             return true
         } catch {
+            // Take the new assignment back out of memory — it was appended to the
+            // course before the save, so tapping Add again would make a second one
+            modelContext.rollback()
             print("Error saving new assignment: \(error)")
             return false
         }
