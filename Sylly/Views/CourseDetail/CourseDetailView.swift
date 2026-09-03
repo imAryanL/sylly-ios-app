@@ -19,6 +19,7 @@ struct CourseDetailView: View {
     @State private var showDeleteAlert = false
     @State private var selectedAssignment: Assignment?
     @State private var showAddAssignmentSheet = false
+    @State private var showCourseInfo = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -46,6 +47,54 @@ struct CourseDetailView: View {
                 .padding(.top, 4)
             }
             .padding()
+
+            // MARK: - Course Info
+            // Whatever the syllabus stated. The whole row is gone when it stated nothing,
+            // so a course scanned before this existed looks exactly like it used to.
+            if !courseInfoFields.isEmpty {
+                VStack(alignment: .leading, spacing: 0) {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showCourseInfo.toggle()
+                        }
+                    }) {
+                        HStack {
+                            Text("Course info")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.secondary)
+                                .rotationEffect(.degrees(showCourseInfo ? 90 : 0))
+                        }
+                    }
+
+                    if showCourseInfo {
+                        VStack(alignment: .leading, spacing: 14) {
+                            ForEach(courseInfoFields, id: \.label) { field in
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(field.label)
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.secondary)
+
+                                    Text(field.value)
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                        // Lets a long policy wrap instead of cutting off at one line
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                        .padding(.top, 14)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 16)
+            }
 
             // MARK: - Main Content Section
             // Shows error state, empty state, or list of assignments (checks error first)
@@ -153,6 +202,24 @@ struct CourseDetailView: View {
         // .filter keeps only items where the condition is true
         // !$0.isCompleted means "where isCompleted is false"
         course.assignments.filter { !$0.isCompleted }.count
+    }
+
+    // Only the info the syllabus actually stated, in the order it should show up.
+    // Empty means the whole Course info row stays hidden.
+    private var courseInfoFields: [(label: String, value: String)] {
+        var fields: [(label: String, value: String)] = []
+
+        if let officeHours = course.officeHours {
+            fields.append((label: "Office hours", value: officeHours))
+        }
+        if let latePolicy = course.latePolicy {
+            fields.append((label: "Late work", value: latePolicy))
+        }
+        if let gradingBreakdown = course.gradingBreakdown {
+            fields.append((label: "Grading", value: gradingBreakdown))
+        }
+
+        return fields
     }
 
     // MARK: - Delete Course Function

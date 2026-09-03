@@ -245,7 +245,9 @@ struct ReviewView: View {
                 title: parsed.title,
                 date: parsed.date,
                 type: capitalizeType(parsed.type),
-                isSelected: true  // Select all by default
+                isSelected: true,  // Select all by default
+                leadDays: parsed.leadDays,
+                detail: parsed.detail
             )
         }
 
@@ -322,7 +324,10 @@ struct ReviewView: View {
             name: courseName,
             code: courseCode,
             icon: courseIcon,
-            color: courseColor
+            color: courseColor,
+            latePolicy: parsedSyllabus.latePolicy,
+            officeHours: parsedSyllabus.officeHours,
+            gradingBreakdown: parsedSyllabus.gradingBreakdown
         )
 
         // Track any assignments with dates that can't be parsed
@@ -349,7 +354,9 @@ struct ReviewView: View {
             let assignment = Assignment(
                 title: reviewAssignment.title,
                 dueDate: dueDate,
-                type: type
+                type: type,
+                leadDays: reviewAssignment.leadDays,
+                detail: reviewAssignment.detail
             )
 
             // Link assignment to course
@@ -412,6 +419,10 @@ struct ReviewAssignment: Identifiable {
     var date: String       // Format: "YYYY-MM-DD"
     var type: String       // "Exam", "Quiz", "HW", "Project"
     var isSelected: Bool
+
+    // Not shown on this screen — just carried from the scan through to the saved Assignment.
+    var leadDays: Int? = nil
+    var detail: String? = nil
 }
 
 // MARK: - Assignment Row Component

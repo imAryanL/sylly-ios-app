@@ -19,6 +19,12 @@ class Course {
     var createdAt: Date // exact date and time this course was created
     var hasError: Bool  // indicates if scanning the syllabus had an error
 
+    // Pulled off the syllabus when it states them. nil means it didn't say,
+    // and the Course Info row hides whatever is nil.
+    var latePolicy: String?
+    var officeHours: String?
+    var gradingBreakdown: String?
+
 
     // 'Relationship' - connection to other data, the setup process for a new Course
     @Relationship(deleteRule: .cascade)   // 'cascade' means if you delete the Course, all its Assignments are deleted too
@@ -31,7 +37,10 @@ class Course {
         code: String,
         icon: String = "book.closed.fill",
         color: String = "BrandPrimary",
-        hasError: Bool = false  // defaults to false (no error)
+        hasError: Bool = false,  // defaults to false (no error)
+        latePolicy: String? = nil,
+        officeHours: String? = nil,
+        gradingBreakdown: String? = nil
     ){
         // This part is where the AI views and writes the information from the user sending their Syllabus form
         self.id = UUID()
@@ -41,6 +50,9 @@ class Course {
         self.color = color
         self.createdAt = Date()
         self.hasError = hasError  // set the error status
+        self.latePolicy = latePolicy
+        self.officeHours = officeHours
+        self.gradingBreakdown = gradingBreakdown
     }
 
 }

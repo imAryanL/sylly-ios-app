@@ -36,7 +36,8 @@ class ClaudeService {
         Your job is to:
         1. Find the course name and course code
         2. Find ALL assignments, exams, quizzes, and projects with their due dates
-        3. Return the data as JSON
+        3. Pull out a few course policies, when the syllabus states them
+        4. Return the data as JSON
 
         Rules:
         - Only include items that have a specific date
@@ -44,28 +45,59 @@ class ClaudeService {
         - Format dates as YYYY-MM-DD
         - If you can't find a course code, use "N/A"
 
+        Policy fields (late_policy, office_hours, grading_breakdown):
+        - Copy the wording from the syllabus. Do not paraphrase, summarize or tidy it up.
+        - If the syllabus does not state one, return null. Never guess a policy. A student
+          may act on this, and an invented policy is far worse than a missing one.
+        - Keep each under 300 characters. Trim to the part that answers the question.
+
+        lead_days: a single whole number, how many days before the due date to remind the
+        student. Between 1 and 30.
+        - Match the work: a term paper needs more warning than a discussion post.
+        - Return null when nothing about the assignment suggests a specific answer.
+
+        detail: one short phrase under 60 characters describing the work, for use in a
+        reminder notification (for example "Chapters 1-6"). Return null when the syllabus
+        says nothing beyond the title.
+
         Return ONLY valid JSON in this exact format, no other text:
         {
           "course_name": "string",
           "course_code": "string",
+          "late_policy": "string or null",
+          "office_hours": "string or null",
+          "grading_breakdown": "string or null",
           "assignments": [
             {
               "title": "string",
               "date": "YYYY-MM-DD",
-              "type": "exam|quiz|homework|project"
+              "type": "exam|quiz|homework|project",
+              "lead_days": 7,
+              "detail": "string or null"
             }
           ]
         }
         """
 
-        // Get current year dynamically
-        let currentYear = Calendar.current.component(.year, from: Date())
+        // The full date, not just the year. A course running December into January has to
+        // know which side of the boundary today sits on.
+        let todayFormatter = DateFormatter()
+        // POSIX locale so a non-Gregorian device calendar can't hand back a different year.
+        todayFormatter.locale = Locale(identifier: "en_US_POSIX")
+        todayFormatter.dateFormat = "yyyy-MM-dd"
+        let today = todayFormatter.string(from: Date())
 
         let userMessage = """
-        Today's date is \(currentYear). Please extract the course information and assignments from this syllabus.
+        Today's date is \(today). Please extract the course information and assignments from this syllabus.
 
-        IMPORTANT: Ignore any years mentioned in the syllabus text (like "Fall 2023" or "Spring 2024").
-        Assume ALL dates are for year \(currentYear), since users scan current syllabi for their active courses.
+        Choosing the year for each date:
+        - Professors reuse old syllabus templates, so a year printed in the text may be stale.
+        - If the syllabus names a term (like "Spring 2027") that begins within 12 months of
+          today, use that term's years.
+        - Otherwise choose years that place the course in the present or near future, never
+          entirely in the past.
+        - Read the schedule in order. If the dates run past December into January, those
+          January dates belong to the following year.
 
         Syllabus text:
         \(text)
@@ -164,12 +196,21 @@ struct ParsedSyllabus: Codable {
     let courseCode: String
     let assignments: [ParsedAssignment]
 
+    // Nil means the syllabus didn't say. Missing keys decode to nil on their own.
+    // var, not let — a `let` with a default never gets decoded.
+    var latePolicy: String? = nil
+    var officeHours: String? = nil
+    var gradingBreakdown: String? = nil
+
     // This maps JSON keys to Swift properties 
     // CodingKey tells Swift how to translate JSON keys to Swift Property names
     enum CodingKeys: String, CodingKey {
         case courseName = "course_name"
         case courseCode = "course_code"
         case assignments
+        case latePolicy = "late_policy"
+        case officeHours = "office_hours"
+        case gradingBreakdown = "grading_breakdown"
     }
 }
 
@@ -177,6 +218,19 @@ struct ParsedAssignment: Codable {
     let title: String
     let date: String      // Format: "YYYY-MM-DD"
     let type: String      // "exam", "quiz", "homework", "project"
+
+    // Nil falls back to what the app already does: the 7/5/3/1 ladder, and a notification
+    // body built from the title alone.
+    var leadDays: Int? = nil
+    var detail: String? = nil
+
+    enum CodingKeys: String, CodingKey {
+        case title
+        case date
+        case type
+        case leadDays = "lead_days"
+        case detail
+    }
 }
 
 // MARK: - Claude Errors

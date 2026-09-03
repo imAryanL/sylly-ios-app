@@ -90,7 +90,13 @@ class NotificationService {
     // Books one reminder for an assignment, at 6pm the right number of days before.
     // Uses the assignment's id so the reminder can be cancelled later.
     func scheduleReminder(for assignment: Assignment) {
-        let leadDays = defaultLeadDays(for: assignment.type)
+        // The scan's own number when it gave one, otherwise the ladder by type.
+        // Range-checked because a 0 or a negative would land the reminder past the due date.
+        var leadDays = defaultLeadDays(for: assignment.type)
+        if let scannedLeadDays = assignment.leadDays, scannedLeadDays >= 1, scannedLeadDays <= 30 {
+            leadDays = scannedLeadDays
+        }
+
         let calendar = Calendar.current
 
         // Wind back from the due date, then pin it to 6pm — a lot of assignments
@@ -123,9 +129,17 @@ class NotificationService {
             dueText = "due today"
         }
 
+        // "BIO 101 · Chapters 1-6 · due in 7 days", dropping the middle piece
+        // when the scan didn't find anything worth adding.
+        var bodyParts = [assignment.course?.name ?? "Sylly"]
+        if let detail = assignment.detail {
+            bodyParts.append(detail)
+        }
+        bodyParts.append(dueText)
+
         let content = UNMutableNotificationContent()
         content.title = assignment.title
-        content.body = "\(assignment.course?.name ?? "Sylly") · \(dueText)"
+        content.body = bodyParts.joined(separator: " · ")
         content.sound = .default
 
         let parts = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate)

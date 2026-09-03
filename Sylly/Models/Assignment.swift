@@ -22,6 +22,11 @@ class Assignment {
     // nil = not exported yet, String = already in calendar (prevents duplicates)
     var calendarEventID: String?
 
+    // Claude's picks from the scan. nil for both falls back to what the app already does:
+    // the type ladder in NotificationService, and a body built from the title alone.
+    var leadDays: Int?
+    var detail: String?
+
     // Midnight means no time was given — a scan only ever fills in the date.
     // Computed, so SwiftData doesn't store it; it just reads dueDate.
     var hasTime: Bool {
@@ -33,7 +38,9 @@ class Assignment {
         title: String,
         dueDate: Date,
         type: String = "homework",    // if AI can't decide on what type it is, the default will always be as "homework"
-        isCompleted: Bool = false     // new assignments start as not finished (false)
+        isCompleted: Bool = false,    // new assignments start as not finished (false)
+        leadDays: Int? = nil,
+        detail: String? = nil
     ){
         self.id = UUID()
         self.title = title
@@ -41,5 +48,7 @@ class Assignment {
         self.type = type
         self.isCompleted = isCompleted
         self.calendarEventID = nil  // No calendar event yet
+        self.leadDays = leadDays
+        self.detail = detail
     }
 }
