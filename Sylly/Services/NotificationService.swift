@@ -129,9 +129,20 @@ class NotificationService {
             dueText = "due today"
         }
 
+        // The code, not the name — shorter, so the detail still fits the banner.
+        // "N/A" is what the scan writes when the syllabus gave no code.
+        var courseLabel = "Sylly"
+        if let course = assignment.course {
+            if course.code == "N/A" || course.code.isEmpty {
+                courseLabel = course.name
+            } else {
+                courseLabel = course.code
+            }
+        }
+
         // "BIO 101 · Chapters 1-6 · due in 7 days", dropping the middle piece
         // when the scan didn't find anything worth adding.
-        var bodyParts = [assignment.course?.name ?? "Sylly"]
+        var bodyParts = [courseLabel]
         if let detail = assignment.detail {
             bodyParts.append(detail)
         }

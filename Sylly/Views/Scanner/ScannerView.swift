@@ -115,7 +115,7 @@ struct ScannerView: View {
                 if VNDocumentCameraViewController.isSupported {
                     scannerCard(
                         icon: "doc.viewfinder",
-                        color: Color("ICON_Blue"),
+                        shade: -0.10,
                         title: "Scan Document",
                         description: "Use your camera to scan pages"
                     ) {
@@ -126,7 +126,7 @@ struct ScannerView: View {
                 // Card 2: Photo Library (pick photos from your library)
                 scannerCard(
                     icon: "photo.on.rectangle",
-                    color: Color("ICON_Purple"),
+                    shade: -0.05,
                     title: "Photo Library",
                     description: "Select photos from your library"
                 ) {
@@ -136,7 +136,7 @@ struct ScannerView: View {
                 // Card 3: Import PDF (pick a PDF from Files app)
                 scannerCard(
                     icon: "doc.richtext",
-                    color: .orange,
+                    shade: 0,
                     title: "Import PDF",
                     description: "Import a PDF from Files"
                 ) {
@@ -151,9 +151,10 @@ struct ScannerView: View {
     // MARK: - Scanner Card Helper
     // Builds one vertical card — icon on top, title + description below
     // Reusable helper — called 3 times with different values instead of copy-pasting
+    // shade darkens the brand colour. Only darker — white text needs the contrast.
     private func scannerCard(
         icon: String,
-        color: Color,
+        shade: Double,
         title: String,
         description: String,
         action: @escaping () -> Void
@@ -164,13 +165,11 @@ struct ScannerView: View {
             action()
         } label: {
             VStack(spacing: 14) {
-                // Icon — white on colored card background
                 Image(systemName: icon)
                     .font(.system(size: 48))
                     .foregroundColor(.white)
                     .frame(width: 60, height: 60)
 
-                // Title + description centered below — white text
                 VStack(spacing: 4) {
                     Text(title)
                         .font(.headline)
@@ -184,7 +183,22 @@ struct ScannerView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 20)
             .padding(.horizontal, 16)
-            .background(color)
+            // Gradient sits under the content so it doesn't wash out the text.
+            .background(
+                ZStack {
+                    AppColors.primary.brightness(shade)
+                    // The dark bottom is what reads as curved, not just lit.
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.white.opacity(0.32), location: 0.0),
+                            .init(color: Color.clear, location: 0.55),
+                            .init(color: Color.black.opacity(0.12), location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            )
             .cornerRadius(14)
         }
         // Custom style handles the scale + opacity press animation

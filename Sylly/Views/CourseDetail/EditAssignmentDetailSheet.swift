@@ -232,7 +232,15 @@ struct EditAssignmentDetailSheet: View {
         assignment.title = title
         // Convert picker display format back to lowercase for database
         // "HW" -> "homework", everything else just lowercased
-        assignment.type = assignmentType == "HW" ? "homework" : assignmentType.lowercased()
+        let newType = assignmentType == "HW" ? "homework" : assignmentType.lowercased()
+
+        // Lead time was picked for the old type, so drop it and fall back to the
+        // ladder. Detail stays — fixing a type doesn't change what the work is.
+        if newType != assignment.type {
+            assignment.leadDays = nil
+        }
+
+        assignment.type = newType
         assignment.isCompleted = isCompleted
 
         // Step 2: Separate date and time into individual components

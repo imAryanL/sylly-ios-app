@@ -99,19 +99,33 @@ struct FilledHomeView: View {
                         }
                         .buttonStyle(PressableButtonStyle())
                     }
-                        // '+ Add another syllabus' button
+                        // 'Scan another syllabus' button
                         // When tapped, navigate to scanning state
                         Button(action: {
                             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             navigationState = .scanning
                         }) {
-                            Text("+ Add another syllabus")
+                            Text("Scan another syllabus")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(AppColors.primary)
-                                .cornerRadius(12)
+                                // Same layout as the button on the empty screen.
+                                .background(
+                                    ZStack {
+                                        AppColors.primary
+                                        LinearGradient(
+                                            stops: [
+                                                .init(color: Color.white.opacity(0.14), location: 0.0),
+                                                .init(color: Color.clear, location: 0.75),
+                                                .init(color: Color.black.opacity(0.12), location: 1.0)
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    }
+                                )
+                                .clipShape(Capsule())
 
                     }
                     .buttonStyle(PressableButtonStyle())

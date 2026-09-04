@@ -61,13 +61,13 @@ struct CourseDetailView: View {
                         HStack {
                             Text("Course info")
                                 .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.primary)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white.opacity(0.8))
                                 .rotationEffect(.degrees(showCourseInfo ? 90 : 0))
                         }
                     }
@@ -76,14 +76,21 @@ struct CourseDetailView: View {
                         VStack(alignment: .leading, spacing: 14) {
                             ForEach(courseInfoFields, id: \.label) { field in
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(field.label)
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.secondary)
+                                    HStack(spacing: 5) {
+                                        Image(systemName: field.icon)
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.white)
+
+                                        Text(field.label)
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.white.opacity(0.85))
+                                    }
 
                                     Text(field.value)
                                         .font(.subheadline)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(.white)
                                         // Lets a long policy wrap instead of cutting off at one line
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
@@ -92,6 +99,12 @@ struct CourseDetailView: View {
                         .padding(.top, 14)
                     }
                 }
+                // Fixed brand fill, so the text is hardcoded white rather than .primary,
+                // which would flip to black in dark mode and vanish.
+                .padding()
+                .background(AppColors.primary)
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.05), radius: 5)
                 .padding(.horizontal)
                 .padding(.bottom, 16)
             }
@@ -206,17 +219,19 @@ struct CourseDetailView: View {
 
     // Only the info the syllabus actually stated, in the order it should show up.
     // Empty means the whole Course info row stays hidden.
-    private var courseInfoFields: [(label: String, value: String)] {
-        var fields: [(label: String, value: String)] = []
+    // Icons picked for distinct silhouettes — tall, humanoid, round. Two circles
+    // next to each other were unreadable at this size.
+    private var courseInfoFields: [(label: String, value: String, icon: String)] {
+        var fields: [(label: String, value: String, icon: String)] = []
 
         if let officeHours = course.officeHours {
-            fields.append((label: "Office hours", value: officeHours))
+            fields.append((label: "Office hours", value: officeHours, icon: "person.fill"))
         }
         if let latePolicy = course.latePolicy {
-            fields.append((label: "Late work", value: latePolicy))
+            fields.append((label: "Late work", value: latePolicy, icon: "hourglass"))
         }
         if let gradingBreakdown = course.gradingBreakdown {
-            fields.append((label: "Grading", value: gradingBreakdown))
+            fields.append((label: "Grading", value: gradingBreakdown, icon: "chart.pie.fill"))
         }
 
         return fields

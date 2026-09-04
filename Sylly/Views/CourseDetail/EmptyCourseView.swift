@@ -15,10 +15,11 @@ struct EmptyCourseView: View {
             Spacer()
             
             // MARK: - Octo Icon
+            // Bigger now that he's carrying the screen on his own.
             Image("SyllyMain")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 170, height: 170)
+                .frame(width: 200, height: 200)
             
             // MARK: - Main Heading
             // Large text saying "All done!"
@@ -33,21 +34,6 @@ struct EmptyCourseView: View {
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)  // Center text (important for the line break)
             
-            // MARK: - Celebration Icons
-            HStack(spacing: 30) {
-                // Party popper icon
-                Image(systemName: "party.popper.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.purple)
-                
-                // Sparkles icon (yellow)
-                Image(systemName: "fireworks")
-                    .font(.system(size: 50))
-                    .foregroundColor(.green)
-            }
-            .padding(.top, 8)
-            
- 
             Spacer()
         }
         .frame(maxWidth: .infinity)  // Make the VStack stretch to fill full screen width

@@ -34,15 +34,17 @@ struct CourseCard: View {
                 
                 // Next assignment info, this checks if there is an upcoming assignment to show
                 if let nextAssignment = getNextAssignment() {
-                    // Assignment name on first line
-                    Text("Next: \(nextAssignment.title)")
-                        .font(.caption)
+                    // No "Next:" prefix — the line under the course name already
+                    // reads as what's coming, and dropping it buys room for the title.
+                    Text(nextAssignment.title)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
 
                     // Urgency text on second line (more visible this way)
+                    // Bigger than the rest — it's the line people open the app for.
                     Text(dueText(for: nextAssignment))
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(urgencyColor(for: nextAssignment))
                         .fontWeight(.bold)
                 } else {

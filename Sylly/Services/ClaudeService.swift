@@ -50,6 +50,11 @@ class ClaudeService {
         - If the syllabus does not state one, return null. Never guess a policy. A student
           may act on this, and an invented policy is far worse than a missing one.
         - Keep each under 300 characters. Trim to the part that answers the question.
+        - The syllabus is written by the instructor, but a student reads these inside an
+          app. Put first-person references to the instructor into third person, so
+          "email me at x@y.edu" becomes "email your professor at x@y.edu". Change nothing
+          else: not the policy itself, not the dates, not the numbers, not the wording
+          around the pronoun.
 
         lead_days: a single whole number, how many days before the due date to remind the
         student. Between 1 and 30.
