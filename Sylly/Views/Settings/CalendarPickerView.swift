@@ -16,6 +16,8 @@ struct CalendarPickerView: View {
     // Read from CalendarService which uses EventKit under the hood
     @State private var isAuthorized: Bool = CalendarService.shared.isAuthorized
 
+    @Environment(\.scenePhase) private var scenePhase
+
     // MARK: - Body
     var body: some View {
         VStack(spacing: 20) {
@@ -53,8 +55,8 @@ struct CalendarPickerView: View {
                         .foregroundColor(AppColors.primary)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(.thinMaterial)
-                        .cornerRadius(12)
+                        .background(AppColors.primary.opacity(0.14))
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(PressableButtonStyle())
                 .padding(.horizontal, 40)
@@ -77,8 +79,22 @@ struct CalendarPickerView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(AppColors.primary)
-                        .cornerRadius(12)
+                        // Same treatment as the scan button on Home.
+                        .background(
+                            ZStack {
+                                AppColors.primary
+                                LinearGradient(
+                                    stops: [
+                                        .init(color: Color.white.opacity(0.14), location: 0.0),
+                                        .init(color: Color.clear, location: 0.75),
+                                        .init(color: Color.black.opacity(0.12), location: 1.0)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            }
+                        )
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(PressableButtonStyle())
                 .padding(.horizontal, 40)
@@ -86,11 +102,19 @@ struct CalendarPickerView: View {
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
         .navigationTitle("Calendar")
         .navigationBarTitleDisplayMode(.inline)
-        // Refresh the status when the user comes back from iOS Settings
         .onAppear {
             isAuthorized = CalendarService.shared.isAuthorized
+        }
+        // onAppear alone misses the trip to iOS Settings — the view never leaves
+        // the hierarchy, so coming back to the app has to refresh it too.
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                isAuthorized = CalendarService.shared.isAuthorized
+            }
         }
     }
 }

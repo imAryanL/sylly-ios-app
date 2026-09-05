@@ -44,22 +44,57 @@ struct SuccessView: View {
     // Controls the "something went wrong" error alert
     @State private var showCalendarErrorAlert = false
 
+    // "1 assignment ... has" reads wrong in the plural, so the two are written out.
+    private var subtitle: String {
+        if assignmentCount == 1 {
+            return "1 assignment from \(course.name) has been saved to Sylly."
+        }
+        return "\(assignmentCount) assignments from \(course.name) have been saved to Sylly."
+    }
+
     // MARK: - Body
     var body: some View {
         VStack(spacing: 24) {
 
             Spacer()
 
-            // MARK: - Checkmark Icon
-            ZStack {
-                Circle()
-                    .fill(AppColors.primary)
-                    .frame(width: 120, height: 120)
-
-                Image(systemName: "checkmark")
-                    .font(.system(size: 50, weight: .bold))
+            // MARK: - Course Icon
+            // The course they just added, not a generic tick.
+            ZStack(alignment: .bottomTrailing) {
+                Image(systemName: course.icon)
+                    .font(.system(size: 52))
                     .foregroundColor(.white)
+                    .frame(width: 116, height: 116)
+                    .background(
+                        ZStack {
+                            AppColors.color(from: course.color)
+                            LinearGradient(
+                                stops: [
+                                    .init(color: Color.white.opacity(0.22), location: 0.0),
+                                    .init(color: Color.clear, location: 0.7),
+                                    .init(color: Color.black.opacity(0.12), location: 1.0)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        }
+                    )
+                    .cornerRadius(26)
+
+                ZStack {
+                    // Ring in the page colour, so the badge reads off the tile.
+                    Circle()
+                        .fill(Color(.systemBackground))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 38))
+                        .foregroundStyle(.white, Color.green)
+                }
+                .offset(x: 10, y: 10)
             }
+            // offset does not grow the frame, so the badge would sit in the stack's spacing.
+            .padding(.bottom, 10)
 
             // MARK: - Title
             Text("You're all set!")
@@ -68,10 +103,11 @@ struct SuccessView: View {
 
             // MARK: - Subtitle
             // Says "saved to Sylly" because calendar export is a separate step below
-            Text("\(assignmentCount) \(assignmentCount == 1 ? "assignment has" : "assignments have") been\nsaved to Sylly.")
+            Text(subtitle)
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
 
             Spacer()
 
@@ -100,8 +136,22 @@ struct SuccessView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(calendarState.buttonColor)
-                .cornerRadius(12)
+                // Same treatment as the scan button on Home.
+                .background(
+                    ZStack {
+                        calendarState.buttonColor
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color.white.opacity(0.14), location: 0.0),
+                                .init(color: Color.clear, location: 0.75),
+                                .init(color: Color.black.opacity(0.12), location: 1.0)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    }
+                )
+                .clipShape(Capsule())
             }
             .disabled(calendarState == .loading || calendarState == .done)
             .buttonStyle(PressableButtonStyle())
@@ -115,11 +165,11 @@ struct SuccessView: View {
             }) {
                 Text("View Calendar")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(AppColors.primary)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(AppColors.primary)
-                    .cornerRadius(12)
+                    .background(AppColors.primary.opacity(0.14))
+                    .clipShape(Capsule())
             }
             .buttonStyle(PressableButtonStyle())
             .padding(.horizontal)
@@ -275,9 +325,9 @@ struct SuccessView: View {
 // MARK: - Calendar Button State
 // Controls the "Add to Calendar" button's text and color
 enum CalendarButtonState: Equatable {
-    case idle     // "Add to Calendar" (green)
-    case loading  // "Adding..." (green, dimmed)
-    case done     // "Added to Calendar" (green, checkmark)
+    case idle     // "Add to Calendar"
+    case loading  // "Adding..."
+    case done     // "Added to Calendar"
 
     var label: String {
         switch self {
@@ -289,8 +339,9 @@ enum CalendarButtonState: Equatable {
 
     var buttonColor: Color {
         switch self {
-        case .idle:    return .green
-        case .loading: return .green.opacity(0.7)
+        case .idle:    return AppColors.primary
+        case .loading: return AppColors.primary.opacity(0.7)
+        // Green only once it worked — confirmation, not invitation.
         case .done:    return .green
         }
     }

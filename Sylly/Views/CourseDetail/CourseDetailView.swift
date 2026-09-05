@@ -29,6 +29,9 @@ struct CourseDetailView: View {
                 Text(course.name)
                     .font(.title)
                     .fontWeight(.bold)
+                    // The screen is a VStack, so opening Course info squeezes the
+                    // header and truncates the name. This keeps its full height.
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(course.code)
                     .font(.subheadline)

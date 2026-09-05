@@ -48,7 +48,7 @@ struct ScheduleView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     if assignmentsForSelectedDate.isEmpty {
-                        EmptyScheduleView()
+                        EmptyScheduleView(showMascot: !showMonth)
                     } else {
                         ForEach(assignmentsForSelectedDate) { assignment in
                             ScheduleCard(assignment: assignment, navigationState: $navigationState)
@@ -58,7 +58,7 @@ struct ScheduleView: View {
                 .padding(.top, 8)
             }
             .background(AppColors.background)
-            .navigationTitle("Schedule")
+            .navigationTitle("Calendar")
             // Only shows once the user moves off today. The button appearing is
             // itself the hint that they're looking at a week that isn't this one.
             .toolbar {

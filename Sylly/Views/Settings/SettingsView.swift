@@ -129,9 +129,9 @@ struct SettingsView: View {
                     }
                 }
 
-                // MARK: - DANGER ZONE Section
+                // MARK: - DELETE Section
                 // Destructive actions (delete all data)
-                Section(header: Text("DANGER ZONE")) {
+                Section(header: Text("DELETE")) {
                     Button(action: {
                         showDeleteAlert = true
                     }) {

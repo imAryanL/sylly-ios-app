@@ -20,14 +20,8 @@ struct LoadingView: View {
     @Binding var navigationState: NavigationState
 
     // MARK: - State Properties
-    // Tracks the animated dots (. → .. → ... → ....)
-    @State private var dotCount = 0
-
-    // Controls the pulsing animation
-    @State private var isAnimating = false
-
-    // Status message shown to user
-    @State private var statusMessage = "Extracting text..."
+    // Which half of the scan is running. Drives the title and the subtitle.
+    @State private var phase: ScanPhase = .reading
 
     // Stores any error that occurs
     @State private var errorMessage: String?
@@ -41,47 +35,26 @@ struct LoadingView: View {
     // onAppear can fire more than once — this keeps the paid API call to one run
     @State private var hasStarted = false
 
-    // MARK: - Timer
-    // Timer for the dot animation (fires every 0.5 seconds)
-    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
-
     // MARK: - Body
     var body: some View {
         VStack(spacing: 24) {
 
             Spacer()
 
-            // MARK: - Animated Icon
-            ZStack {
-                // Document icon
-                Image(systemName: "doc.text")
-                    .font(.system(size: 60))
-                    .foregroundColor(AppColors.primary)
+            // MARK: - Scanning Animation
+            // Hidden on failure — a scanner still sweeping under an error reads as stuck.
+            if errorMessage == nil {
+                ScanningDocument()
 
-                // Pulsing frame around the icon
-                RoundedRectangle(cornerRadius: 50)
-                    .stroke(AppColors.primary, lineWidth: 3)
-                    .frame(width: 100, height: 100)
-                    .scaleEffect(isAnimating ? 1.1 : 1.0)
-                    .opacity(isAnimating ? 0.5 : 1.0)
+                Text(phase.title)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+
+                Text(phaseDetail)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
             }
-            .onAppear {
-                // Start the pulsing animation
-                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
-                    isAnimating = true
-                }
-            }
-
-            // MARK: - Title with Animated Dots
-            Text("Analyzing Syllabus\(String(repeating: ".", count: dotCount))")
-                .font(.title2)
-                .fontWeight(.semibold)
-
-            // MARK: - Status Message
-            // Shows current step: "Extracting text..." or "Finding assignments..."
-            Text(statusMessage)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
 
             // MARK: - Error Message (if any)
             if let error = errorMessage {
@@ -115,7 +88,7 @@ struct LoadingView: View {
                             .padding(.horizontal, 30)
                             .padding(.vertical, 12)
                             .background(AppColors.primary)
-                            .cornerRadius(10)
+                            .clipShape(Capsule())
                     }
                 }
                 .padding(.top, 16)
@@ -135,11 +108,6 @@ struct LoadingView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
-
-        // MARK: - Dot Animation Timer
-        .onReceive(timer) { _ in
-            dotCount = (dotCount + 1) % 4
-        }
 
         // MARK: - Start Processing When View Appears
         .onAppear {
@@ -172,7 +140,7 @@ struct LoadingView: View {
             do {
                 // Step 1: OCR - Extract text from all scanned pages
                 await MainActor.run {
-                    statusMessage = "Extracting text from \(images.count) page\(images.count == 1 ? "" : "s")..."
+                    phase = .reading
                 }
 
                 let scannerService = ScannerService()
@@ -180,7 +148,7 @@ struct LoadingView: View {
 
                 // Step 2: Claude API - Parse the text
                 await MainActor.run {
-                    statusMessage = "Finding assignments..."
+                    phase = .finding
                 }
 
                 let claudeService = ClaudeService()
@@ -205,9 +173,107 @@ struct LoadingView: View {
             }
         }
     }
+
+    // MARK: - Helpers
+    private var phaseDetail: String {
+        if phase == .reading {
+            if images.count == 1 {
+                return "1 page"
+            }
+            return "\(images.count) pages"
+        }
+        return "Dates, titles and course info"
+    }
+}
+
+// MARK: - Scan Phase
+enum ScanPhase: Equatable {
+    case reading
+    case finding
+
+    var title: String {
+        switch self {
+        case .reading: return "Reading your pages"
+        case .finding: return "Finding assignments"
+        }
+    }
+}
+
+// MARK: - Scanning Document
+// A page outline with a light bar sweeping down it, brightening the lines it passes.
+private struct ScanningDocument: View {
+    // -1 is above the page, 1 is below it.
+    @State private var sweep: CGFloat = -1
+
+    private let pageWidth: CGFloat = 104
+    private let pageHeight: CGFloat = 132
+    private let lineWidths: [CGFloat] = [0.85, 0.6, 0.9, 0.5, 0.8, 0.7]
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(AppColors.primary.opacity(0.45), lineWidth: 3)
+                .frame(width: pageWidth, height: pageHeight)
+
+            textLines(opacity: 0.2)
+
+            // The same lines at full strength, revealed only under the moving band.
+            textLines(opacity: 1.0)
+                .mask(sweepBand)
+
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [.clear, AppColors.primary, .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(width: pageWidth - 12, height: 2)
+                .offset(y: sweep * (pageHeight / 2))
+        }
+        .frame(width: pageWidth, height: pageHeight)
+        .onAppear {
+            // withAnimation inside onAppear, so the repeat cannot capture a settling layout.
+            withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
+                sweep = 1
+            }
+        }
+    }
+
+    private var sweepBand: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .clear, location: 0.0),
+                .init(color: .white, location: 0.5),
+                .init(color: .clear, location: 1.0)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(width: pageWidth, height: pageHeight * 0.55)
+        .offset(y: sweep * (pageHeight / 2))
+    }
+
+    private func textLines(opacity: Double) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(lineWidths.indices, id: \.self) { index in
+                Capsule()
+                    .fill(AppColors.primary.opacity(opacity))
+                    .frame(width: (pageWidth - 32) * lineWidths[index], height: 5)
+            }
+        }
+        .frame(width: pageWidth - 32, alignment: .leading)
+    }
 }
 
 // MARK: - Preview
-#Preview {
+// This one runs the real scan on appear — OCR plus a paid Claude call.
+#Preview("Full scan — costs money") {
     LoadingView(images: [UIImage(named: "TestSyllabus")].compactMap { $0 }, navigationState: .constant(.loading([])))
+}
+
+// Just the animation, no processing.
+#Preview("Scanning animation") {
+    ScanningDocument()
 }

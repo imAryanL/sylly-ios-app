@@ -30,7 +30,7 @@ struct EmptyHomeView: View {
                 .fontWeight(.semibold)
 
             // Says what they get, not just what to tap.
-            Text("Scan your syllabus and Sylly pulls out every assignment and due date.")
+            Text("Scan your syllabus and Sylly finds your assignments and due dates.")
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

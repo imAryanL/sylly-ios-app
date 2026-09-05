@@ -33,83 +33,34 @@ struct AddAssignmentSheet: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+            Form {
+                Section("Title") {
+                    TextField("Assignment title", text: $title)
+                }
 
-                    // MARK: - Title Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Title")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                Section("Due") {
+                    DatePicker("Date", selection: $dueDate, displayedComponents: .date)
 
-                        TextField("Assignment title", text: $title)
-                            .font(.headline)
-                            .padding(12)
-                            .background(.regularMaterial)
-                            .cornerRadius(10)
+                    Toggle("Set a time", isOn: $hasTime)
+                        .tint(AppColors.primary)
+
+                    if hasTime {
+                        DatePicker("Time", selection: $assignmentTime, displayedComponents: .hourAndMinute)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 12)
+                }
 
-                    // MARK: - Date & Time Section
-                    VStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Date")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
-
-                            DatePicker("", selection: $dueDate, displayedComponents: .date)
-                                .labelsHidden()
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Toggle("Set a time", isOn: $hasTime)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
-                                .tint(AppColors.primary)
-
-                            if hasTime {
-                                DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
-                                    .labelsHidden()
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(12)
-                            }
+                Section("Type") {
+                    Picker("Assignment Type", selection: $assignmentType) {
+                        ForEach(assignmentTypes, id: \.self) { type in
+                            Text(type).tag(type)
                         }
                     }
-                    .padding(.horizontal)
-
-                    // MARK: - Assignment Type Picker
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Type")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
-
-                        Picker("Assignment Type", selection: $assignmentType) {
-                            ForEach(assignmentTypes, id: \.self) { type in
-                                Text(type)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
-                                    .tag(type)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(16)
-                        .background(.thinMaterial)
-                        .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
+                    .pickerStyle(.segmented)
+                    // Without this the row keeps a label and squashes the control.
+                    .labelsHidden()
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .background(Color(UIColor.secondarySystemBackground))
             .navigationTitle("New assignment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

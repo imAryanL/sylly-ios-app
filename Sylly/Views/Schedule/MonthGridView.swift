@@ -2,7 +2,7 @@
 //  MonthGridView.swift
 //  Sylly
 //
-//  Draws one month as a 7-column calendar. Nothing is tappable yet.
+//  Draws one month as a 7-column calendar. Tapping a day sets selectedDate.
 //
 
 import SwiftUI

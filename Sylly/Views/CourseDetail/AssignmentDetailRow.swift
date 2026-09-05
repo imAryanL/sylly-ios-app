@@ -12,21 +12,25 @@ struct AssignmentDetailRow: View {
     let onTap: () -> Void  // Callback when row is tapped
     
     var body: some View {
-        // Arrange items horizontally with 12pt space between them
-        HStack(spacing: 12) {
+        // Top aligned, so the icon stays with the title when it wraps to several lines.
+        HStack(alignment: .top, spacing: 12) {
             
-            // MARK: - Completion Indicator Circle
-            // Shows different icon based on completion status
+            // MARK: - Completion Indicator
+            // Same tile in both states, so only the colour and glyph change.
             if isCompleted {
-                // If assignment is completed, show a green checkmark in a circle
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green) 
-                    .font(.title3)  
+                Image(systemName: "checkmark")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.green)
+                    .frame(width: 36, height: 36)
+                    .background(Color.green.opacity(0.15))
+                    .cornerRadius(10)
             } else {
-                // If assignment is upcoming, show a blue filled circle
-                Image(systemName: "circle.fill")
-                    .foregroundColor(AppColors.primary)  
-                    .font(.title3)  
+                Image(systemName: typeIcon())
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(AppColors.primary)
+                    .frame(width: 36, height: 36)
+                    .background(AppColors.primary.opacity(0.15))
+                    .cornerRadius(10)
             }
             
             // MARK: - Assignment Information Section
@@ -52,8 +56,10 @@ struct AssignmentDetailRow: View {
             // MARK: - Chevron Arrow (Indicates Tappable)
             // Right-pointing arrow that suggests this row can be tapped for more details
             Image(systemName: AppIcons.chevronRight)
-                .foregroundColor(.gray)  
-                .font(.caption)  
+                .foregroundColor(.gray)
+                .font(.caption)
+                // Matches the icon tile, so both sit level with the first line of the title.
+                .frame(height: 36)
         }
         .padding()
         .onTapGesture {
@@ -61,6 +67,18 @@ struct AssignmentDetailRow: View {
         }
     }
     
+    // MARK: - Type Icon
+    // Four distinct shapes, so the type reads without looking at the text.
+    private func typeIcon() -> String {
+        switch assignment.type.lowercased() {
+        case "exam": return "doc.text.fill"
+        case "quiz": return "checklist"
+        case "homework": return "books.vertical.fill"
+        case "project": return "square.stack.3d.up.fill"
+        default: return "doc.fill"
+        }
+    }
+
     // MARK: - Date Formatting Helper
     // Converts the full date into a readable format like "Feb 12"
     private func getDateString() -> String {

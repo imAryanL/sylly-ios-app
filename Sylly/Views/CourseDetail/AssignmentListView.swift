@@ -67,11 +67,10 @@ struct AssignmentListView: View {
                             // .id is a unique identifier for each assignment
                             if assignment.id != upcomingAssignments.last?.id {
                                 Divider()
-                                    .padding(.leading, 40)  // Indent divider so it doesn't span full width
                             }
                         }
                     }
-                    .background(Color(UIColor.secondarySystemBackground))
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(12)
                     .padding(.horizontal)
                 }
@@ -100,11 +99,10 @@ struct AssignmentListView: View {
                             // Add a divider line between rows (but NOT after the last row)
                             if assignment.id != overdueAssignments.last?.id {
                                 Divider()
-                                    .padding(.leading, 40)  // Indent divider
                             }
                         }
                     }
-                    .background(Color(UIColor.secondarySystemBackground))
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(12)
                     .padding(.horizontal)
                 }
@@ -133,11 +131,10 @@ struct AssignmentListView: View {
                             // Add a divider line between rows (but NOT after the last row)
                             if assignment.id != completedAssignments.last?.id {
                                 Divider()
-                                    .padding(.leading, 40)  // Indent divider
                             }
                         }
                     }
-                    .background(Color(UIColor.secondarySystemBackground))
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(12)
                     .padding(.horizontal)
                 }

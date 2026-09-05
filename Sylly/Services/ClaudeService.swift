@@ -186,10 +186,14 @@ class ClaudeService {
             throw ClaudeError.parsingError
         }
 
+        // Decode throws Foundation's own error, which reaches the user as
+        // "the data couldn't be read". Everything else here throws a ClaudeError.
         let decoder = JSONDecoder()
-        let parsedSyllabus = try decoder.decode(ParsedSyllabus.self, from: jsonData)
-
-        return parsedSyllabus
+        do {
+            return try decoder.decode(ParsedSyllabus.self, from: jsonData)
+        } catch {
+            throw ClaudeError.parsingError
+        }
     }
 }
 
@@ -255,7 +259,7 @@ enum ClaudeError: Error, LocalizedError {
         case .apiError(let message):
             return "API Error: \(message)"
         case .parsingError:
-            return "Could not parse the response. Please try again."
+            return "Sylly couldn't read that syllabus. Try scanning it again."
         }
     }
 }

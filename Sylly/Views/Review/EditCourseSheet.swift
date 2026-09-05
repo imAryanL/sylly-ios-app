@@ -22,85 +22,72 @@ struct EditCourseSheet: View {
     @State private var draftCode: String = ""
     @State private var draftIcon: String = ""
     @State private var draftColor: String = ""
+
+    // Lets a tap anywhere in the row open the keyboard, not just on the text itself.
+    private enum CourseField {
+        case name
+        case code
+    }
+    @FocusState private var focusedField: CourseField?
     
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    
-                    // MARK: - Course Icon Preview
-                    Image(systemName: draftIcon)
-                        .font(.system(size: 40))
-                        .foregroundColor(.white)
-                        .frame(width: 80, height: 80)
-                        .background(AppColors.color(from: draftColor))
-                        .cornerRadius(16)
-                        .padding(.top, 20)
-                    
-                    // MARK: - Course Name
-                    VStack(alignment: .center, spacing: 6) {
-                        Text("Course Name")
+            Form {
+                Section {
+                    HStack {
+                        Spacer()
+                        Image(systemName: draftIcon)
+                            .font(.system(size: 40))
+                            .foregroundColor(.white)
+                            .frame(width: 80, height: 80)
+                            .background(AppColors.color(from: draftColor))
+                            .cornerRadius(16)
+                        Spacer()
+                    }
+                    // No card behind the preview — it is the result, not a control.
+                    .listRowBackground(Color.clear)
+                }
+
+                Section("Course") {
+                    // Label above, not beside — a course name is free text and would
+                    // otherwise run into the label on a narrower phone.
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Name")
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        VStack(spacing: 4) {
-                            TextField("", text: $draftName)
-                                .font(.headline)
-                                .textFieldStyle(.plain)
-                                .multilineTextAlignment(.center)
-
-                            Divider()
-                                .frame(maxWidth: 350)
-                        }
+                        TextField("Course name", text: $draftName)
+                            .focused($focusedField, equals: .name)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        focusedField = .name
                     }
 
-                    // MARK: - Course Code
-                    VStack(alignment: .center, spacing: 6) {
-                        Text("Course Code")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Code")
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        VStack(spacing: 4) {
-                            TextField("", text: $draftCode)
-                                .font(.subheadline.bold())
-                                .foregroundColor(.secondary)
-                                .textFieldStyle(.plain)
-                                .multilineTextAlignment(.center)
-                                
+                        TextField("Course code", text: $draftCode)
+                            .focused($focusedField, equals: .code)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        focusedField = .code
+                    }
+                }
 
+                Section("Color") {
+                    ColorPickerRow(selectedColor: $draftColor)
+                }
 
-                            Divider()
-                                .frame(maxWidth: 350)
-                        }
-                    }
-                    
-                    // MARK: - Icon Picker
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("ICON")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                        
-                        IconPickerGrid(selectedIcon: $draftIcon)
-                    }
-                    .padding(.top, 8)
-                    
-                    // MARK: - Color Picker
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("COLOR")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal)
-                        
-                        ColorPickerRow(selectedColor: $draftColor)
-                    }
-                    
-                    Spacer()
+                Section("Icon") {
+                    IconPickerGrid(selectedIcon: $draftIcon, selectedColor: draftColor)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .background(AppColors.background)
             .navigationTitle("Edit course")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -136,42 +123,32 @@ struct EditCourseSheet: View {
 // MARK: - Icon Picker Grid
 struct IconPickerGrid: View {
     @Binding var selectedIcon: String
+    let selectedColor: String
 
     // Pull icons from the single source of truth in Constants.swift
     let icons = AppIcons.courseIcons
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Horizontal scroll container
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHGrid(rows: [
-                    GridItem(.fixed(40), spacing: 12),
-                    GridItem(.fixed(40), spacing: 12),
-                    GridItem(.fixed(40), spacing: 12)
-                ], spacing: 12) {
-                    ForEach(icons, id: \.self) { icon in
-                        Button(action: {
-                            selectedIcon = icon
-                        }) {
-                            Image(systemName: icon)
-                                .font(.title3)
-                                .foregroundColor(selectedIcon == icon ? .white : .primary)
-                                .frame(width: 40, height: 40)
-                                .background(selectedIcon == icon ? AppColors.primary : Color.gray.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .frame(height: 148) // 3 rows × 40pt + spacing
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 6)
 
-            // Scroll hint
-            Text("Swipe for more icons →")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .padding(.horizontal)
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 10) {
+            ForEach(icons, id: \.self) { icon in
+                Button(action: {
+                    selectedIcon = icon
+                }) {
+                    Image(systemName: icon)
+                        .font(.title3)
+                        // Selection uses the course colour, so the grid shows the real result.
+                        .foregroundColor(selectedIcon == icon ? .white : .primary)
+                        .frame(width: 44, height: 44)
+                        .background(selectedIcon == icon ? AppColors.color(from: selectedColor) : Color.gray.opacity(0.12))
+                        .cornerRadius(10)
+                }
+                // Without this the whole row becomes one button.
+                .buttonStyle(.plain)
+            }
         }
+        .padding(.vertical, 4)
     }
 }
 
@@ -199,9 +176,8 @@ struct ColorPickerRow: View {
                 }
             }
         }
-        .padding(.horizontal)
     }
-    
+
     // Reusable color button
     private func colorButton(for color: String) -> some View {
         Button(action: {
@@ -219,6 +195,7 @@ struct ColorPickerRow: View {
                 }
             }
         }
+        .buttonStyle(.plain)
     }
 }
 

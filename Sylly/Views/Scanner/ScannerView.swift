@@ -28,9 +28,18 @@ struct ScannerView: View {
     @State private var showDocumentScanner = false  // Shows Apple's multi-page scanner
     @State private var showPhotoLibrary = false     // Shows photo picker (multi-select)
     @State private var showFilePicker = false       // Shows Files app picker for PDFs
-    @State private var capturedImages: [UIImage] = [] // All scanned/selected/imported pages
+    @State private var capturedImages: [UIImage]     // All scanned/selected/imported pages
+    @State private var selectedPage = 0             // Which page the carousel is showing
+    @State private var showRescanAlert = false      // Confirms throwing away every page
     @State private var showImportError = false      // True when photos or a PDF couldn't be brought in
     @State private var importErrorMessage = ""
+
+    // previewImages only exists so the canvas can open on the preview screen.
+    // The app always calls this with no images.
+    init(navigationState: Binding<NavigationState>, previewImages: [UIImage] = []) {
+        self._navigationState = navigationState
+        self._capturedImages = State(initialValue: previewImages)
+    }
 
     // MARK: - Body
     var body: some View {
@@ -44,8 +53,33 @@ struct ScannerView: View {
                     previewView
                 }
             }
-            .navigationTitle("Scanner")
+            .navigationTitle(scannerTitle)
+            .navigationBarTitleDisplayMode(capturedImages.isEmpty ? .large : .inline)
+            .toolbar {
+                // Delete lives in the bar, not stuck on the page itself.
+                if !capturedImages.isEmpty {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(role: .destructive) {
+                            deleteCurrentPage()
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                    }
+                }
+            }
             .background(AppColors.background)
+            // Rescan drops every page, so this is the one worth confirming.
+            .confirmationDialog(
+                "Discard \(capturedImages.count) page\(capturedImages.count == 1 ? "" : "s")?",
+                isPresented: $showRescanAlert,
+                titleVisibility: .visible
+            ) {
+                Button("Discard", role: .destructive) {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    capturedImages = []
+                }
+                Button("Cancel", role: .cancel) { }
+            }
         }
 
         // MARK: - Reset After Flow Completes
@@ -206,71 +240,58 @@ struct ScannerView: View {
         .padding(.horizontal)
     }
 
+    // "1 of 3" while reviewing pages, the screen name otherwise.
+    private var scannerTitle: String {
+        if capturedImages.isEmpty {
+            return "Scan"
+        }
+        return "\(selectedPage + 1) of \(capturedImages.count)"
+    }
+
+    // Removes the page on screen, then keeps the carousel on a page that still exists.
+    private func deleteCurrentPage() {
+        guard capturedImages.indices.contains(selectedPage) else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        withAnimation(.snappy) {
+            // remove(at:) hands back the page it deleted, and nothing needs it.
+            _ = capturedImages.remove(at: selectedPage)
+        }
+
+        if selectedPage >= capturedImages.count {
+            selectedPage = max(capturedImages.count - 1, 0)
+        }
+    }
+
     // MARK: - Preview View
     // Shows captured images in a swipeable carousel with Rescan/Continue buttons
     private var previewView: some View {
         VStack(spacing: 0) {
 
             // Swipeable carousel of all scanned/selected images
-            // Each page is zoomable (pinch to zoom, double-tap to reset)
-            TabView {
+            TabView(selection: $selectedPage) {
                 ForEach(Array(capturedImages.enumerated()), id: \.offset) { index, image in
-                    ZStack(alignment: .topTrailing) {
-                        // Page image
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(12)
-                            .padding(.horizontal, 8)
-
-                        // Delete page button — removes this page from the list
-                        Button {
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                            // Index comes from enumerated(), so it goes stale once a
-                            // page is deleted. Bail out rather than crash.
-                            guard capturedImages.indices.contains(index) else { return }
-                            _ = withAnimation(.snappy) {
-                                capturedImages.remove(at: index)
-                            }
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title2)
-                                .foregroundStyle(.white, .red)
-                                .shadow(radius: 2)
-                        }
-                        .padding(.trailing, 20)
-                        .padding(.top, 8)
-                    }
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(10)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.05), radius: 5)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .tag(index)
                 }
             }
+            // White dots that enable moving previews
             .tabViewStyle(.page(indexDisplayMode: .automatic))
+            // The dots are built for photos, so they vanish on a light background.
+            // The pill is a system material, so it adapts in both modes on its own.
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
             .frame(maxHeight: .infinity)
 
-            // Show hint text only when there are multiple pages
-            if capturedImages.count > 1 {
-                Text("\(capturedImages.count) pages — swipe to preview")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 4)
-            }
-
-            // Rescan + Continue buttons
-            HStack(spacing: 16) {
-                // Rescan — clears images, goes back to Launch Pad
-                Button(action: {
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    capturedImages = []
-                }) {
-                    Text("Rescan")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .cornerRadius(12)
-                }
-                .buttonStyle(PressableButtonStyle())
-
+            // Continue is what happens nearly every time, so it gets the width.
+            VStack(spacing: 12) {
                 // Continue — sends images to OCR/Claude pipeline
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -280,7 +301,7 @@ struct ScannerView: View {
                     // the only place all three import paths are guaranteed to pass.
                     if capturedImages.count > maxImportPages {
                         let extra = capturedImages.count - maxImportPages
-                        importErrorMessage = "Sylly reads up to \(maxImportPages) pages. Remove \(extra) with the ✕ button."
+                        importErrorMessage = "Sylly reads up to \(maxImportPages) pages. Remove \(extra) with the trash button."
                         showImportError = true
                         return
                     }
@@ -291,11 +312,35 @@ struct ScannerView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(AppColors.primary)
-                        .cornerRadius(12)
+                        .padding(.vertical, 14)
+                        // Same treatment as the scan button on Home.
+                        .background(
+                            ZStack {
+                                AppColors.primary
+                                LinearGradient(
+                                    stops: [
+                                        .init(color: Color.white.opacity(0.14), location: 0.0),
+                                        .init(color: Color.clear, location: 0.75),
+                                        .init(color: Color.black.opacity(0.12), location: 1.0)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            }
+                        )
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(PressableButtonStyle())
+
+                // Rescan — throws away every page, so it is quiet and confirmed
+                Button(action: {
+                    showRescanAlert = true
+                }) {
+                    Text("Rescan")
+                        .font(.body)
+                        .foregroundColor(AppColors.primary)
+                        .padding(.vertical, 6)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
@@ -597,6 +642,14 @@ struct PressableButtonStyle: ButtonStyle {
 }
 
 // MARK: - Preview
-#Preview {
+#Preview("Launch pad") {
     ScannerView(navigationState: .constant(.home))
+}
+
+#Preview("Preview state") {
+    let page = UIImage(named: "TestSyllabus")
+    return ScannerView(
+        navigationState: .constant(.home),
+        previewImages: [page, page, page].compactMap { $0 }
+    )
 }

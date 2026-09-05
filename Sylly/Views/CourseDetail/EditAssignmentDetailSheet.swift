@@ -30,123 +30,48 @@ struct EditAssignmentDetailSheet: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+            Form {
+                Section("Title") {
+                    TextField("Assignment title", text: $title)
+                }
 
-                    // MARK: - Title Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Title")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                Section("Due") {
+                    DatePicker("Date", selection: $dueDate, displayedComponents: .date)
 
-                        TextField("Assignment title", text: $title)
-                            .font(.headline)
-                            .padding(12)
-                            .background(.regularMaterial)
-                            .cornerRadius(10)
+                    Toggle("Set a time", isOn: $hasTime)
+                        .tint(AppColors.primary)
+
+                    if hasTime {
+                        DatePicker("Time", selection: $assignmentTime, displayedComponents: .hourAndMinute)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 12)
+                }
 
-                    // MARK: - Date & Time Section
-                    VStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Date")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
-
-                            DatePicker("", selection: $dueDate, displayedComponents: .date)
-                                .labelsHidden()
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
-                        }
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Toggle("Set a time", isOn: $hasTime)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
-                                .tint(AppColors.primary)
-
-                            if hasTime {
-                                DatePicker("", selection: $assignmentTime, displayedComponents: .hourAndMinute)
-                                    .labelsHidden()
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(12)
-                            }
+                Section("Type") {
+                    Picker("Type", selection: $assignmentType) {
+                        ForEach(assignmentTypes, id: \.self) { type in
+                            Text(type).tag(type)
                         }
                     }
-                    .padding(.horizontal)
+                    .pickerStyle(.segmented)
+                    // Without this the row keeps a "Type" label and squashes the control.
+                    .labelsHidden()
+                }
 
-                    // MARK: - Assignment Type (Glassmorphism)
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Type")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                Section {
+                    Toggle("Completed", isOn: $isCompleted)
+                        .tint(AppColors.primary)
+                }
 
-                        Picker("Assignment Type", selection: $assignmentType) {
-                            ForEach(assignmentTypes, id: \.self) { type in
-                                Text(type)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
-                                    .tag(type)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(16)
-                        .background(.thinMaterial)
-                        .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-
-                    Spacer()
-                        .frame(height: 12)
-
-                    // MARK: - Completion Toggle
-                    Button(action: {
-                        isCompleted.toggle()
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                                .font(.headline)
-                                .foregroundColor(isCompleted ? AppColors.primary : .gray)
-                            Text(isCompleted ? "Mark as Incomplete" : "Mark as Completed")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(12)
-                        .background(.thinMaterial)
-                        .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-
-                    // MARK: - Delete Button
-                    Button(action: {
+                Section {
+                    Button(role: .destructive) {
                         showDeleteAlert = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "trash")
-                            Text("Delete this assignment")
-                                .font(.headline)
-                        }
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding(12)
-                        .background(.ultraThickMaterial)
-                        .cornerRadius(10)
+                    } label: {
+                        Text("Delete this assignment")
+                            .frame(maxWidth: .infinity)
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .background(Color(UIColor.secondarySystemBackground))
             .navigationTitle("Edit assignment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

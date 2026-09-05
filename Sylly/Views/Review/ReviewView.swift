@@ -71,18 +71,18 @@ struct ReviewView: View {
 
                     Spacer()
 
-                    // Edit button
-                    Button(action: {
-                        showEditCourse = true
-                    }) {
-                        Image(systemName: "pencil")
-                            .foregroundColor(AppColors.primary)
-                            .font(.system(size: 20, weight: .bold))
-                    }
+                    Image(systemName: AppIcons.chevronRight)
+                        .foregroundColor(.gray)
+                        .font(.caption)
                 }
                 .padding()
-                .background(Color(UIColor.secondarySystemBackground))
+                .background(Color(UIColor.secondarySystemGroupedBackground))
                 .cornerRadius(12)
+                // The whole card opens Edit course, not just the icon.
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    showEditCourse = true
+                }
                 .padding(.horizontal)
                 .padding(.top, 8)
 
@@ -110,54 +110,67 @@ struct ReviewView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.top, 16)
-                    } else {
-                        VStack(spacing: 0) {
-                            ForEach(Array(assignments.enumerated()), id: \.element.id) { index, assignment in
-                                ReviewAssignmentRow(
-                                    assignment: $assignments[index],
-                                    onTap: {
-                                        selectedAssignmentIndex = AssignmentIndex(id: index)
-                                    }
-                                )
+                    }
 
-                                // Divider between rows
-                                if index < assignments.count - 1 {
-                                    Divider()
-                                        .foregroundColor(.secondary.opacity(0.3))
-                                        .padding(.leading, 50)
+                    // The card is always here, so Add manually is always the last row in it.
+                    VStack(spacing: 0) {
+                        ForEach(Array(assignments.enumerated()), id: \.element.id) { index, assignment in
+                            ReviewAssignmentRow(
+                                assignment: $assignments[index],
+                                onTap: {
+                                    selectedAssignmentIndex = AssignmentIndex(id: index)
                                 }
-                            }
-                        }
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        .padding(.top, 16)
-                    }
+                            )
 
-                    // Add manually button (always visible)
-                    Button(action: {
-                        addManualAssignment()
-                    }) {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Add manually")
+                            Divider()
                         }
-                        .foregroundColor(AppColors.primary)
+
+                        Button(action: {
+                            addManualAssignment()
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                Text("Add manually")
+                                    .font(.body)
+                                Spacer()
+                            }
+                            .foregroundColor(AppColors.primary)
+                            .padding()
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.top, 12)
+                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .padding(.top, 16)
                 }
 
                 // MARK: - Bottom Button
                 Button(action: {
                     saveToDatabase()
                 }) {
-                    Text("Add \(selectedCount) Assignments")
+                    Text(addButtonTitle)
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(selectedCount > 0 ? AppColors.primary : Color.gray)
-                        .cornerRadius(12)
+                        // Same treatment as the scan button on Home.
+                        .background(
+                            ZStack {
+                                (selectedCount > 0 ? AppColors.primary : Color.gray)
+                                LinearGradient(
+                                    stops: [
+                                        .init(color: Color.white.opacity(0.14), location: 0.0),
+                                        .init(color: Color.clear, location: 0.75),
+                                        .init(color: Color.black.opacity(0.12), location: 1.0)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            }
+                        )
+                        .clipShape(Capsule())
                 }
                 .disabled(selectedCount == 0)
                 .padding()
@@ -253,6 +266,17 @@ struct ReviewView: View {
 
         // Auto-select an icon based on course name
         courseIcon = suggestIcon(for: courseName)
+    }
+
+    // The old label read 'Add 1 Assignments' whenever one was left ticked.
+    private var addButtonTitle: String {
+        if selectedCount == 0 {
+            return "Select at least one"
+        }
+        if selectedCount == 1 {
+            return "Add 1 assignment"
+        }
+        return "Add \(selectedCount) assignments"
     }
 
     // Capitalize assignment type for display
@@ -440,6 +464,7 @@ struct ReviewAssignmentRow: View {
                     .foregroundColor(assignment.isSelected ? AppColors.primary : .gray)
                     .font(.title2)
             }
+            .buttonStyle(.plain)
 
             // Assignment info
             VStack(alignment: .leading, spacing: 2) {
@@ -454,14 +479,16 @@ struct ReviewAssignmentRow: View {
 
             Spacer()
 
-            // Edit chevron
-            Button(action: onTap) {
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-                    .font(.caption)
-            }
+            Image(systemName: "chevron.right")
+                .foregroundColor(.gray)
+                .font(.caption)
         }
         .padding()
+        // The whole row opens the edit sheet; only the circle toggles selection.
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTap()
+        }
     }
 
     // Convert "2025-02-12" to "Feb 12"

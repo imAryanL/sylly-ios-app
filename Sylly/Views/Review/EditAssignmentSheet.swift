@@ -24,88 +24,36 @@ struct EditAssignmentSheet: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+            Form {
+                Section("Title") {
+                    TextField("Assignment title", text: $title)
+                }
 
-                    // MARK: - Title Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Title")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                Section("Due") {
+                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                }
 
-                        TextField("Assignment title", text: $title)
-                            .font(.headline)
-                            .padding(12)
-                            .background(.regularMaterial)
-                            .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 12)
-
-                    // MARK: - Date Section
-                    VStack(spacing: 12) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Date")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
-
-                            DatePicker("", selection: $date, displayedComponents: .date)
-                                .labelsHidden()
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(12)
+                Section("Type") {
+                    Picker("Assignment Type", selection: $selectedType) {
+                        ForEach(types, id: \.self) { type in
+                            Text(type).tag(type)
                         }
                     }
-                    .padding(.horizontal)
+                    .pickerStyle(.segmented)
+                    // Without this the row keeps a label and squashes the control.
+                    .labelsHidden()
+                }
 
-                    // MARK: - Assignment Type (Glassmorphism)
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Type")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
-
-                        Picker("Assignment Type", selection: $selectedType) {
-                            ForEach(types, id: \.self) { type in
-                                Text(type)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
-                                    .tag(type)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(16)
-                        .background(.thinMaterial)
-                        .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-
-                    Spacer()
-                        .frame(height: 12)
-
-                    // MARK: - Delete Button
-                    Button(action: {
+                Section {
+                    Button(role: .destructive) {
                         showDeleteAlert = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "trash")
-                            Text("Delete this assignment")
-                                .font(.headline)
-                        }
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding(12)
-                        .background(.ultraThickMaterial)
-                        .cornerRadius(10)
+                    } label: {
+                        Text("Delete this assignment")
+                            .frame(maxWidth: .infinity)
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .background(Color(UIColor.secondarySystemBackground))
             .navigationTitle("Edit assignment")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -156,6 +104,12 @@ struct EditAssignmentSheet: View {
     // MARK: - Helper Functions
     private func saveAssignment() {
         assignment.title = title
+
+        // Lead time was picked for the old type, so drop it and fall back to the ladder.
+        if selectedType != assignment.type {
+            assignment.leadDays = nil
+        }
+
         assignment.type = selectedType
 
         // Convert date back to string format "YYYY-MM-dd"

@@ -61,7 +61,7 @@ struct CourseCard: View {
                 .foregroundColor(.gray)
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 5)
         .padding(.horizontal)
