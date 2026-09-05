@@ -17,8 +17,6 @@ struct EditAssignmentSheet: View {
     @State private var date: Date = Date()
     @State private var selectedType: String = "Exam"
 
-    @State private var showDeleteAlert = false
-
     let types = ["Exam", "Quiz", "HW", "Project"]
 
     // MARK: - Body
@@ -45,10 +43,13 @@ struct EditAssignmentSheet: View {
                 }
 
                 Section {
-                    Button(role: .destructive) {
-                        showDeleteAlert = true
+                    // Unchecks the row instead of removing it, so it can be added back.
+                    Button {
+                        assignment.isSelected = false
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        dismiss()
                     } label: {
-                        Text("Delete this assignment")
+                        Text("Skip this assignment")
                             .frame(maxWidth: .infinity)
                     }
                 }
@@ -73,16 +74,6 @@ struct EditAssignmentSheet: View {
                     .foregroundColor(title.trimmingCharacters(in: .whitespaces).isEmpty ? .gray : AppColors.primary)
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
-            }
-            .alert("Delete Assignment?", isPresented: $showDeleteAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
-                    assignment.isSelected = false
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    dismiss()
-                }
-            } message: {
-                Text("This assignment will be removed from the list.")
             }
             .onAppear {
                 title = assignment.title

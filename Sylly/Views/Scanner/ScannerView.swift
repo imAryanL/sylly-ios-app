@@ -77,6 +77,8 @@ struct ScannerView: View {
                 Button("Discard", role: .destructive) {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     capturedImages = []
+                    // The carousel points at a page that no longer exists unless this resets too.
+                    selectedPage = 0
                 }
                 Button("Cancel", role: .cancel) { }
             }
@@ -91,6 +93,7 @@ struct ScannerView: View {
         .onChange(of: navigationState.isHome) { _, isHome in
             if isHome {
                 capturedImages = []
+                selectedPage = 0
             }
         }
 
