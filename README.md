@@ -16,12 +16,18 @@ https://apps.apple.com/us/app/sylly-ai-syllabus-scanner/id6759631749
 ## Screenshots
 
 <p align="center">
-  <img width="250" alt="Home Screen" src="https://github.com/user-attachments/assets/e9db644a-e861-470b-baf2-729069f1b4f9" />
-  <img width="250" alt="Scanner Screen" src="https://github.com/user-attachments/assets/d0b56629-a01c-4119-ab55-b112b53e6413" />
-  <img width="250" alt="Preview Screen" src="https://github.com/user-attachments/assets/eefb37a5-f9e8-4003-b92b-087ff6ef3a3a" />
-  <img width="250" alt="Loading Screen" src="https://github.com/user-attachments/assets/7022fe46-aabe-4f42-92ad-a94f1bf3fb41" />
-  <img width="250"  alt="Success Screen" src="https://github.com/user-attachments/assets/9cafe0eb-0e0d-4068-8f8a-b1bc096a9c2b" />
-  <img width="250" alt="Schedule Screen" src="https://github.com/user-attachments/assets/81489bfc-400d-402d-821d-32764753e4cd" />
+  <img width="250" alt="Scanner" src="https://github.com/user-attachments/assets/7fcc5208-3737-4f57-bf84-dd7c4193c7ce" />
+
+  <img width="250" alt="Scanner" src="https://github.com/user-attachments/assets/497c4166-ae16-432b-a2fc-144f1681c094" />
+  
+  <img width="250" alt="Sucess" src="https://github.com/user-attachments/assets/949e4e64-0199-488e-ba08-dc86df424699" />
+
+  <img width="250" alt="Home" src="https://github.com/user-attachments/assets/c332ed66-21dd-4848-a7a9-e99ae518f8dc" />
+  
+  <img width="250" alt="Calendar" src="https://github.com/user-attachments/assets/b161cb0d-abba-47a8-8b49-28216726c29d" />
+
+  <img width="250" alt="Course Info" src="https://github.com/user-attachments/assets/eb4914f5-b701-48c0-932f-77129fcfc8ab" />
+
 </p>
 
 
