@@ -53,15 +53,16 @@ https://apps.apple.com/us/app/sylly-ai-syllabus-scanner/id6759631749
 ```mermaid
 flowchart TD
     A["Scan Document / Photo Library / PDF Import"] --> B["Apple Vision OCR"]
-    B --> C["Claude API (Haiku)"]
-    C --> D["Review & Edit"]
-    D --> E["Save to SwiftData"]
-    E --> F["Export to Apple Calendar"]
+    B --> C["Cloudflare Worker"]
+    C --> D["Claude API (Haiku)"]
+    D --> E["Review & Edit"]
+    E --> F["Save to SwiftData"]
+    F --> G["Export to Apple Calendar"]
 ```
 
 1. **Scan** — Use the document scanner camera, select photos from your library, or import a PDF from the Files app. Multi-page documents are fully supported.
 2. **Extract** — Apple Vision Framework runs OCR on each page to extract the raw text from your syllabus.
-3. **Parse** — The extracted text is sent to Claude API (Haiku), which intelligently identifies the course name, course code, and all assignments with their titles, due dates, and types (exam, quiz, homework, project). It also pulls course details when the syllabus has them — the late work policy, office hours, and grading breakdown.
+3. **Parse** — The extracted text is sent to a Cloudflare Worker, which holds the API key and the extraction prompt server-side and forwards the text to Claude API (Haiku). Claude identifies the course name, course code, and all assignments with their titles, due dates, and types (exam, quiz, homework, project). It also pulls course details when the syllabus has them — the late work policy, office hours, and grading breakdown.
 4. **Review** — You get a full review screen where you can edit the course name, icon, color, and every assignment detail before saving.
 5. **Save** — Everything is saved locally to your device using SwiftData with full offline access.
 6. **Export** — One tap exports all assignments to Apple Calendar as all-day events with a 1-day-before reminder. Duplicate prevention is built in.
@@ -77,20 +78,21 @@ flowchart TD
 | Data Persistence | SwiftData |
 | OCR | Apple Vision Framework |
 | AI Processing | Claude API (Haiku) |
+| Backend | Cloudflare Workers |
 | Calendar | EventKit |
 | Notifications | UserNotifications |
 | Architecture | MVVM |
 
 ## Getting Started
 
-> **Note:** This app requires a Claude API key from [Anthropic](https://www.anthropic.com) to run locally.
+> **Note:** The app carries no API key. It calls a Cloudflare Worker that holds the key and the prompt, so you will need your own Worker to run this locally.
 
 ### Requirements
 
 - Xcode 16.0+
 - iOS 17.0+
 - Built for iPhone; also runs on Apple Silicon Macs
-- Claude API key
+- A Cloudflare account and a Claude API key from [Anthropic](https://www.anthropic.com)
 
 ### Setup
 
@@ -98,12 +100,14 @@ flowchart TD
    ```bash
    git clone https://github.com/imAryanL/sylly-ios-app.git
    ```
-2. Create a `Secrets.xcconfig` file in the project root
+2. Deploy your own Worker to proxy the Claude call, and store your key as a secret on it
+   ```bash
+   npx wrangler secret put ANTHROPIC_API_KEY
+   npx wrangler deploy
    ```
-   CLAUDE_API_KEY = your-api-key-here
-   ```
-3. Open `Sylly.xcodeproj` in Xcode
-4. Build and run on a simulator or device
+3. Point `apiURL` in `Sylly/Services/ClaudeService.swift` at your Worker's `/scan` URL
+4. Open `Sylly.xcodeproj` in Xcode
+5. Build and run on a simulator or device
 
 ## Privacy Policy
 
