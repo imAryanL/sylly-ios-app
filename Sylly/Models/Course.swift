@@ -25,6 +25,8 @@ class Course {
     var officeHours: String?
     var gradingBreakdown: String?
 
+    // The Canvas course this is linked to, e.g. "course_2566731". nil = not linked to Canvas
+    var canvasCourseID: String?
 
     // 'Relationship' - connection to other data, the setup process for a new Course
     @Relationship(deleteRule: .cascade)   // 'cascade' means if you delete the Course, all its Assignments are deleted too

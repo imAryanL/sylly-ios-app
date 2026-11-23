@@ -22,6 +22,9 @@ class Assignment {
     // nil = not exported yet, String = already in calendar (prevents duplicates)
     var calendarEventID: String?
 
+    // Canvas's ID for this assignment. nil = scanned or added by hand, not from Canvas
+    var canvasID: String?
+
     // Claude's picks from the scan. nil for both falls back to what the app already does:
     // the type ladder in NotificationService, and a body built from the title alone.
     var leadDays: Int?
