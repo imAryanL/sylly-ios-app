@@ -23,6 +23,11 @@ struct SettingsView: View {
     // State for alerts
     @State private var showDeleteAlert = false
     @State private var showAboutSheet = false
+    @State private var showCanvasSheet = false
+    @State private var showDisconnectAlert = false
+
+    // Same saved link ContentView refreshes from
+    @AppStorage("canvasFeedLink") private var canvasFeedLink = ""
 
 
     // MARK: - Body
@@ -64,6 +69,23 @@ struct SettingsView: View {
                                 .foregroundColor(.gray)
                                 .font(.caption)
                         }
+                    }
+
+                    // Canvas import. No Pro lock yet, the paywall doesn't exist.
+                    HStack {
+                        SettingsIcon(icon: "graduationcap.fill", color: .orange)
+                        Text("Canvas")
+                        Text("PRO")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(AppColors.primary)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(AppColors.primary.opacity(0.15))
+                            .cornerRadius(8)
+                        Spacer()
+                        Toggle("Canvas", isOn: canvasSwitch)
+                            .labelsHidden()
+                            .tint(AppColors.primary)
                     }
                 }
 
@@ -161,6 +183,18 @@ struct SettingsView: View {
         .sheet(isPresented: $showAboutSheet) {
             AboutView()
         }
+        .sheet(isPresented: $showCanvasSheet) {
+            CanvasConnectView()
+        }
+        // Imported assignments stay, so a reconnect later links them instead of copying
+        .alert("Disconnect Canvas?", isPresented: $showDisconnectAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Disconnect", role: .destructive) {
+                canvasFeedLink = ""
+            }
+        } message: {
+            Text("Sylly will stop checking Canvas. Assignments already in Sylly will stay.")
+        }
         // Delete confirmation alert - prevents accidental data loss
         .alert("Delete All Data?", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) { }
@@ -170,6 +204,23 @@ struct SettingsView: View {
         } message: {
             Text("This will permanently delete all your courses and assignments. This cannot be undone.")
         }
+    }
+
+    // MARK: - Helper: Canvas Switch
+    // On only while a link is saved. Flipping it opens the paste sheet or the disconnect popup.
+    private var canvasSwitch: Binding<Bool> {
+        Binding(
+            get: {
+                return !canvasFeedLink.isEmpty
+            },
+            set: { wantsOn in
+                if wantsOn {
+                    showCanvasSheet = true
+                } else {
+                    showDisconnectAlert = true
+                }
+            }
+        )
     }
 
     // MARK: - Helper: Delete All Data

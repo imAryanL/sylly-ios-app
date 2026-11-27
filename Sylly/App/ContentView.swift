@@ -7,22 +7,21 @@ import SwiftUI
 import SwiftData
 
 // MARK: - Navigation State Enum
-// Single source of truth for navigation in the app
-// This replaces multiple @State booleans with one clear, hierarchical state
+// One value drives the whole scan flow.
 enum NavigationState {
     case home                              // Home screen (default)
-    case scanning                          // Triggers switch to Scanner tab
-    case loading([UIImage])                 // LoadingView (carries images to process)
-    case reviewing(ParsedSyllabus)         // ReviewView (carries parsed data)
-    case success(Int, Course)              // SuccessView (carries count + Course for calendar export)
+    case scanning                          // Jump to the Scan tab
+    case loading([UIImage])                // LoadingView, with the pages to read
+    case reviewing(ParsedSyllabus)         // ReviewView, with the parsed syllabus
+    case success(Int, Course)              // SuccessView, with the count + course for calendar export
 
-    // Helper so ContentView can detect when other views request scanning
+    // ContentView: another screen asked to scan
     var isScanning: Bool {
         if case .scanning = self { return true }
         return false
     }
 
-    // Helper so ScannerView can detect when navigation resets to home
+    // ScannerView: navigation went back home
     var isHome: Bool {
         if case .home = self { return true }
         return false
@@ -36,13 +35,14 @@ struct ContentView: View {
     // Tells us when the app comes back to the foreground
     @Environment(\.scenePhase) private var scenePhase
 
+    // Empty until the student connects Canvas
+    @AppStorage("canvasFeedLink") private var canvasFeedLink = ""
+
     // MARK: - Navigation State
-    // Single @State that controls entire navigation flow
-    // Much cleaner than multiple boolean flags
     @State private var navigationState: NavigationState = .home
 
     // MARK: - Tab Selection
-    // Separate state for tab bar (0=Home, 1=Scan, 2=Calendar)
+    // 0 = Home, 1 = Scan, 2 = Calendar
     @State private var selectedTab = 0
 
     var body: some View {
@@ -57,7 +57,7 @@ struct ContentView: View {
                     }
                     .tag(0)
 
-                // Tab 2: Scanner (real tab with Launch Pad cards)
+                // Tab 2: Scanner
                 ScannerView(navigationState: $navigationState)
                     .tabItem {
                         Image(systemName: AppIcons.scanTab)
@@ -65,7 +65,7 @@ struct ContentView: View {
                     }
                     .tag(1)
 
-                // Tab 3: Calendar/Schedule
+                // Tab 3: Calendar
                 ScheduleView(navigationState: $navigationState)
                     .tabItem {
                         Image(systemName: AppIcons.calendarTab)
@@ -74,8 +74,7 @@ struct ContentView: View {
                     .tag(2)
             }
             .tint(AppColors.primary)
-            // When other views set .scanning (e.g. "Add another syllabus"),
-            // switch to the Scanner tab and reset navigation state
+            // e.g. "Add another syllabus" jumps to the Scan tab
             .onChange(of: navigationState.isScanning) { _, isScanning in
                 if isScanning {
                     selectedTab = 1
@@ -84,8 +83,7 @@ struct ContentView: View {
             }
 
             // MARK: - Navigation Overlays
-            // These overlay the tab view for the scan pipeline
-            // (Scanner itself is now a real tab, not an overlay)
+            // Scan flow screens that slide up over the tabs
             if case .loading(let images) = navigationState {
                 LoadingView(images: images, navigationState: $navigationState)
                     .transition(.move(edge: .bottom))
@@ -105,21 +103,40 @@ struct ContentView: View {
         // Cold launch — scenePhase is already .active here, so onChange never fires
         .task {
             await rebuildRemindersIfAllowed()
+            await refreshCanvasIfLinked()
         }
 
-        // Coming back from iOS Settings with the app still in the background
+        // Coming back to the app, e.g. from iOS Settings
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
-                Task { await rebuildRemindersIfAllowed() }
+                Task {
+                    await rebuildRemindersIfAllowed()
+                    await refreshCanvasIfLinked()
+                }
             }
         }
     }
 
-    // Notifications can be switched on in iOS Settings long after we asked, and
-    // nothing else books reminders until an assignment changes.
+    // Notifications can be turned on later in iOS Settings, so rebook on every open.
     private func rebuildRemindersIfAllowed() async {
         if await NotificationService.shared.currentStatus() == .authorized {
             NotificationService.shared.refreshAll(context: modelContext)
+        }
+    }
+
+    // Offline or a dead link just fails quietly and tries again next open.
+    private func refreshCanvasIfLinked() async {
+        if canvasFeedLink.isEmpty {
+            return
+        }
+
+        let canvas = CanvasService()
+        do {
+            let items = try await canvas.fetchAssignments(from: canvasFeedLink)
+            canvas.saveItems(items, context: modelContext)
+            print("Canvas refresh: \(items.count) items")
+        } catch {
+            print("Canvas refresh failed: \(error)")
         }
     }
 }
