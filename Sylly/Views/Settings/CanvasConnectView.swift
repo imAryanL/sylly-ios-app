@@ -6,16 +6,23 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CanvasConnectView: View {
 
     // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
 
     // MARK: - State
     @State private var link = ""
     @State private var isChecking = false
     @State private var errorMessage = ""
+
+    // Filled after Connect works. showMatch swaps the sheet to the match screen.
+    @State private var matchGroups: [CanvasCourseGroup] = []
+    @State private var checkedLink = ""
+    @State private var showMatch = false
 
     // Same saved link ContentView refreshes from
     @AppStorage("canvasFeedLink") private var savedLink = ""
@@ -23,130 +30,135 @@ struct CanvasConnectView: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 6) {
+            if showMatch {
+                CanvasMatchView(groups: matchGroups, feedLink: checkedLink)
+                    .transition(.move(edge: .trailing))
+            } else {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 6) {
 
-                    // MARK: - Heading
-                    Text("Copy your Canvas link")
-                        .font(.title2.bold())
-                    Text("New assignments and date changes show up in Sylly on their own.")
-                        .foregroundColor(.secondary)
+                        // MARK: - Heading
+                        Text("Copy your Canvas link")
+                            .font(.title2.bold())
+                        Text("New assignments and date changes show up in Sylly on their own.")
+                            .foregroundColor(.secondary)
 
-                    // MARK: - Steps
-                    // Words match the Canvas app and the iOS box exactly
-                    VStack(alignment: .leading, spacing: 8) {
-                        stepTitle(1, "Open the Canvas app")
-                        bulletLine("Tap \(Image(systemName: "line.3.horizontal")) at the top left")
-                        bulletLine("Tap **Settings**")
-                        bulletLine("Tap **Subscribe to Calendar Feed**")
+                        // MARK: - Steps
+                        // Words match the Canvas app and the iOS box exactly
+                        VStack(alignment: .leading, spacing: 8) {
+                            stepTitle(1, "Open the Canvas app")
+                            bulletLine("Tap \(Image(systemName: "line.3.horizontal")) at the top left")
+                            bulletLine("Tap **Settings**")
+                            bulletLine("Tap **Subscribe to Calendar Feed**")
 
-                        Divider().padding(.vertical, 12)
+                            Divider().padding(.vertical, 12)
 
-                        stepTitle(2, "Copy your link")
-                        bulletLine("Tap the link in the box that opens")
-                        bulletLine("Tap **Select All**, then **Copy**")
-                        bulletLine("Tap **✕** to close the box")
+                            stepTitle(2, "Copy your link")
+                            bulletLine("Tap the link in the box that opens")
+                            bulletLine("Tap **Select All**, then **Copy**")
+                            bulletLine("Tap **✕** to close the box")
 
-                        Divider().padding(.vertical, 12)
+                            Divider().padding(.vertical, 12)
 
-                        stepTitle(3, "Come back to Sylly")
-                        bulletLine("Tap the box below, then tap it again and choose **Paste**")
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 18)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .cornerRadius(12)
-                    .padding(.top, 20)
-
-                    // MARK: - Link Box
-                    Text("PUT YOUR CANVAS LINK HERE")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 20)
-                        .padding(.leading, 4)
-
-                    TextField("Paste your link here", text: $link)
-                        .keyboardType(.URL)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .padding(16)
+                            stepTitle(3, "Come back to Sylly")
+                            bulletLine("Tap the box below, then tap it again and choose **Paste**")
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 18)
                         .background(Color(.secondarySystemGroupedBackground))
-                        .cornerRadius(14)
+                        .cornerRadius(12)
+                        .padding(.top, 20)
 
-                    // MARK: - Link Feedback
-                    // Example while empty, then a check or a warning once something's in
-                    if link.isEmpty {
-                        // verbatim = plain text, so iOS doesn't turn it into a tappable link
-                        Text(verbatim: "It should look something like this:")
+                        // MARK: - Link Box
+                        Text("PUT YOUR CANVAS LINK HERE")
                             .font(.footnote)
                             .foregroundColor(.secondary)
-                            .padding(.top, 4)
+                            .padding(.top, 20)
                             .padding(.leading, 4)
-                        Text(verbatim: "https://yourschool.instructure.com/feeds/calendars/…")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                            .padding(.leading, 4)
-                    } else if !errorMessage.isEmpty {
-                        Label(errorMessage, systemImage: "exclamationmark.circle.fill")
-                            .font(.footnote)
-                            .foregroundColor(.orange)
-                            .padding(.top, 4)
-                            .padding(.leading, 4)
-                    } else if looksLikeCanvasLink {
-                        Label("Looks like a Canvas link", systemImage: "checkmark.circle.fill")
-                            .font(.footnote)
-                            .foregroundColor(.green)
-                            .padding(.top, 4)
-                            .padding(.leading, 4)
-                    } else {
-                        Label("That doesn't look like a Canvas calendar link", systemImage: "exclamationmark.circle.fill")
-                            .font(.footnote)
-                            .foregroundColor(.orange)
-                            .padding(.top, 4)
-                            .padding(.leading, 4)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
-                .padding(.top, 12)
-            }
-            .background(Color(.systemGroupedBackground))
-            // MARK: - Connect Button
-            // Pinned so it never scrolls off. Faded until a Canvas link is in the box.
-            .safeAreaInset(edge: .bottom) {
-                Button {
-                    Task {
-                        await connect()
-                    }
-                } label: {
-                    // Spinner while the link is being tested
-                    HStack {
-                        if isChecking {
-                            ProgressView()
-                                .tint(.white)
+
+                        TextField("Paste your link here", text: $link)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .padding(16)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .cornerRadius(14)
+
+                        // MARK: - Link Feedback
+                        // Example while empty, then a check or a warning once something's in
+                        if link.isEmpty {
+                            // verbatim = plain text, so iOS doesn't turn it into a tappable link
+                            Text(verbatim: "It should look something like this:")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .padding(.top, 4)
+                                .padding(.leading, 4)
+                            Text(verbatim: "https://yourschool.instructure.com/feeds/calendars/…")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .padding(.leading, 4)
+                        } else if !errorMessage.isEmpty {
+                            Label(errorMessage, systemImage: "exclamationmark.circle.fill")
+                                .font(.footnote)
+                                .foregroundColor(.orange)
+                                .padding(.top, 4)
+                                .padding(.leading, 4)
+                        } else if looksLikeCanvasLink {
+                            Label("Looks like a Canvas link", systemImage: "checkmark.circle.fill")
+                                .font(.footnote)
+                                .foregroundColor(.green)
+                                .padding(.top, 4)
+                                .padding(.leading, 4)
                         } else {
-                            Text("Connect")
+                            Label("That doesn't look like a Canvas calendar link", systemImage: "exclamationmark.circle.fill")
+                                .font(.footnote)
+                                .foregroundColor(.orange)
+                                .padding(.top, 4)
+                                .padding(.leading, 4)
                         }
                     }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(AppColors.primary)
-                    .clipShape(Capsule())
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top, 12)
                 }
-                .disabled(!looksLikeCanvasLink || isChecking)
-                .opacity(looksLikeCanvasLink ? 1 : 0.4)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
                 .background(Color(.systemGroupedBackground))
-            }
-            .navigationTitle("Connect Canvas")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
+                // MARK: - Connect Button
+                // Pinned so it never scrolls off. Faded until a Canvas link is in the box.
+                .safeAreaInset(edge: .bottom) {
+                    Button {
+                        Task {
+                            await connect()
+                        }
+                    } label: {
+                        // Spinner while the link is being tested
+                        HStack {
+                            if isChecking {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text("Connect")
+                            }
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(AppColors.primary)
+                        .clipShape(Capsule())
+                    }
+                    .disabled(!looksLikeCanvasLink || isChecking)
+                    .opacity(looksLikeCanvasLink ? 1 : 0.4)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGroupedBackground))
+                }
+                .navigationTitle("Connect Canvas")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            dismiss()
+                        }
                     }
                 }
             }
@@ -171,7 +183,7 @@ struct CanvasConnectView: View {
     }
 
     // MARK: - Connect
-    // Downloads the feed once, and only saves the link if that works
+    // Downloads the feed once, then slides to matching if any course isn't linked yet
     private func connect() async {
         let trimmed = link.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -180,9 +192,22 @@ struct CanvasConnectView: View {
 
         isChecking = true
         do {
-            _ = try await CanvasService().fetchAssignments(from: httpsLink)
-            savedLink = httpsLink
-            dismiss()
+            let service = CanvasService()
+            let items = try await service.fetchAssignments(from: httpsLink)
+            let groups = service.groupByCourse(items, context: context)
+
+            if groups.isEmpty {
+                // Nothing to match, so save and close like before
+                savedLink = httpsLink
+                dismiss()
+            } else {
+                // The link saves later, when Import is tapped
+                matchGroups = groups
+                checkedLink = httpsLink
+                withAnimation {
+                    showMatch = true
+                }
+            }
         } catch {
             errorMessage = "Couldn't open that link. Copy it again from Canvas and paste it here."
         }

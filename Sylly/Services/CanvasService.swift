@@ -88,6 +88,41 @@ class CanvasService {
         }
     }
 
+    // MARK: - Group For The Matching Screen
+    // One group per Canvas course that isn't linked to a Sylly course yet
+    func groupByCourse(_ items: [CanvasItem], context: ModelContext) -> [CanvasCourseGroup] {
+
+        // Step 1: Read every course once
+        let request = FetchDescriptor<Course>()
+        guard let courses = try? context.fetch(request) else { return [] }
+
+        // Step 2: List each unlinked Canvas course once, e.g. ["course_111", "course_222"]
+        var courseKeys: [String] = []
+        for item in items {
+            if findCourse(for: item, in: courses) != nil {
+                continue        // already linked, saveItems handles it
+            }
+            if !courseKeys.contains(item.courseKey) {
+                courseKeys.append(item.courseKey)
+            }
+        }
+
+        // Step 3: For each course, collect its assignments into one group
+        var groups: [CanvasCourseGroup] = []
+        for key in courseKeys {
+            var groupItems: [CanvasItem] = []
+            for item in items {
+                if item.courseKey == key {
+                    groupItems.append(item)
+                }
+            }
+            let suggestion = findSuggestion(for: groupItems, in: courses)
+            groups.append(CanvasCourseGroup(courseKey: key, items: groupItems, suggestedCourse: suggestion))
+        }
+
+        return groups
+    }
+
     // MARK: - Helpers
 
     // Long lines wrap onto the next line, which starts with a space. Glue them back together.
@@ -231,6 +266,23 @@ class CanvasService {
         return nil
     }
 
+    // The Sylly course that already has a scanned twin of one of these assignments
+    private func findSuggestion(for items: [CanvasItem], in courses: [Course]) -> Course? {
+        for course in courses {
+            // Linked to a different Canvas course already
+            if course.canvasCourseID != nil {
+                continue
+            }
+
+            for item in items {
+                if findTwin(for: item, in: course) != nil {
+                    return course
+                }
+            }
+        }
+        return nil
+    }
+
     // One box → one CanvasItem. nil means skip it.
     private func makeItem(from fields: [String: String]) -> CanvasItem? {
         let uid = fields["UID"] ?? ""
@@ -263,6 +315,13 @@ struct CanvasItem {
     let title: String
     let courseKey: String     // "course_2566676", groups items by course
     let dueDate: Date
+}
+
+// One Canvas course on the matching screen, with all its assignments
+struct CanvasCourseGroup {
+    let courseKey: String       // "course_2566731"
+    let items: [CanvasItem]
+    let suggestedCourse: Course?    // the picker starts here. nil = starts on Skip
 }
 
 enum CanvasError: Error, LocalizedError {
